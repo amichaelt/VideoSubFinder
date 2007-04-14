@@ -1,6 +1,6 @@
-
+                              //TrackBar.cpp//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							TrackBar.cpp  Version 1.75							//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -239,16 +239,15 @@ void CTrackBar::MoveBox()
 	if (m_pMF->m_VIsOpen)
 	{
 		s64 Pos, endPos;
-		s64 Cur, Stop;
-		long evCode;
+		s64 Cur;
 
-		endPos = m_pMF->m_Video.m_Duration;
+		endPos = m_pMF->m_pVideo->m_Duration;
 		Pos = ((s64)(rcBX.left)*endPos)/(s64)(rcClTB.right - m_bw);
-		m_pMF->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+		Cur = m_pMF->m_pVideo->GetPos();
+
 		if (Pos != Cur)
 		{
-			m_pMF->m_Video.m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
-			m_pMF->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+			m_pMF->m_pVideo->SetPosFast(Pos);
 		}
 	}
 }
@@ -260,9 +259,9 @@ void CTrackBar::MoveBox(s64 Pos)
 	this->GetClientRect(rcClTB);
 
 	//всвязи с неправильным округлением добавляем 1
-	rcBX.left = (LONG)(1+(Pos*(s64)(rcClTB.right - m_bw))/(m_pMF->m_Video.m_Duration));
+	rcBX.left = (LONG)(1+(Pos*(s64)(rcClTB.right - m_bw))/(m_pMF->m_pVideo->m_Duration));
 	if (Pos == 0) rcBX.left = 0;
-	if (Pos ==  m_pMF->m_Video.m_Duration) rcBX.left = rcClTB.right-m_bw;
+	if (Pos ==  m_pMF->m_pVideo->m_Duration) rcBX.left = rcClTB.right-m_bw;
 	rcBX.right = rcBX.left + m_bw;
 	rcBX.top = (rcClTB.Height() - m_bh)/2;
 	rcBX.bottom = rcBX.top + m_bh;

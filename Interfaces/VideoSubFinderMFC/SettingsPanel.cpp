@@ -1,6 +1,6 @@
-
+                              //SettingsPanel.cpp//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							SettingsPanel.cpp  Version 1.75						//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -19,7 +19,6 @@
 #include "myresource.h"
 #include "VideoSubFinder.h"
 #include "SettingsPanel.h"
-#include ".\settingspanel.h"
 
 int g_ImRGB[1024*768];
 int g_ImF[6][1024*768];
@@ -467,7 +466,7 @@ HBRUSH CSettingsPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CSettingsPanel::OnBnClickedTest()
 {
-	CMyVideo *pVideo;
+	CVideo *pVideo;
 	int i, k, w, h, S;
 	char str[30];
 	clock_t t;
@@ -477,13 +476,18 @@ void CSettingsPanel::OnBnClickedTest()
 
 	//m_pMainFrm->m_Video.SetPos(GetVideoTime(4, 03, 519));
 
-	pVideo = &(m_pMainFrm->m_Video);
+	pVideo = m_pMainFrm->m_pVideo;
 	
-	SetVideoWindowSettins(m_pMainFrm, w, h);
-	m_w = w;
-	m_h = h;
+	SetVideoWindowSettins(m_pMainFrm->m_pVideo, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_VSL1.m_pos, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_VSL2.m_pos, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_HSL1.m_pos, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_HSL2.m_pos);
 
-	InitIPData((int)m_pMainFrm->m_Video.m_Width, (int)m_pMainFrm->m_Video.m_Height, 1);
+	m_w = w = g_w;
+	m_h = h = g_h;
+
+	InitIPData((int)m_pMainFrm->m_pVideo->m_Width, (int)m_pMainFrm->m_pVideo->m_Height, 1);
 
 	if (g_fast_search == true)
 	{
@@ -495,7 +499,7 @@ void CSettingsPanel::OnBnClickedTest()
 		memset(g_ImF[5], 0, (g_W*g_H)*sizeof(int));
 
 		t = clock();
-		GetRGBImage(g_ImRGB, pVideo, w, h);
+		m_pMainFrm->m_pVideo->GetRGBImage(g_ImRGB, g_xmin, g_xmax, g_ymin, g_ymax);
 		S = ConvertImage(g_ImRGB, g_ImF[5], g_ImF[0], w, h);
 		t = clock()-t;
 		
@@ -558,12 +562,12 @@ void CSettingsPanel::OnBnClickedTest()
 
 	m_pMainFrm->m_pImageBox->ViewImage(g_ImF[m_cn], g_W, g_H);
 	
-	m_pMainFrm->SaveRGBImage(g_ImRGB, "\\TSTImages\\RGBImage.jpeg", g_W, g_H);
+	SaveRGBImage(g_ImRGB, "\\TSTImages\\RGBImage.jpeg", g_W, g_H);
 	
 	for (i=0; i<m_n; i++) 
 	{		
 		itoa(i, str, 10);
-		m_pMainFrm->SaveImage(g_ImF[i], CString("\\TSTImages\\") + CString(str) + CString("TSTImage _ ") + StrFN[i] + CString(".jpeg"), g_W, g_H);
+		SaveImage(g_ImF[i], string("\\TSTImages\\") + string(str) + string("TSTImage _ ") + string(StrFN[i]) + string(".jpeg"), g_W, g_H);
 	}
 
 	return;

@@ -1,6 +1,6 @@
-
+                              //SearchPanel.cpp//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							SearchPanel.cpp  Version 1.75						//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -196,6 +196,8 @@ void CSearchPanel::OnBnClickedRun()
 {
 	if (m_pMainFrm->m_VIsOpen)
 	{
+		m_pMainFrm->OnStop();
+
 		m_pMainFrm->m_VIsOpen = false;
 
 		if (m_pMainFrm->m_VTimerFuncID == 1) 
@@ -219,10 +221,10 @@ void CSearchPanel::OnBnClickedRun()
 		m_pMainFrm->m_pImageBox->ClearScreen();
 
 
-		InitIPData((int)m_pMainFrm->m_Video.m_Width, (int)m_pMainFrm->m_Video.m_Height, 1);
+		InitIPData((int)m_pMainFrm->m_pVideo->m_Width, (int)m_pMainFrm->m_pVideo->m_Height, 1);
 
-		hSearchThread = CreateThread(NULL, 0, ThreadSearchSubtitles, (PVOID)m_pMainFrm, 0, &dwSearchThreadID);
-		SetThreadPriority(hSearchThread, THREAD_PRIORITY_IDLE);
+		m_hSearchThread = CreateThread(NULL, 0, ThreadSearchSubtitles, (PVOID)m_pMainFrm, 0, &m_dwSearchThreadID);
+		//SetThreadPriority(m_hSearchThread, THREAD_PRIORITY_BELOW_NORMAL);
 	}
 	else
 	{
@@ -251,11 +253,29 @@ DWORD WINAPI ThreadSearchSubtitles(PVOID pParam)
 
 	if (g_fast_search == true)
 	{
-		pMF->m_BegTime = FastSearchSubtitles(pMF);
+        if ( pMF->m_pVideo->SetNullRender() )
+        {
+	        SetVideoWindowSettins(pMF->m_pVideo, 
+                                  pMF->m_pVideoBox->m_VBox.m_VSL1.m_pos, 
+                                  pMF->m_pVideoBox->m_VBox.m_VSL2.m_pos, 
+                                  pMF->m_pVideoBox->m_VBox.m_HSL1.m_pos, 
+                                  pMF->m_pVideoBox->m_VBox.m_HSL2.m_pos);
+
+            pMF->m_BegTime = FastSearchSubtitles( pMF->m_pVideo, pMF->m_BegTime, pMF->m_EndTime );
+        }
 	}
 	else
 	{
-		pMF->m_BegTime = SearchSubtitles(pMF);
+        if ( pMF->m_pVideo->SetNullRender() )
+        {
+	        SetVideoWindowSettins(pMF->m_pVideo, 
+                                  pMF->m_pVideoBox->m_VBox.m_VSL1.m_pos, 
+                                  pMF->m_pVideoBox->m_VBox.m_VSL2.m_pos, 
+                                  pMF->m_pVideoBox->m_VBox.m_HSL1.m_pos, 
+                                  pMF->m_pVideoBox->m_VBox.m_HSL2.m_pos);
+
+		    pMF->m_BegTime = SearchSubtitles( pMF->m_pVideo, pMF->m_BegTime, pMF->m_EndTime );
+        }
 	}
 
 	if (IsClose == 1) 

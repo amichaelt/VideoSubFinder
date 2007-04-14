@@ -51,13 +51,23 @@
 #define ID_FILE_OPENVIDEOHARD           57804
 #define ID_FILE_REOPENVIDEO             57806
 #define ID_FILE_OPENVIDEONORMALLY       57807
+#define ID_Menu57808                    57808
+#define ID_SETPRIORITY                  57810
+#define ID_SETPRIORITY_IDLE             57811
+#define ID_SETPRIORITY_ABOVENORMAL      57812
+#define ID_SETPRIORITY_NORMAL           57813
+#define ID_SETPRIORITY_BELOWNORMAL      57814
+#define ID_SETPRIORITY_HIGH             57816
+#define ID_FILE_RETERT                  57817
+#define ID_RETERT_ERTRT                 57818
+#define ID_RETERT_RETERT                57819
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         57808
+#define _APS_NEXT_COMMAND_VALUE         57820
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -1,6 +1,6 @@
-
+                              //OCRPanel.cpp//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							OCRPanel.cpp  Version 1.75							//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -613,23 +613,30 @@ void COCRPanel::CreateSubFromTXTResults()
 void COCRPanel::OnBnClickedTest()
 {
 	int w, h, S, i, j;
-	vector<CString> SavedFiles;
+	vector<string> SavedFiles;
 	CString Str;
 	s64 CurPos;
 
 	if (m_pMainFrm->m_VIsOpen == false) return;
 	
-	SetVideoWindowSettins(m_pMainFrm, w, h);
+	SetVideoWindowSettins(m_pMainFrm->m_pVideo, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_VSL1.m_pos, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_VSL2.m_pos, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_HSL1.m_pos, 
+                          m_pMainFrm->m_pVideoBox->m_VBox.m_HSL2.m_pos);
 
-	InitIPData((int)m_pMainFrm->m_Video.m_Width, (int)m_pMainFrm->m_Video.m_Height, 3);
+	w = g_w;
+	h = g_h;
+
+	InitIPData((int)m_pMainFrm->m_pVideo->m_Width, (int)m_pMainFrm->m_pVideo->m_Height, 3);
 	
-	S = GetAndConvertImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], &(m_pMainFrm->m_Video), w, h);
+	S = GetAndConvertImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], m_pMainFrm->m_pVideo, w, h);
 
 	SavedFiles.clear();
 
-	m_pMainFrm->m_Video.m_pMS->GetCurrentPosition(&CurPos);
+	CurPos = m_pMainFrm->m_pVideo->GetPos();
 
-	Str = m_pMainFrm->m_Video.m_MovieName;
+	Str = m_pMainFrm->m_pVideo->m_MovieName.c_str();
 
 	j = Str.GetLength()-1;
 	while (Str[j] != '.') j--;
@@ -638,9 +645,9 @@ void COCRPanel::OnBnClickedTest()
 
 	Str = Str.Mid(i+1, j-i-1);
 
-	Str += CString(" -- ") + VideoTimeToStr(CurPos);
+	Str += CString(" -- ") + VideoTimeToStr(CurPos).c_str();
 
-	SavedFiles.push_back(Str);
+	SavedFiles.push_back(string(Str));
 
 	g_show_results = 1;
 
@@ -659,7 +666,7 @@ void COCRPanel::OnBnClickedCreateClearedTextImages()
 		m_CCTI.SetWindowText("Stop CCTXTImages");
 
 		m_hSearchThread = CreateThread(NULL, 0, ThreadCreateClearedTextImages, (PVOID)m_pMainFrm, 0, &m_dwSearchThreadID);
-		SetThreadPriority(m_hSearchThread, THREAD_PRIORITY_IDLE);
+		//SetThreadPriority(m_hSearchThread, THREAD_PRIORITY_IDLE);
 	}
 	else
 	{
@@ -693,7 +700,7 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 	HANDLE hFind;
 	BOOL FileFinded;
 	vector<CString> FileNamesVector;
-	vector<CString> SavedFiles, prevSavedFiles;
+	vector<string> SavedFiles, prevSavedFiles;
 	vector<u64> BT, ET;
 
 	hFind = FindFirstFile(pMainFrm->m_Dir+"\\RGBImages\\*.jpeg", &FindFileData);
@@ -735,7 +742,7 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 
 		Str = pMainFrm->m_Dir+"\\RGBImages\\"+FileNamesVector[k];
 		
-		pMainFrm->LoadRGBImage(g_ImRGB, Str, w, h);		
+		LoadRGBImage(g_ImRGB, string(Str), w, h);		
 		//pMainFrm->m_pVideoBox->ViewImage(ImRGB, w, h);
 
 		if (k == 0)
@@ -761,14 +768,14 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 			Str = FileNamesVector[k];
 			Str = Str.Mid(0, Str.GetLength()-5);
 			Str = pMainFrm->m_Dir+"\\FRDImages\\"+Str+"!.jpeg";
-			pMainFrm->LoadImage(g_ImF[5], Str, w, h);		
+			LoadImage(g_ImF[5], string(Str), w, h);		
 			//pMainFrm->m_pImageBox->ViewImage(ImSF, w, h);
 		}
 		
 		Str = FileNamesVector[k];
 		Str = Str.Mid(0, Str.GetLength()-5);
 		SavedFiles.clear();
-		SavedFiles.push_back(Str);
+		SavedFiles.push_back(string(Str));
 
 		val = k+1;
 		sprintf(str, "%.4d", val);
@@ -793,12 +800,12 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 
 			memset(g_ImRES1, 0, ((w*4)*(h/4))*sizeof(int));
 
-			g_pMF->SaveImage(g_ImRES1, Str, w*4, h/4);
+			SaveImage(g_ImRES1, string(Str), w*4, h/4);
 		}
 
 		if ( (k>1) && (res == 1) && (g_ValidateAndCompareTXTImages == true) && (prevSavedFiles.size() == SavedFiles.size()) )
 		{
-			Str = prevSavedFiles[i];
+			Str = prevSavedFiles[i].c_str();
 			i = Str.GetLength()-1;
 			while (Str[i] != '\\') i--;
 			Str = Str.Mid(i+1);
@@ -816,7 +823,7 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 			bt1 = (atoi(hour1)*3600 + atoi(min1)*60 + atoi(sec1))*1000 + atoi(msec1);
 			et1 = (atoi(hour2)*3600 + atoi(min2)*60 + atoi(sec2))*1000 + atoi(msec2);
 
-			Str = SavedFiles[i];
+			Str = SavedFiles[i].c_str();
 			i = Str.GetLength()-1;
 			while (Str[i] != '\\') i--;
 			Str = Str.Mid(i+1);
@@ -839,10 +846,10 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 				bln = 1;
 				for (i=0; i<(int)SavedFiles.size(); i++)
 				{
-					pMainFrm->LoadImage(g_ImF[0], prevSavedFiles[i], w1, h1);
-					pMainFrm->LoadImage(g_ImF[1], SavedFiles[i], w2, h2);
+					LoadImage(g_ImF[0], prevSavedFiles[i], w1, h1);
+					LoadImage(g_ImF[1], SavedFiles[i], w2, h2);
 
-					Str = prevSavedFiles[i];
+					Str = prevSavedFiles[i].c_str();
 					i = Str.GetLength()-1;
 					while (Str[i] != '_') i--;
 					j = i;
@@ -851,7 +858,7 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 					Str = Str.Mid(i+1, j-i-1);
 					YB1 = atoi(Str);
 
-					Str = SavedFiles[i];
+					Str = SavedFiles[i].c_str();
 					i = Str.GetLength()-1;
 					while (Str[i] != '_') i--;
 					j = i;
@@ -868,14 +875,14 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 				{
 					for (i=0; i<(int)SavedFiles.size(); i++)
 					{
-						DeleteFile(prevSavedFiles[i]);
+						DeleteFile(prevSavedFiles[i].c_str());
 						
-						Str = prevSavedFiles[i];
+						Str = prevSavedFiles[i].c_str();
 						i = Str.GetLength()-1;
 						while (Str[i] != '\\') i--;
-						Str = Str.Mid(0,i+1+11)+SavedFiles[i].Mid(i+1+11);
+						Str = Str.Mid(0,i+1+11)+CString(SavedFiles[i].c_str()).Mid(i+1+11);
 
-						MoveFile(SavedFiles[i], Str);
+						MoveFile(SavedFiles[i].c_str(), Str);
 					}
 				}
 			}

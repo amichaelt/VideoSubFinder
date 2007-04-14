@@ -1,6 +1,6 @@
-
+                              //MainFrm.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							MainFrm.h  Version 1.75								//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -20,22 +20,16 @@
 #include "SSOWnd.h"
 #include "VideoBox.h"
 #include "ImageBox.h"
-#include "MyVideo.h"
+#include "DSVideoLoader.h"
 #include "SSAlgorithms.h"
 #include "IPAlgorithms.h"
 #include <time.h>
 #include <fstream>
 
-extern "C" {
- #include "jpeglib.h"
- #include "jpeglib.h"
-}
-
 using namespace std;
 
 s64 GetVideoTime(int minute, int sec, int mili_sec);
 CString ConvertVideoTime(s64 pos);
-CString VideoTimeToStr(s64 pos);
 CString VideoTimeToStr2(s64 pos);
 
 class CMainFrame : public CMDIFrameWnd
@@ -54,7 +48,8 @@ public:
 	CVideoBox	*m_pVideoBox;
 	CImageBox	*m_pImageBox;
 
-	CMyVideo    m_Video;
+	CVideo		*m_pVideo;
+
 	bool        m_VIsOpen;
 	CDocManager m_DocManager;
 	CString     m_FileName;
@@ -81,15 +76,16 @@ public:
 
 	int			m_type;
 
+	DWORD		m_dwOpenVideoThreadID; 
+	HANDLE		m_hOpenVideoThread;
+	bool		m_blnOpenVideoThreadStateFlag;
+	bool		m_blnOpenVideoResult;
+
 public:
 	void Init();
 	void ResizeControls();
 
-	void GetImage(int *Im, int *Temp);
-	void SaveRGBImage(int *Im, CString name, int w, int h);
-	void LoadRGBImage(int *Im, CString name, int &w, int &h);
-	void SaveImage(int *Im, CString name, int w, int h);
-	void LoadImage(int *Im, CString name, int &w, int &h);
+	//void GetImage(int *Im, int *Temp);
 	
 	void PauseVideo();
 
@@ -118,6 +114,12 @@ public:
 	afx_msg void OnFileSaveSettingsAs();
 	afx_msg void OnClose();
 	afx_msg void OnFileOpenPreviousVideo();
+	afx_msg void OnSetpriorityIdle();
+//	afx_msg void OnRetertErtrt();
+	afx_msg void OnSetpriorityNormal();
+	afx_msg void OnSetpriorityBelownormal();
+	afx_msg void OnSetpriorityAbovenormal();
+	afx_msg void OnSetpriorityHigh();
 };
 
 void VTimerFunc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
@@ -131,3 +133,5 @@ void ReadProperty(ifstream &fin, double &val, CString Name);
 
 bool IsMMX_and_SSE();
 bool IsSSE2();
+
+DWORD WINAPI ThreadOpenVideo(PVOID pParam);

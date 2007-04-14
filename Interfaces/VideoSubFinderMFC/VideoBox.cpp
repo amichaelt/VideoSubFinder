@@ -1,6 +1,6 @@
-
+                              //VideoBox.cpp//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							VideoBox.cpp  Version 1.75							//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -17,7 +17,7 @@
 
 #include "stdafx.h"
 #include "VideoSubFinder.h"
-#include ".\videobox.h"
+#include "videobox.h"
 
 CVideoWnd::CVideoWnd()
 {
@@ -142,7 +142,7 @@ void CVideoWindow::ResizeControls()
 	if (m_pVB->m_pParent->m_VIsOpen) 
 	{
 		m_VideoWnd.GetClientRect(rcCLVWND);
-		m_pVB->m_pParent->m_Video.m_pVW->SetWindowPosition(0, 0, rcCLVWND.right, rcCLVWND.bottom);
+		m_pVB->m_pParent->m_pVideo->SetVideoWindowPosition(0, 0, rcCLVWND.right, rcCLVWND.bottom);
 	}
 
 	m_HSL1.m_offset = rcVWND.left-2;
@@ -216,9 +216,9 @@ void CVideoWindow::Update()
 	{
 		if (m_pVB->m_pParent->m_vs != CMainFrame::Play)
 		{
-			s64 Cur, Stop;
-			m_pVB->m_pParent->m_Video.m_pMS->GetPositions(&Cur, &Stop);
-			m_pVB->m_pParent->m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
+			s64 Cur;
+			Cur = m_pVB->m_pParent->m_pVideo->GetPos();
+			m_pVB->m_pParent->m_pVideo->SetPos(Cur);
 		}
 	}
 }
@@ -386,7 +386,7 @@ void CVideoBox::OnBnClickedRun()
 		m_VBar.SetButtonStyle(1, TBBS_CHECKBOX);
 		m_VBar.SetButtonStyle(2, TBBS_CHECKBOX);
 
-		m_pParent->m_Video.m_pMC->Run();
+		m_pParent->m_pVideo->Run();
 		m_pParent->m_vs = m_pParent->Play;
 	}
 	else
@@ -405,7 +405,7 @@ void CVideoBox::OnBnClickedPause()
 		m_VBar.SetButtonStyle(1, TBBS_CHECKBOX | TBBS_CHECKED);
 		m_VBar.SetButtonStyle(2, TBBS_CHECKBOX);
 		
-		m_pParent->m_Video.m_pMC->Pause();		
+		m_pParent->m_pVideo->Pause();		
 		m_pParent->m_vs = m_pParent->Pause;
 	}
 	else
@@ -462,8 +462,7 @@ BOOL CVideoBox::PreTranslateMessage(MSG* pMsg)
 {
 	if (pMsg->message == WM_KEYDOWN)
 	{
-		s64 Cur, Stop;
-		long evCode;
+		s64 Cur;
 
 		if (!m_pParent->m_VIsOpen) return CMDIChildWnd::PreTranslateMessage(pMsg);
 
@@ -471,34 +470,28 @@ BOOL CVideoBox::PreTranslateMessage(MSG* pMsg)
 		{
 			case VK_RIGHT:
 				m_pParent->PauseVideo();
-				m_pParent->m_Video.m_SGCallback.m_ImageGeted = false;
-				m_pParent->m_Video.m_pMC->Run();
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->OneStep();
 				return true;
 
 			case VK_UP:
 				m_pParent->PauseVideo();
-				m_pParent->m_Video.m_SGCallback.m_ImageGeted = false;
-				m_pParent->m_Video.m_pMC->Run();
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->OneStep();
 				return true;
 
 			case VK_LEFT:
 				m_pParent->PauseVideo();
-				m_pParent->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+				Cur = m_pParent->m_pVideo->GetPos();
 				Cur -= m_pParent->m_dt;
 				if (Cur < 0) Cur = 0;
-				m_pParent->m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->SetPosFast(Cur);
 				return true;
 			
 			case VK_DOWN:
 				m_pParent->PauseVideo();
-				m_pParent->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+				Cur = m_pParent->m_pVideo->GetPos();
 				Cur -= m_pParent->m_dt;
 				if (Cur < 0) Cur = 0;
-				m_pParent->m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->SetPosFast(Cur);
 				return true;
 
 			default:
@@ -513,24 +506,20 @@ BOOL CVideoBox::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
 	if (m_pParent->m_VIsOpen)
 	{
-		s64 Cur, Stop;
-		long evCode;
+		s64 Cur;
 
 		if (zDelta>0)
 		{
 			m_pParent->PauseVideo();
-			m_pParent->m_Video.m_SGCallback.m_ImageGeted = false;
-			m_pParent->m_Video.m_pMC->Run();
-			m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+			m_pParent->m_pVideo->OneStep();
 		}
 		else
 		{
 			m_pParent->PauseVideo();
-			m_pParent->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+			Cur = m_pParent->m_pVideo->GetPos();
 			Cur -= m_pParent->m_dt;
 			if (Cur < 0) Cur = 0;
-			m_pParent->m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
-			m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+			m_pParent->m_pVideo->SetPosFast(Cur);
 		}
 	}
 
@@ -601,9 +590,8 @@ void CVideoBox::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	if (m_pParent->m_VIsOpen) 
 	{
-		s64 Cur, Stop, Pos, endPos;
+		s64 Cur, Pos, endPos;
 		s64 SP;
-		long evCode;
 
 		if (nPos != 0)
 		{
@@ -613,12 +601,12 @@ void CVideoBox::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			
 			Pos = SP*(s64)10000;
 
-			endPos = m_pParent->m_Video.m_Duration;
-			m_pParent->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+			endPos = m_pParent->m_pVideo->m_Duration;
+			Cur = m_pParent->m_pVideo->GetPos();
+
 			if (Pos != Cur)
 			{
-				m_pParent->m_Video.m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->SetPosFast(Pos);
 			}
 		}
 		else
@@ -626,18 +614,15 @@ void CVideoBox::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			if (nSBCode == 1)
 			{
 				m_pParent->PauseVideo();
-				m_pParent->m_Video.m_SGCallback.m_ImageGeted = false;
-				m_pParent->m_Video.m_pMC->Run();
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->OneStep();
 			}
 			else
 			{
 				m_pParent->PauseVideo();
-				m_pParent->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+				Cur = m_pParent->m_pVideo->GetPos();
 				Cur -= m_pParent->m_dt;
 				if (Cur < 0) Cur = 0;
-				m_pParent->m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
-				m_pParent->m_Video.m_pME->WaitForCompletion(INFINITE, &evCode);
+				m_pParent->m_pVideo->SetPosFast(Cur);				
 			}
 		}
 	}

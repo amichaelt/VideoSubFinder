@@ -1,6 +1,6 @@
-
+                              //VideoSubFinder.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							VideoSubFinder.h  Version 1.75						//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//

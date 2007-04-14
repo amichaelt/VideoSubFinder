@@ -1,6 +1,6 @@
-
+                              //TrackBar.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							TrackBar.h  Version 1.75							//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -17,6 +17,7 @@
 
 #pragma once
 #include "myresource.h"
+#include "DataTypes.h"
 #include "MainFrm.h"
 
 class CTrackBar;

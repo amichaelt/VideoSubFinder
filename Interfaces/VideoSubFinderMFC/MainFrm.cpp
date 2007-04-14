@@ -1,6 +1,6 @@
-
+                              //MainFrm.cpp//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							MainFrm.cpp  Version 1.75							//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -17,7 +17,31 @@
 
 #include "stdafx.h"
 #include "VideoSubFinder.h"
+#include "MainFrm.h"
 #include ".\mainfrm.h"
+
+CMainFrame *g_pMF;
+
+/////////////////////////////////////////////////////////////////////////////
+
+void  ViewImageInImageBox(int *Im, int w, int h)
+{
+	g_pMF->m_pImageBox->ViewImage(Im, w, h);	
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void  ViewImageInVideoBox(int *Im, int w, int h)
+{
+	g_pMF->m_pVideoBox->ViewImage(Im, w, h);	
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ViewRGBImage(int *Im, int w, int h)
+{
+	g_pMF->m_pImageBox->ViewRGBImage(Im, w, h);	
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +60,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_FILE_SAVESETTINGSAS, OnFileSaveSettingsAs)
 	ON_WM_CLOSE()
 	ON_COMMAND(ID_FILE_OPENPREVIOUSVIDEO, OnFileOpenPreviousVideo)
+	ON_COMMAND(ID_SETPRIORITY_IDLE, OnSetpriorityIdle)
+	ON_COMMAND(ID_SETPRIORITY_NORMAL, OnSetpriorityNormal)
+	ON_COMMAND(ID_SETPRIORITY_BELOWNORMAL, OnSetpriorityBelownormal)
+	ON_COMMAND(ID_SETPRIORITY_ABOVENORMAL, OnSetpriorityAbovenormal)
+	ON_COMMAND(ID_SETPRIORITY_HIGH, OnSetpriorityHigh)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -46,9 +75,19 @@ CMainFrame::CMainFrame()
 	m_VIsOpen = false;
 	m_VTimerFuncID = 0;
 
+	m_pVideo = GetDSVideoObject();
+
 	char dir[300];
 	GetCurrentDirectory(300,dir);
 	m_Dir = dir;
+
+	g_dir = m_Dir;
+	m_pVideo->m_Dir = m_Dir;
+
+	g_pMF = this;
+	g_pViewImage[0] = ViewImageInVideoBox;
+	g_pViewImage[1] = ViewImageInImageBox;
+	g_pViewRGBImage = ViewRGBImage;
 
 	m_blnReopenVideo = false;
 
@@ -67,7 +106,7 @@ void CMainFrame::Init()
 	m_Menu.LoadMenu(IDR_MENU);
 	this->SetMenu(&m_Menu);
 
-	this->SetTitle("VideoSubFinder 1.75 beta version");
+	this->SetTitle("VideoSubFinder 1.76 beta version");
 	this->MoveWindow(0, 0, 1024, 768-30);
 
 	if (IsMMX_and_SSE() == true)
@@ -94,8 +133,6 @@ void CMainFrame::Init()
 
 	m_SettingsFileName = m_Dir+"\\settings.cfg";
 	LoadSettings(m_SettingsFileName);
-
-	g_pMF = this;
 
 	m_WasInited = true;
 }
@@ -150,9 +187,7 @@ void CMainFrame::OnFileOpenVideoHard()
 void CMainFrame::OnFileOpenVideo(int type)
 {
 	CString csFileName;
-	s64 Cur, Stop;
-	long evCode;
-	bool bln;
+	s64 Cur;
 	bool was_open_before = false;
 	int i;
 
@@ -203,25 +238,30 @@ void CMainFrame::OnFileOpenVideo(int type)
 
 	m_FileName = csFileName;
 
+	//m_blnOpenVideoThreadStateFlag = false;
+	//m_hOpenVideoThread = CreateThread(NULL, 0, ThreadOpenVideo, (PVOID)this, 0, &m_dwOpenVideoThreadID);
+	//SetThreadPriority(m_hOpenVideoThread, THREAD_PRIORITY_HIGHEST);
+	//while (m_blnOpenVideoThreadStateFlag == false) {}
+
 	if (type == 0)
 	{
-		bln = m_Video.OpenMovieNormally(m_FileName, m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		m_blnOpenVideoResult = m_pVideo->OpenMovieNormally(string(m_FileName), m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
 	}
 	else if (type == 1)
 	{
-		bln = m_Video.OpenMovieAllDefault(m_FileName, m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		m_blnOpenVideoResult = m_pVideo->OpenMovieAllDefault(string(m_FileName), m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
 	}
 	else if (type == 2)
 	{
-		bln = m_Video.OpenMovieHard(m_FileName, m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		m_blnOpenVideoResult = m_pVideo->OpenMovieHard(string(m_FileName), m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
 	}
-	
+
 	fstream fout;
 	fout.open(m_Dir+"\\report.log", ios::out);
-	fout <<	m_Video.m_log;
+	fout <<	m_pVideo->m_log;
 	fout.close();
 
-	if (bln == false) 
+	if (m_blnOpenVideoResult == false) 
 	{
 		m_VIsOpen = false;
 		m_pVideoBox->m_lblVB.SetWindowText("VideoBox");
@@ -230,10 +270,12 @@ void CMainFrame::OnFileOpenVideo(int type)
 		return;
 	}
 	
-	InitIPData((int)m_Video.m_Width, (int)m_Video.m_Height, 1);
+	//m_Video.SetVideoWindowPlacement(m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+
+	InitIPData((int)m_pVideo->m_Width, (int)m_pVideo->m_Height, 1);
 
 	m_pVideoBox->m_TB.SetScrollPos(0);
-	m_pVideoBox->m_TB.SetScrollRange(0, (int)(m_Video.m_Duration/(s64)10000));
+	m_pVideoBox->m_TB.SetScrollRange(0, (int)(m_pVideo->m_Duration/(s64)10000));
 
 	i=csFileName.GetLength()-1;
 	while (csFileName[i] != '\\') i--;
@@ -243,14 +285,14 @@ void CMainFrame::OnFileOpenVideo(int type)
 	if (m_blnReopenVideo == false) 
 	{
 		m_BegTime = 0;
-		m_EndTime = m_Video.m_Duration;
+		m_EndTime = m_pVideo->m_Duration;
 	}
 
 	m_pPanel->m_SHPanel.m_lblBTA1.SetWindowText(ConvertVideoTime(m_BegTime));
 	m_pPanel->m_SHPanel.m_lblBTA2.SetWindowText(ConvertVideoTime(m_EndTime));
 
-	m_w = m_Video.m_Width;
-	m_h = m_Video.m_Height;
+	m_w = m_pVideo->m_Width;
+	m_h = m_pVideo->m_Height;
 	m_BufferSize = m_w*m_h*sizeof(int);
 	m_VIsOpen = true;
 
@@ -322,44 +364,39 @@ void CMainFrame::OnFileOpenVideo(int type)
 	
 	this->RedrawWindow();
 
-	m_Video.m_SGCallback.m_ImageGeted = false;
-	m_Video.m_pMC->Run();
-	m_Video.m_pME->WaitForCompletion(100, &evCode);
-	m_Video.m_pMC->Pause();
+	m_pVideo->SetImageGeted(false);
+	m_pVideo->RunWithTimeout(100);
+	m_pVideo->Pause();
 	
-	m_Video.m_pMS->GetPositions(&Cur, &Stop);
-	m_dt = Cur;
+	m_dt = Cur = m_pVideo->GetPos();
 
-	m_Video.m_SGCallback.m_ImageGeted = false;
-	m_Video.m_pMC->Run();
-	m_Video.m_pME->WaitForCompletion(100, &evCode);
-	m_Video.m_pMC->Pause();
+	m_pVideo->SetImageGeted(false);
+	m_pVideo->RunWithTimeout(100);
+	m_pVideo->Pause();
 
-	m_Video.m_pMS->GetPositions(&Cur, &Stop);
+	Cur = m_pVideo->GetPos();
 	m_dt = Cur-m_dt;
 
 	if (m_dt == 0)
 	{
 		m_dt = Cur;
 
-		m_Video.m_SGCallback.m_ImageGeted = false;
-		m_Video.m_pMC->Run();
-		m_Video.m_pME->WaitForCompletion(100, &evCode);
-		m_Video.m_pMC->Pause();
+		m_pVideo->SetImageGeted(false);
+		m_pVideo->RunWithTimeout(100);
+		m_pVideo->Pause();
 
-		m_Video.m_pMS->GetPositions(&Cur, &Stop);
+		Cur = m_pVideo->GetPos();
 		m_dt = Cur-m_dt;
 	}
 
 	if ((m_dt >= 10000000/10) || (m_dt == 0)) m_dt = 10000000/25;
 
 	Cur = m_BegTime;
-	m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
+	m_pVideo->SetPos(Cur);
 	
-	m_Video.m_SGCallback.m_ImageGeted = false;
-	m_Video.m_pMC->Run();
-	m_Video.m_pME->WaitForCompletion(100, &evCode);
-	m_Video.m_pMC->Pause();
+	m_pVideo->SetImageGeted(false);
+	m_pVideo->RunWithTimeout(100);
+	m_pVideo->Pause();
 
 	m_vs = Pause;
 	m_pVideoBox->m_VBar.SetButtonStyle(0, TBBS_CHECKBOX);
@@ -368,7 +405,7 @@ void CMainFrame::OnFileOpenVideo(int type)
 
 	m_pPanel->m_SSPanel.OnBnClickedTest();
 
-	m_EndTimeStr = CString("/") + ConvertVideoTime(m_Video.m_Duration);
+	m_EndTimeStr = CString("/") + ConvertVideoTime(m_pVideo->m_Duration);
 
 	if (m_VTimerFuncID == 0) 
 	{
@@ -380,13 +417,13 @@ void CMainFrame::OnFileOpenVideo(int type)
 	if (m_blnReopenVideo == false)
 	{
 		Cur = m_dt;
-		m_Video.m_pMS->SetPositions(&Cur,AM_SEEKING_AbsolutePositioning,&Stop,AM_SEEKING_AbsolutePositioning);
+		m_pVideo->SetPos(Cur);
 	}
 
 	m_blnReopenVideo = false;
 }
 
-void CMainFrame::GetImage(int *Im, int *Temp)
+/*void CMainFrame::GetImage(int *Im, int *Temp)
 {
 	int x, y, i, j;
 	int w = m_w, h = m_h, w2 = m_w*2;
@@ -405,7 +442,7 @@ void CMainFrame::GetImage(int *Im, int *Temp)
 		}
 		j = j-w2; 
 	}
-}
+}*/
 
 void CMainFrame::OnPlayPause()
 {
@@ -413,7 +450,7 @@ void CMainFrame::OnPlayPause()
 	{
 		if (m_vs == Play)
 		{
-			m_Video.m_pMC->Pause();
+			m_pVideo->Pause();
 			m_vs = Pause;
 
 			m_pVideoBox->m_VBar.SetButtonStyle(0, TBBS_CHECKBOX);
@@ -422,7 +459,7 @@ void CMainFrame::OnPlayPause()
 		}
 		else
 		{
-			m_Video.m_pMC->Run();
+			m_pVideo->Run();
 			m_vs = Play;
 
 			m_pVideoBox->m_VBar.SetButtonStyle(0, TBBS_CHECKBOX | TBBS_CHECKED);
@@ -436,18 +473,9 @@ void CMainFrame::OnStop()
 {
 	if (m_VIsOpen)	
 	{
-		m_Video.m_pMC->Stop();
+		m_pVideo->StopFast();
 		m_vs = Stop;
 		
-		s64 Pos, endPos;
-		endPos = m_Video.m_Duration;
-		Pos = 0;
-		m_Video.m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
-
-		m_Video.m_pMC->Run();
-		m_Video.m_pMC->Pause();
-		m_vs = Pause;
-
 		m_pVideoBox->m_VBar.SetButtonStyle(0, TBBS_CHECKBOX);
 		m_pVideoBox->m_VBar.SetButtonStyle(1, TBBS_CHECKBOX);
 		m_pVideoBox->m_VBar.SetButtonStyle(2, TBBS_CHECKBOX | TBBS_CHECKED);
@@ -458,237 +486,13 @@ void CMainFrame::PauseVideo()
 {
 	if (m_VIsOpen && (m_vs != Pause))	
 	{
-		m_Video.m_pMC->Pause();
+		m_pVideo->Pause();
 		m_vs = Pause;
 
 		m_pVideoBox->m_VBar.SetButtonStyle(0, TBBS_CHECKBOX);
 		m_pVideoBox->m_VBar.SetButtonStyle(1, TBBS_CHECKBOX | TBBS_CHECKED);
 		m_pVideoBox->m_VBar.SetButtonStyle(2, TBBS_CHECKBOX);
 	}
-}
-
-void CMainFrame::SaveRGBImage(int *Im, CString name, int w, int h)
-{
-	FILE * outfile;
-	jpeg_compress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, bi, ei, j;	
-	JSAMPLE row[1024*3*4];
-	JSAMPLE *color;
-
-	if ((outfile = fopen(m_Dir+name, "wb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_compress(&cinfo);
-
-	jpeg_stdio_dest(&cinfo, outfile);
-
-	cinfo.image_width = w; 	
-	cinfo.image_height = h;
-	cinfo.input_components = 3;	
-	cinfo.in_color_space = JCS_RGB; 
-
-	jpeg_set_defaults(&cinfo);
-	jpeg_set_quality(&cinfo, 100, TRUE);
-
-	jpeg_start_compress(&cinfo, TRUE);
-
-	row_stride = w*3;
-
-	row_pointer[0] = (JSAMPLE*)row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.next_scanline < cinfo.image_height) 
-	{
-	    for(i=bi, j=0; i<ei; i++, j+=3)
-		{
-			color = (JSAMPLE*)(&Im[i]);
-			row[j] = color[2];
-			row[j+1] = color[1];
-			row[j+2] = color[0];	
-		}
-		
-	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
-		
-		bi += w;
-		ei += w;
-	}
-
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
-
-	fclose(outfile);
-}
-
-void CMainFrame::LoadRGBImage(int *Im, CString name, int &w, int &h)
-{
-	FILE *fin;
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, j, bi, ei;	
-	JSAMPLE row[1024*3*4];
-	int color = 0;
-	u8 *pColor = (u8*)(&color);
-
-	if ((fin = fopen(name, "rb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-
-	jpeg_create_decompress(&cinfo);
-
-	jpeg_stdio_src(&cinfo, fin);
-
-	jpeg_read_header(&cinfo, TRUE);
-
-	cinfo.out_color_space = JCS_RGB;
-	cinfo.out_color_components = 3;
-
-	w = cinfo.image_width; 	
-	h = cinfo.image_height;
-
-	jpeg_start_decompress(&cinfo);
-
-	row_stride = w*3;
-
-	row_pointer[0] = (JSAMPLE*)row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.output_scanline < cinfo.output_height) 
-	{
-		jpeg_read_scanlines(&cinfo, row_pointer, 1);
-
-		for(i=bi, j=0; i<ei; i++, j+=3)
-		{
-			pColor[2] = row[j];
-			pColor[1] = row[j+1];
-			pColor[0] = row[j+2];
-			Im[i] = color;
-		}			
-		
-		bi += w;
-		ei += w;
-	}
-
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
-
-	fclose(fin);
-}
-
-void CMainFrame::SaveImage(int *Im, CString name, int w, int h)
-{
-	FILE * outfile;
-	jpeg_compress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, bi, ei, j;	
-	JSAMPLE row[1024*4];
-	JSAMPLE *color;
-
-	if ((outfile = fopen(m_Dir+name, "wb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_compress(&cinfo);
-
-	jpeg_stdio_dest(&cinfo, outfile);
-
-	cinfo.image_width = w; 	
-	cinfo.image_height = h;
-	cinfo.input_components = 1;	
-	cinfo.in_color_space = JCS_GRAYSCALE; 
-
-	jpeg_set_defaults(&cinfo);
-	//jpeg_set_quality(&cinfo, 100, TRUE);
-
-	jpeg_start_compress(&cinfo, TRUE);
-
-	row_stride = w;
-
-	row_pointer[0] = (JSAMPLE*)row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.next_scanline < cinfo.image_height) 
-	{
-	    for(i=bi, j=0; i<ei; i++, j++)
-		{
-			color = (JSAMPLE*)(&Im[i]);
-			row[j] = color[0];
-		}
-		
-	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
-		
-		bi += w;
-		ei += w;
-	}
-
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
-
-	fclose(outfile);
-}
-
-void CMainFrame::LoadImage(int *Im, CString name, int &w, int &h)
-{
-	FILE *fin;
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, j, bi, ei;	
-	JSAMPLE row[1024*4];
-
-	if ((fin = fopen(name, "rb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-
-	jpeg_create_decompress(&cinfo);
-
-	jpeg_stdio_src(&cinfo, fin);
-
-	jpeg_read_header(&cinfo, TRUE);
-
-	cinfo.out_color_space = JCS_GRAYSCALE;
-	cinfo.out_color_components = 1;
-
-	w = cinfo.image_width; 	
-	h = cinfo.image_height;
-
-	jpeg_start_decompress(&cinfo);
-
-	row_stride = w;
-
-	row_pointer[0] = (JSAMPLE*)row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.output_scanline < cinfo.output_height) 
-	{
-		jpeg_read_scanlines(&cinfo, row_pointer, 1);
-
-		for(i=bi, j=0; i<ei; i++, j++)
-		{
-			if (row[j] < 100) 
-			{
-				Im[i] = 0;
-			}
-			else
-			{
-				Im[i] = 255;
-			}
-		}			
-		
-		bi += w;
-		ei += w;
-	}
-
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
-
-	fclose(fin);
 }
 
 void CMainFrame::LoadSettings(CString fname)
@@ -769,9 +573,9 @@ void CMainFrame::OnEditSetBeginTime()
 {
 	if (m_VIsOpen)
 	{
-		s64 Cur, Stop;
+		s64 Cur;
 	
-		m_Video.m_pMS->GetPositions(&Cur, &Stop);
+		Cur = m_pVideo->GetPos();
 
 		m_pPanel->m_SHPanel.m_lblBTA1.SetWindowText(ConvertVideoTime(Cur));
 
@@ -783,9 +587,9 @@ void CMainFrame::OnEditSetEndTime()
 {
 	if (m_VIsOpen)
 	{
-		s64 Cur, Stop;
+		s64 Cur;
 	
-		m_Video.m_pMS->GetPositions(&Cur, &Stop);
+		Cur = m_pVideo->GetPos();
 
 		m_pPanel->m_SHPanel.m_lblBTA2.SetWindowText(ConvertVideoTime(Cur));
 
@@ -874,9 +678,9 @@ void VTimerFunc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	CMainFrame *pMF = (CMainFrame*)(CWnd::FromHandle(hwnd));
 	
-	s64 Cur, Stop;
+	s64 Cur;
 	
-	pMF->m_Video.m_pMS->GetPositions(&Cur, &Stop);
+	Cur = pMF->m_pVideo->GetPos();
 
 	if (Cur != pMF->m_ct) 
 	{
@@ -887,53 +691,34 @@ void VTimerFunc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 	pMF->m_pVideoBox->m_TB.SetScrollPos((int)(Cur/(s64)10000));
 }
 
-CString VideoTimeToStr(s64 pos)
+DWORD WINAPI ThreadOpenVideo(PVOID pParam)
 {
-	CString Str;
-	static char str[100];
-	int hour, min, sec, sec_1000, vl;
-	
-	vl = (int)(pos/10000000);
-	hour = vl/3600;
-	vl -= hour*3600;
-	min = vl/60;
-	vl -= min*60;
-	sec = vl;
-	
-	itoa(hour,str,10);
-	Str += CString(str)+"_";
-	
-	itoa(min,str,10);
-	if (min<=9)
-	{
-		Str += "0"+CString(str)+"_";
-	}
-	else Str += CString(str)+"_";
+	CMainFrame* pMF = (CMainFrame*)pParam;
 
-	itoa(sec,str,10);
-	if (sec<=9)
-	{
-		Str += "0"+CString(str)+"_";
-	}
-	else Str += CString(str)+"_";
+	pMF->m_blnOpenVideoThreadStateFlag = false;
 
-	sec_1000 = (int)((pos%10000000)/10000);
-	itoa(sec_1000,str,10);
-	if (sec_1000<=9)
+	if (pMF->m_type == 0)
 	{
-		Str += "00"+CString(str);
+		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieNormally(string(pMF->m_FileName), pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
 	}
-	else 
+	else if (pMF->m_type == 1)
 	{
-		if (sec_1000<=99)
-		{
-			Str += "0"+CString(str);
-		}
-		else Str += CString(str);
+		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieAllDefault(string(pMF->m_FileName), pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+	}
+	else if (pMF->m_type == 2)
+	{
+		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieHard(string(pMF->m_FileName), pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
 	}
 
-	return Str;
+	pMF->m_blnOpenVideoThreadStateFlag = true;
+
+	return 0;
 }
+
+//void TimerFunctionForOpeningVideo(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+//{
+//	throw(1);
+//}
 
 CString VideoTimeToStr2(s64 pos)
 {
@@ -1058,10 +843,22 @@ void CMainFrame::OnClose()
 	{
 		IsClose = 1;
 		g_RunSubSearch = 0;
-		SetThreadPriority(m_pPanel->m_SHPanel.hSearchThread, THREAD_PRIORITY_HIGHEST);
+		SetThreadPriority(m_pPanel->m_SHPanel.m_hSearchThread, THREAD_PRIORITY_HIGHEST);
 	}
 
-	while( (IsSearching == 1) || (g_IsCreateClearedTextImages == 1) ){}
+	clock_t start_t = clock();
+
+	while( ((clock() - start_t) < 2000) && ( (IsSearching == 1) || (g_IsCreateClearedTextImages == 1) ) ){}
+
+	if (IsSearching == 1)
+	{
+		TerminateThread(m_pPanel->m_SHPanel.m_hSearchThread, 0);
+	}
+
+	if (g_IsCreateClearedTextImages == 1)
+	{
+		TerminateThread(m_pPanel->m_OCRPanel.m_hSearchThread, 0);
+	}
 
 	ReleaseIPData();
 
@@ -1232,4 +1029,78 @@ static bool _IsFeature(DWORD dwRequestFeature)
 	}
 
 	return false;
+}
+void CMainFrame::OnSetpriorityIdle()
+{
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_IDLE, MF_CHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_BELOWNORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_NORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_ABOVENORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_HIGH, MF_UNCHECKED);
+
+	HANDLE m_hCurrentProcess = GetCurrentProcess();
+
+	BOOL res = SetPriorityClass(m_hCurrentProcess, IDLE_PRIORITY_CLASS);
+
+	res = res;
+}
+
+void CMainFrame::OnSetpriorityBelownormal()
+{
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_IDLE, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_BELOWNORMAL, MF_CHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_NORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_ABOVENORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_HIGH, MF_UNCHECKED);
+
+	HANDLE m_hCurrentProcess = GetCurrentProcess();
+
+	BOOL res = SetPriorityClass(m_hCurrentProcess, BELOW_NORMAL_PRIORITY_CLASS);
+
+	res = res;
+}
+
+void CMainFrame::OnSetpriorityNormal()
+{
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_IDLE, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_BELOWNORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_NORMAL, MF_CHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_ABOVENORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_HIGH, MF_UNCHECKED);
+
+	HANDLE m_hCurrentProcess = GetCurrentProcess();
+
+	BOOL res = SetPriorityClass(m_hCurrentProcess, NORMAL_PRIORITY_CLASS);
+
+	res = res;
+}
+
+void CMainFrame::OnSetpriorityAbovenormal()
+{
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_IDLE, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_BELOWNORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_NORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_ABOVENORMAL, MF_CHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_HIGH, MF_UNCHECKED);
+
+	HANDLE m_hCurrentProcess = GetCurrentProcess();
+
+	BOOL res = SetPriorityClass(m_hCurrentProcess, ABOVE_NORMAL_PRIORITY_CLASS);
+
+	res = res;
+}
+
+void CMainFrame::OnSetpriorityHigh()
+{
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_IDLE, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_BELOWNORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_NORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_ABOVENORMAL, MF_UNCHECKED);
+	m_Menu.CheckMenuItem(ID_SETPRIORITY_HIGH, MF_CHECKED);
+
+	HANDLE m_hCurrentProcess = GetCurrentProcess();
+
+	BOOL res = SetPriorityClass(m_hCurrentProcess, HIGH_PRIORITY_CLASS);
+
+	res = res;
 }

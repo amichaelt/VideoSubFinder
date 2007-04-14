@@ -1,6 +1,6 @@
-
+                              //SearchPanel.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							SearchPanel.h  Version 1.75							//
+//							  Version 1.76              						//
 //																				//
 // Author:  Simeon Kosnitsky													//
 //          skosnits@gmail.com													//
@@ -49,8 +49,8 @@ public:
 
 	CMainFrame	*m_pMainFrm;
 
-	DWORD  dwSearchThreadID; 
-	HANDLE hSearchThread;
+	DWORD		m_dwSearchThreadID; 
+	HANDLE		m_hSearchThread;
 
 	void Init(CSSOWnd* pParent);
 
