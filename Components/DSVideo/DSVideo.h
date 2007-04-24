@@ -139,6 +139,8 @@ public:
 	s64  GetPos();
     void GetRGBImage(int *ImRGB, int xmin, int xmax, int ymin, int ymax);
 
+	s64 PosToMilliSeconds(s64 pos);
+
 	void SetVideoWindowPosition(int left, int top, int width, int height);
 
 public:
