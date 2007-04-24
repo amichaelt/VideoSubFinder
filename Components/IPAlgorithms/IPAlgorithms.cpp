@@ -2689,15 +2689,24 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	/////////////////
 	for(k=0; k<N; k++)
 	{
-		memset(&g_ImRES7[W*LB[k]], 0, w*sizeof(int));
-		memset(&g_ImRES7[W*LE[k]], 0, w*sizeof(int));
-		memset(&g_ImRES1[W*LB[k]], 0, w*sizeof(int));
-		memset(&g_ImRES1[W*LE[k]], 0, w*sizeof(int));
+		memset(&g_ImRES7[w*LB[k]], 0, w*sizeof(int));
+		memset(&g_ImRES7[w*LE[k]], 0, w*sizeof(int));
+		memset(&g_ImRES1[w*LB[k]], 0, w*sizeof(int));
+		memset(&g_ImRES1[w*LE[k]], 0, w*sizeof(int));
 
 		LB[k] += 1;		
 		LE[k] -= 1;
 	}
 	/////////////////
+
+	if ((LE[N-1] + g_segh) > h)
+	{
+		val = LE[N-1]-(h-g_segh);
+		LE[N-1] = h-g_segh;
+
+		memset(&g_ImRES7[w*(LE[N-1]+1)], 0, w*val*sizeof(int));
+		memset(&g_ImRES1[w*(LE[N-1]+1)], 0, w*val*sizeof(int));		
+	}
 
 	g_blnVNE = 1;
 	g_blnHE = 1;
