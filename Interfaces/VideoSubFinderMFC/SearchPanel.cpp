@@ -224,7 +224,7 @@ void CSearchPanel::OnBnClickedRun()
 		InitIPData((int)m_pMainFrm->m_pVideo->m_Width, (int)m_pMainFrm->m_pVideo->m_Height, 1);
 
 		m_hSearchThread = CreateThread(NULL, 0, ThreadSearchSubtitles, (PVOID)m_pMainFrm, 0, &m_dwSearchThreadID);
-		//SetThreadPriority(m_hSearchThread, THREAD_PRIORITY_BELOW_NORMAL);
+		SetThreadPriority(m_hSearchThread, THREAD_PRIORITY_BELOW_NORMAL);
 	}
 	else
 	{
