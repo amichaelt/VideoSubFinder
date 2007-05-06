@@ -2699,10 +2699,10 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	}
 	/////////////////
 
-	if ((LE[N-1] + g_segh) > h)
+	if ((LE[N-1] + g_segh) > H)
 	{
-		val = LE[N-1]-(h-g_segh);
-		LE[N-1] = h-g_segh;
+		val = LE[N-1]-(H-g_segh);
+		LE[N-1] = H-g_segh;
 
 		memset(&g_ImRES7[w*(LE[N-1]+1)], 0, w*val*sizeof(int));
 		memset(&g_ImRES1[w*(LE[N-1]+1)], 0, w*val*sizeof(int));		
