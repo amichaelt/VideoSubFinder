@@ -526,7 +526,7 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 
 	string Str;
 	
-	s64 CurPos;
+	s64 CurPos, pos;
 	int fn; //frame num
 	int i, k, n, nn, ln;
 	int w, h, size, BufferSize;
@@ -624,14 +624,27 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 	{		
 		while (found_sub == 0)
 		{
-			while(n_fs < DL)
+			pos = CurPos;
+
+			while( (n_fs < DL) && (pos < End) )
 			{			
-				mPrevPos[n_fs] = pV->OneStepWithTimeout();
+				mPrevPos[n_fs] = pos = pV->OneStepWithTimeout();
 
                 pV->GetRGBImage(mImRGB[n_fs], g_xmin, g_xmax, g_ymin, g_ymax);
 
 				fn++;
 				n_fs++;
+			}
+			if (pos == End)
+			{
+				while(n_fs < DL)
+				{
+					mPrevPos[n_fs] = pos;
+					memcpy(mImRGB[n_fs], mImRGB[n_fs-1], BufferSize);
+
+					fn++;
+					n_fs++;
+				}
 			}
 
 			bln = ConvertImage(mImRGB[DL-1], ImT, ImVET, w, h);
@@ -648,13 +661,14 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 				n_fs = 0;
 			}
 
-			if ( (mPrevPos[DL-1] > End) || (g_RunSubSearch == 0) || (mPrevPos[DL-1] == mPrevPos[DL-2]) )
+			if ( (mPrevPos[DL-1] >= End) || (g_RunSubSearch == 0) || (mPrevPos[DL-1] == mPrevPos[DL-2]) )
 			{
 				break;
 			}
 		}
 
-		if ( (mPrevPos[DL-1] > End) || (g_RunSubSearch == 0) || (mPrevPos[DL-1] == mPrevPos[DL-2]) )
+		if ( (mPrevPos[DL-1] > End) || (g_RunSubSearch == 0) || (mPrevPos[DL-1] == mPrevPos[DL-2]) ||
+			 ( (found_sub == false) && (mPrevPos[DL-1] == End) ) )
 		{
 			break;
 		}
