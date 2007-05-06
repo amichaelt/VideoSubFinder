@@ -213,7 +213,7 @@ void CMainFrame::OnFileOpenVideo(int type)
 	ofn.lpstrFile[0] = '\0';
 	strcpy(ofn.lpstrFile, (char*)csFileName.GetString());
 	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = "Video Files (*.avi;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm)\0*.avi;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFilter = "Video Files (*.avi;*.mp4;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm)\0*.avi;*.mp4;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm\0All Files (*.*)\0*.*\0";
 	ofn.lpstrTitle = "Open Video File";
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
@@ -389,7 +389,7 @@ void CMainFrame::OnFileOpenVideo(int type)
 		m_dt = Cur-m_dt;
 	}
 
-	if ((m_dt >= 10000000/10) || (m_dt == 0)) m_dt = 10000000/25;
+	if ( (m_dt >= 10000000/10) || (m_dt <= 0) ) m_dt = 10000000/25;
 
 	Cur = m_BegTime;
 	m_pVideo->SetPos(Cur);
