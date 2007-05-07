@@ -20,12 +20,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\Include"
+				AdditionalIncludeDirectories="..\Include;C:\Program Files\DirectShow\Include;C:\Program Files\Microsoft DirectX SDK (August 2006)\Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -62,10 +62,10 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\Include"
+				AdditionalIncludeDirectories="..\Include;C:\Program Files\DirectShow\Include;C:\Program Files\Microsoft DirectX SDK (August 2006)\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -107,21 +107,6 @@
 			<File
 				RelativePath=".\DSVideoLoader.cpp">
 			</File>
-			<File
-				RelativePath=".\stdafx.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -135,9 +120,6 @@
 			</File>
 			<File
 				RelativePath=".\DSVideoLoader.h">
-			</File>
-			<File
-				RelativePath=".\stdafx.h">
 			</File>
 			<File
 				RelativePath="..\Include\Video.h">

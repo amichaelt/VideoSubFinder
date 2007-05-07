@@ -32,11 +32,14 @@
 
 using namespace std;
 
+class DSVideo;
+
 class MySampleGrabberCallback :	public ISampleGrabberCB
 {
 public:
-	IMediaControl			*m_pMC; 
+	DSVideo					*m_pVideo; 
 	bool					 m_ImageGeted;
+	s64						 m_st;
 	
 	STDMETHODIMP_(ULONG) AddRef() { return 1; }
 	
@@ -66,16 +69,7 @@ public:
 		return E_NOTIMPL;
 	}
 
-	HRESULT STDMETHODCALLTYPE BufferCB(double SampleTime, BYTE *pBuffer, long BufferLen)
-	{
-		if (!m_ImageGeted)
-		{
-			m_pMC->Pause();
-			m_ImageGeted = true;
-		}
-
-		return S_OK;
-	}
+	HRESULT STDMETHODCALLTYPE BufferCB(double SampleTime, BYTE *pBuffer, long BufferLen);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,6 +83,8 @@ public:
 public:	
 
 	int				m_ImRES[1024*768];
+	
+	bool			m_IsMSSuported;
 
 	IGraphBuilder	*m_pGB;
 	IMediaControl	*m_pMC; 
@@ -112,11 +108,11 @@ public:
 	IBaseFilter* GetDecoder();
 	IBaseFilter* GetSourceFilter();
 
-	bool OpenMovieNormally(string csMovieName, HWND hWnd);
-	bool OpenMovieAllDefault(string csMovieName, HWND hWnd);
-	bool OpenMovieHard(string csMovieName, HWND hWnd);
+	bool OpenMovieNormally(string csMovieName, void *pHWnd);
+	bool OpenMovieAllDefault(string csMovieName, void *pHWnd);
+	bool OpenMovieHard(string csMovieName, void *pHWnd);
 
-	bool SetVideoWindowPlacement(HWND hWnd);
+	bool SetVideoWindowPlacement(void *pHWnd);
 	bool SetNullRender();
 
 	bool CloseMovie();
