@@ -57,22 +57,22 @@ public:
 
 public:
 
-	virtual bool OpenMovieNormally(string csMovieName, HWND hWnd)
+	virtual bool OpenMovieNormally(string csMovieName, void *pHWnd)
 	{
 		return false;
 
 	}
-	virtual bool OpenMovieAllDefault(string csMovieName, HWND hWnd)
+	virtual bool OpenMovieAllDefault(string csMovieName, void *pHWnd)
 	{
 		return false;
 	}
 
-	virtual bool OpenMovieHard(string csMovieName, HWND hWnd)
+	virtual bool OpenMovieHard(string csMovieName, void *pHWnd)
 	{
 		return false;
 	}
 
-	virtual bool SetVideoWindowPlacement(HWND hWnd)
+	virtual bool SetVideoWindowPlacement(void *pHWnd)
 	{
 		return false;
 	}
