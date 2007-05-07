@@ -243,17 +243,19 @@ void CMainFrame::OnFileOpenVideo(int type)
 	//SetThreadPriority(m_hOpenVideoThread, THREAD_PRIORITY_HIGHEST);
 	//while (m_blnOpenVideoThreadStateFlag == false) {}
 
+	void *pHWnd = (void*)&(m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+
 	if (type == 0)
 	{
-		m_blnOpenVideoResult = m_pVideo->OpenMovieNormally(string(m_FileName), m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		m_blnOpenVideoResult = m_pVideo->OpenMovieNormally(string(m_FileName), pHWnd);
 	}
 	else if (type == 1)
 	{
-		m_blnOpenVideoResult = m_pVideo->OpenMovieAllDefault(string(m_FileName), m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		m_blnOpenVideoResult = m_pVideo->OpenMovieAllDefault(string(m_FileName), pHWnd);
 	}
 	else if (type == 2)
 	{
-		m_blnOpenVideoResult = m_pVideo->OpenMovieHard(string(m_FileName), m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		m_blnOpenVideoResult = m_pVideo->OpenMovieHard(string(m_FileName), pHWnd);
 	}
 
 	fstream fout;
@@ -269,8 +271,6 @@ void CMainFrame::OnFileOpenVideo(int type)
 		m_blnReopenVideo = false;
 		return;
 	}
-	
-	//m_Video.SetVideoWindowPlacement(m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
 
 	InitIPData((int)m_pVideo->m_Width, (int)m_pVideo->m_Height, 1);
 
@@ -697,17 +697,19 @@ DWORD WINAPI ThreadOpenVideo(PVOID pParam)
 
 	pMF->m_blnOpenVideoThreadStateFlag = false;
 
+	void *pHWnd = (void*)&(pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+
 	if (pMF->m_type == 0)
 	{
-		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieNormally(string(pMF->m_FileName), pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieNormally(string(pMF->m_FileName), pHWnd);
 	}
 	else if (pMF->m_type == 1)
 	{
-		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieAllDefault(string(pMF->m_FileName), pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieAllDefault(string(pMF->m_FileName), pHWnd);
 	}
 	else if (pMF->m_type == 2)
 	{
-		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieHard(string(pMF->m_FileName), pMF->m_pVideoBox->m_VBox.m_VideoWnd.m_hWnd);
+		pMF->m_blnOpenVideoResult = pMF->m_pVideo->OpenMovieHard(string(pMF->m_FileName), pHWnd);
 	}
 
 	pMF->m_blnOpenVideoThreadStateFlag = true;

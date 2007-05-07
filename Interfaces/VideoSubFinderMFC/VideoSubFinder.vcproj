@@ -48,7 +48,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="strmiids.lib ..\..\Dependencies\jpeg\Release\jpeg.lib  ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
+				AdditionalDependencies="c:\strmiids.lib ..\..\Dependencies\jpeg\Release\jpeg.lib  ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="FALSE"
 				GenerateDebugInformation="FALSE"
@@ -107,7 +107,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="strmiids.lib ..\..\Dependencies\jpeg\Debug\jpeg.lib  ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib"
+				AdditionalDependencies="c:\strmiids.lib ..\..\Dependencies\jpeg\Debug\jpeg.lib  ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -278,22 +278,22 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;cnt;rtf;gif;jpg;jpeg;jpe">
 			<File
-				RelativePath=".\res\HorizontalScrollBarChannel.bmp">
-			</File>
-			<File
 				RelativePath=".\XScrollBar\res\HorizontalScrollBarChannel.bmp">
 			</File>
 			<File
-				RelativePath=".\res\HorizontalScrollBarLeftArrow.bmp">
+				RelativePath=".\res\HorizontalScrollBarChannel.bmp">
 			</File>
 			<File
 				RelativePath=".\XScrollBar\res\HorizontalScrollBarLeftArrow.bmp">
 			</File>
 			<File
-				RelativePath=".\res\HorizontalScrollBarRightArrow.bmp">
+				RelativePath=".\res\HorizontalScrollBarLeftArrow.bmp">
 			</File>
 			<File
 				RelativePath=".\XScrollBar\res\HorizontalScrollBarRightArrow.bmp">
+			</File>
+			<File
+				RelativePath=".\res\HorizontalScrollBarRightArrow.bmp">
 			</File>
 			<File
 				RelativePath=".\XScrollBar\res\HorizontalScrollBarThumb.bmp">
@@ -302,10 +302,10 @@
 				RelativePath=".\res\HorizontalScrollBarThumb.bmp">
 			</File>
 			<File
-				RelativePath=".\XScrollBar\res\HorizontalScrollBarThumbNoColor.bmp">
+				RelativePath=".\res\HorizontalScrollBarThumbNoColor.bmp">
 			</File>
 			<File
-				RelativePath=".\res\HorizontalScrollBarThumbNoColor.bmp">
+				RelativePath=".\XScrollBar\res\HorizontalScrollBarThumbNoColor.bmp">
 			</File>
 			<File
 				RelativePath=".\icon1.ico">
