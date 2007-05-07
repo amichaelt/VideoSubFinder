@@ -28,6 +28,8 @@ bool g_ValidateAndCompareTXTImages = false;
 bool g_DontDeleteUnrecognizedImages1 = false;
 bool g_DontDeleteUnrecognizedImages2 = true;
 
+bool g_CLEAN_RGB_IMAGES = false;
+
 COCRPanel::COCRPanel()
 {
 }

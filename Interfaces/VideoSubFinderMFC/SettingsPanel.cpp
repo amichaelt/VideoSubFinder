@@ -214,7 +214,7 @@ void CSettingsPanel::Init(CSSOWnd* pParent)
 	m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Глобальные Настройки Обработки Изображений", RGB(0, 255, 255)));
 	pProp->Expand ();
 	pProp->AddProperty (new CObjectInspector::CProperty("Using fast version (partially reduced) : ", &g_fast_search));
-	pProp->AddProperty (new CObjectInspector::CProperty("Using MMX and SSE optimization : ", &g_MMX_SSE));
+	pProp->AddProperty (new CObjectInspector::CProperty("Using MMX and SSE optimization : ", &g_MMX_SSE));	
 	m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Первичная Обработка Изображения", RGB(0, 255, 255)));
 	m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Операторов Собеля"));
 	pProp->Expand ();
@@ -273,6 +273,7 @@ void CSettingsPanel::Init(CSSOWnd* pParent)
 
 	m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("OCR настройки", RGB(0, 255, 255)));	
 	pProp->Expand ();
+	pProp->AddProperty (new CObjectInspector::CProperty("Clean RGBImages after search subtitles : ", &g_CLEAN_RGB_IMAGES));
 	pProp->AddProperty (new CObjectInspector::CProperty("Using hard algorithm for text mining from background : ", &g_hard_sub_mining));
 	pProp->AddProperty (new CObjectInspector::CProperty("Using FRDImages for getting TXT areas : ", &g_use_FRD_images));
 	pProp->AddProperty (new CObjectInspector::CProperty("Validate And Compare Cleared TXT Images : ", &g_ValidateAndCompareTXTImages));

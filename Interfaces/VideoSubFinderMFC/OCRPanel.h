@@ -30,6 +30,8 @@ extern bool g_ValidateAndCompareTXTImages;
 extern bool g_DontDeleteUnrecognizedImages1;
 extern bool g_DontDeleteUnrecognizedImages2;
 
+extern bool g_CLEAN_RGB_IMAGES;
+
 class CMainFrame;
 class CSSOWnd;
 

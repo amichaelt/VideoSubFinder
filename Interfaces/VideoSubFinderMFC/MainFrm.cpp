@@ -528,6 +528,8 @@ void CMainFrame::LoadSettings(CString fname)
 	ReadProperty(fin, g_sse, "sub_square_error");
 	ReadProperty(fin, g_veple, "vedges_points_line_error");
 
+	ReadProperty(fin, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
+
 	fin.close();
 
 	m_pPanel->m_SSPanel.RedrawWindow();
@@ -565,6 +567,8 @@ void CMainFrame::SaveSettings(CString fname)
 	WriteProperty(fout, g_mtpl, "min_text_len_(in_procent)");
 	WriteProperty(fout, g_sse, "sub_square_error");
 	WriteProperty(fout, g_veple, "vedges_points_line_error");
+
+	WriteProperty(fout, (int)g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
 
 	fout.close();
 }
@@ -933,6 +937,11 @@ void WriteProperty(ofstream &fout, int val, CString Name)
 	fout << Name << " = " << val << '\n';
 }
 
+void WriteProperty(ofstream &fout, bool val, CString Name)
+{
+	fout << Name << " = " << val << '\n';
+}
+
 void WriteProperty(ofstream &fout, double val, CString Name)
 {
 	fout << Name << " = " << val << '\n';
@@ -953,6 +962,33 @@ void ReadProperty(ifstream &fin, int &val, CString Name)
 	if (!fin.eof()) 
 	{
 		val = (int)strtod(str, NULL);
+	}
+}
+
+void ReadProperty(ifstream &fin, bool &val, CString Name)
+{
+	char name[100], str[100];
+
+	fin.seekg(0);
+	do
+	{
+		fin >> name;
+		fin >> str;
+		fin >> str;
+	} while((Name != CString(name)) && !fin.eof());
+	
+	if (!fin.eof()) 
+	{
+		int get_val = (int)strtod(str, NULL);
+
+		if (get_val != 0)
+		{
+			val = true;
+		}
+		else
+		{
+			val = false;
+		}
 	}
 }
 

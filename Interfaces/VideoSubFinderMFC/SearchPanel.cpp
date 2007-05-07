@@ -307,5 +307,10 @@ DWORD WINAPI ThreadSearchSubtitles(PVOID pParam)
 	
 	IsSearching = 0;
 
+	if ( (g_RunSubSearch == 1) && (g_CLEAN_RGB_IMAGES == true) )
+	{
+		pMF->m_pPanel->m_OCRPanel.OnBnClickedCreateClearedTextImages();
+	}
+
 	return 0;
 }

@@ -127,8 +127,10 @@ void VTimerFunc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 
 void WriteProperty(ofstream &fout, int val, CString Name);
+void WriteProperty(ofstream &fout, bool val, CString Name);
 void WriteProperty(ofstream &fout, double val, CString Name);
 void ReadProperty(ifstream &fin, int &val, CString Name);
+void ReadProperty(ifstream &fin, bool &val, CString Name);
 void ReadProperty(ifstream &fin, double &val, CString Name);
 
 bool IsMMX_and_SSE();
