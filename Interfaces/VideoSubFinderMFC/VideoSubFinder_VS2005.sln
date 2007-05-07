@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VideoSubFinder", "VideoSubFinder_VS2005.vcproj", "{353FFB66-6483-44FC-ACBB-E6641523BB64}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B3908609-590E-4361-8E90-8EDC3CD2442C} = {B3908609-590E-4361-8E90-8EDC3CD2442C}
+		{BFE25C0A-EA0C-484D-B426-6D7511C9958B} = {BFE25C0A-EA0C-484D-B426-6D7511C9958B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpeg", "..\..\Dependencies\jpeg\jpeg_VS2005.vcproj", "{8FDC8912-9489-42CB-9517-5815E1F120F9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPAlgorithms", "..\..\Components\IPAlgorithms\IPAlgorithms_VS2005.vcproj", "{BFE25C0A-EA0C-484D-B426-6D7511C9958B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8FDC8912-9489-42CB-9517-5815E1F120F9} = {8FDC8912-9489-42CB-9517-5815E1F120F9}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DSVideo", "..\..\Components\DSVideo\DSVideo_VS2005.vcproj", "{B3908609-590E-4361-8E90-8EDC3CD2442C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{353FFB66-6483-44FC-ACBB-E6641523BB64}.Debug|Win32.ActiveCfg = Debug|Win32
+		{353FFB66-6483-44FC-ACBB-E6641523BB64}.Debug|Win32.Build.0 = Debug|Win32
+		{353FFB66-6483-44FC-ACBB-E6641523BB64}.Release|Win32.ActiveCfg = Release|Win32
+		{353FFB66-6483-44FC-ACBB-E6641523BB64}.Release|Win32.Build.0 = Release|Win32
+		{8FDC8912-9489-42CB-9517-5815E1F120F9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8FDC8912-9489-42CB-9517-5815E1F120F9}.Debug|Win32.Build.0 = Debug|Win32
+		{8FDC8912-9489-42CB-9517-5815E1F120F9}.Release|Win32.ActiveCfg = Release|Win32
+		{8FDC8912-9489-42CB-9517-5815E1F120F9}.Release|Win32.Build.0 = Release|Win32
+		{BFE25C0A-EA0C-484D-B426-6D7511C9958B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFE25C0A-EA0C-484D-B426-6D7511C9958B}.Debug|Win32.Build.0 = Debug|Win32
+		{BFE25C0A-EA0C-484D-B426-6D7511C9958B}.Release|Win32.ActiveCfg = Release|Win32
+		{BFE25C0A-EA0C-484D-B426-6D7511C9958B}.Release|Win32.Build.0 = Release|Win32
+		{B3908609-590E-4361-8E90-8EDC3CD2442C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B3908609-590E-4361-8E90-8EDC3CD2442C}.Debug|Win32.Build.0 = Debug|Win32
+		{B3908609-590E-4361-8E90-8EDC3CD2442C}.Release|Win32.ActiveCfg = Release|Win32
+		{B3908609-590E-4361-8E90-8EDC3CD2442C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
