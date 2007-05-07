@@ -1027,6 +1027,8 @@ bool DSVideo::SetNullRender()
 
 	hr = m_pMF->SetSyncSource(NULL);
 
+	m_IsMSSuported = false;
+
 	return true;
 }
 
@@ -1112,11 +1114,11 @@ HRESULT DSVideo::CleanUp()
 	fstream fout;
 	string fname;
 	
-	if (m_pVW != NULL)
+	/*if (m_pVW != NULL)
 	{
 		hr = m_pVW->put_MessageDrain(NULL);
 		hr = m_pVW->put_Owner(NULL);
-	}
+	}*/
 	
 	fname = m_Dir + string("\\clean_video.log");
 	fout.open(fname.c_str(), ios_base::out | ios_base::app);
@@ -1267,70 +1269,136 @@ void DSVideo::OneStep()
 
 s64 DSVideo::OneStepWithTimeout()
 {
-	s64 CurPos;
+	s64 CurPos, PrevPos, tmpPos;
 	clock_t start_t, dt = 10000;
-	s64 PrevPos;		
 	long evCode;
 	long min_frame_rate = 15;
-	long ddt = 120;
+	long ddt = (s64)120*(s64)10000;
 
-	start_t = clock();
 	PrevPos = this->GetPos();
 
-	m_SGCallback.m_ImageGeted = false;
-	
-	do
+	if (PrevPos == m_Duration)
+	{
+		CurPos = PrevPos;
+	}
+	else
 	{
 		m_SGCallback.m_ImageGeted = false;
 		m_pMC->Run();
 		m_pME->WaitForCompletion(500, &evCode);
-
 		m_pMC->Pause();
-		CurPos = this->GetPos();
 
-		if (PosToMilliSeconds(CurPos-PrevPos) > ddt)
+		if ( (m_SGCallback.m_ImageGeted == false) && 
+			  (PrevPos >= (m_Duration - ddt)) )
 		{
-			SetPos(PrevPos);
-			m_pMC->Pause();
-			CurPos = this->GetPos();
+			m_SGCallback.m_ImageGeted = true;
+			CurPos = m_Duration;
 		}
-	}
-	while( (CurPos != m_Duration) && ((clock() - start_t) < dt) && 
-		   ( (CurPos == PrevPos) || 
-			 (PosToMilliSeconds(CurPos-PrevPos) > ddt) || 
-			 (m_SGCallback.m_ImageGeted == false) ) );
+		else
+		{
+			if ( (m_SGCallback.m_ImageGeted == false) && 
+				(PrevPos < (m_Duration - ddt*2)) )
+			{
+				start_t = clock();
 
-	if ( (PrevPos < m_Duration - 1*10000000) &&
-		 ( (CurPos == PrevPos) || 
-		   (PosToMilliSeconds(CurPos-PrevPos) > ddt) || 
-		   (m_SGCallback.m_ImageGeted == false) ) )
-	{
-		string str;
+				while ( ((clock() - start_t) < dt) && 
+						(m_SGCallback.m_ImageGeted == false) )
+				{
+					m_pMC->Run();
+					m_pME->WaitForCompletion(1000, &evCode);
+					m_pMC->Pause();
+				}
 
-		//char dir[300];
-		//GetCurrentDirectory(300,dir);
-		string log = string("error.log");
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					this->SetPos(PrevPos + ddt/3);
+				}
 
-		ofstream fout;
-		fout.open(log.c_str(), ios::app);
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					this->SetPos(PrevPos + ddt/2);
+				}
 
-		fout << "\nError in OneStepWithTimeout in DSVideo :";
-		fout << " MovieName=" << m_MovieName;
-		fout << " CurPos=" << CurPos;
-		fout << " PrevPos=" << PrevPos;
-		fout << " ImageGeted=" << m_SGCallback.m_ImageGeted;
-		fout << " ddt=" << ddt << " : ";
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					this->SetPos(PrevPos + (ddt*2)/3);
+				}
 
-		if (CurPos == PrevPos) str = string("CurPos == PrevPos");
-		if (PosToMilliSeconds(CurPos-PrevPos) > ddt) str = string("PosToMilliSeconds(CurPos-PrevPos) > ddt");
-		if (m_SGCallback.m_ImageGeted == false) str = string("ImageGeted == false");
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					this->SetPos(PrevPos + ddt);
+				}
 
-		fout << str << "\n";
-		
-		fout.close();
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					this->SetPos(PrevPos + (ddt*3)/2);
+				}
 
-		if (CurPos == PrevPos)
-			MessageBox(NULL, str.c_str(), "OneStepWithTimeout in DSVideo", MB_ICONERROR);
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					this->SetPos(PrevPos + ddt*2);
+				}
+
+				if (m_SGCallback.m_ImageGeted == false)
+				{
+					MessageBox(NULL, "Can'nt get new image.", "OneStepWithTimeout in DSVideo", MB_ICONERROR);
+				}
+			}
+			
+			CurPos = tmpPos = this->GetPos();
+
+			if ( (tmpPos == PrevPos) || ((tmpPos - PrevPos) > ddt) )
+			{
+				this->SetPos(PrevPos + ddt/3);
+				CurPos = this->GetPos();
+
+				if (CurPos == PrevPos)
+				{
+					this->SetPos(PrevPos + ddt/2);
+					CurPos = this->GetPos();
+				}
+
+				if (CurPos == PrevPos)
+				{
+					this->SetPos(PrevPos + (ddt*2)/3);
+					CurPos = this->GetPos();
+				}
+
+				if (CurPos == PrevPos)
+				{
+					this->SetPos(PrevPos + ddt);
+					CurPos = this->GetPos();
+				}
+
+				if (CurPos == PrevPos)
+				{
+					this->SetPos(PrevPos + (ddt*3)/2);
+					CurPos = this->GetPos();
+				}
+
+				if (CurPos == PrevPos)
+				{
+					this->SetPos(PrevPos + ddt*2);
+					CurPos = this->GetPos();
+				}
+
+				if ((CurPos == PrevPos) && (tmpPos == PrevPos))
+				{
+					MessageBox(NULL, "Can'nt get image with pos != prev_pos.", "OneStepWithTimeout in DSVideo", MB_ICONERROR);
+				}
+			}
+
+			if (CurPos == PrevPos)
+			{
+				this->SetPos(tmpPos);
+				CurPos = this->GetPos();
+
+				if (CurPos == PrevPos)
+				{
+					CurPos = tmpPos;
+				}
+			}
+		}
 	}
 
 	return CurPos;
@@ -1342,12 +1410,19 @@ s64 DSVideo::GetPos()
 {
     s64 pos = -1;
 
-	HRESULT hr = m_pMS->GetCurrentPosition(&pos);
+	if ( m_IsMSSuported )
+	{
+		HRESULT hr = m_pMS->GetCurrentPosition(&pos);
 
-	if (hr == E_NOTIMPL)
+		if (hr == E_NOTIMPL)
+		{
+			pos = m_SGCallback.m_st;
+			m_IsMSSuported = false;
+		}
+	}
+	else
 	{
 		pos = m_SGCallback.m_st;
-		m_IsMSSuported = false;
 	}
 
     return pos;
