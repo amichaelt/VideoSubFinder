@@ -20,8 +20,6 @@
 #include "VideoSubFinder.h"
 #include "SettingsPanel.h"
 
-int g_ImRGB[1024*768];
-int g_ImF[6][1024*768];
 CString	StrFN[6];
 
 CSettingsPanel::CSettingsPanel()
@@ -273,7 +271,7 @@ void CSettingsPanel::Init(CSSOWnd* pParent)
 
 	m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("OCR настройки", RGB(0, 255, 255)));	
 	pProp->Expand ();
-	pProp->AddProperty (new CObjectInspector::CProperty("Clean RGBImages after search subtitles : ", &g_CLEAN_RGB_IMAGES));
+	pProp->AddProperty (new CObjectInspector::CProperty("Clear RGBImages after search subtitles : ", &g_CLEAN_RGB_IMAGES));
 	pProp->AddProperty (new CObjectInspector::CProperty("Using hard algorithm for text mining from background : ", &g_hard_sub_mining));
 	pProp->AddProperty (new CObjectInspector::CProperty("Using FRDImages for getting TXT areas : ", &g_use_FRD_images));
 	pProp->AddProperty (new CObjectInspector::CProperty("Validate And Compare Cleared TXT Images : ", &g_ValidateAndCompareTXTImages));
@@ -508,19 +506,19 @@ void CSettingsPanel::OnBnClickedTest()
 		{
 			memcpy(g_ImF[3], g_ImF[5], (w*h)*sizeof(int));
 			memcpy(g_ImF[4], g_ImF[5], (w*h)*sizeof(int));
-			UnpackImage(g_ImRES2, g_ImF[1], g_LB, g_LE, g_LN, w, h);
-			UnpackImage(g_ImRES3, g_ImF[2], g_LB, g_LE, g_LN, w, h);			
+			UnpackImage(g_ImRES2, g_ImF[1], g_pLB, g_pLE, g_LN, w, h);
+			UnpackImage(g_ImRES3, g_ImF[2], g_pLB, g_pLE, g_LN, w, h);			
 		}
 		else
 		{
 			if (g_blnVNE == 1) 
 			{
-				UnpackImage(g_ImRES1, g_ImF[0], g_LB, g_LE, g_LN, w, h);
-				UnpackImage(g_ImRES2, g_ImF[1], g_LB, g_LE, g_LN, w, h);
+				UnpackImage(g_ImRES1, g_ImF[0], g_pLB, g_pLE, g_LN, w, h);
+				UnpackImage(g_ImRES2, g_ImF[1], g_pLB, g_pLE, g_LN, w, h);
 			}
 			if (g_blnVNE == 1) 
 			{
-				UnpackImage(g_ImRES3, g_ImF[2], g_LB, g_LE, g_LN, w, h);			
+				UnpackImage(g_ImRES3, g_ImF[2], g_pLB, g_pLE, g_LN, w, h);			
 			}
 		}
 	}

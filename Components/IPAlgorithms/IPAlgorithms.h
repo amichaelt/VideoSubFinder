@@ -21,6 +21,7 @@
 #include "DataTypes.h"
 #include "MyClosedFigure.h"
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -72,9 +73,34 @@ extern int		*g_ImRES1;
 extern int		*g_ImRES2;
 extern int		*g_ImRES3;
 
-extern int		g_LB[768];
-extern int		g_LE[768];
+extern int		*g_ImRGB;
+extern int		*g_ImF[6];
+
+extern int		*g_pLB;
+extern int		*g_pLE;
 extern int		g_LN;
+
+extern int		*g_pLB6;
+extern int		*g_pLE6;
+extern int		*g_pLB7;
+extern int		*g_pLE7;
+extern int		*g_pLB8;
+extern int		*g_pLE8;
+extern int		*g_pLB9;
+extern int		*g_pLE9;
+
+extern int		*g_pImFF1;
+extern int		*g_pImVE1;
+extern int		*g_pImNE1;
+extern int		*g_pImFF2;
+extern int		*g_pImVE2;
+extern int		*g_pImNE2;
+extern int		*g_pImTEMP1;
+extern int		*g_pImTEMP2;
+extern int		*g_pImTEMP3;
+extern int		*g_ImRES10;
+extern int		*g_ImRES11;
+extern int		*g_ImRES12;
 
 extern int		g_blnVNE;
 extern int		g_blnHE;
@@ -86,8 +112,12 @@ extern bool		g_MMX_SSE;
 extern bool		g_hard_sub_mining;
 extern int		g_show_results;
 
+extern int		g_dmaxy;
+
 void InitIPData(int w, int h, int scale);
 void ReleaseIPData();
+
+void YIQ_to_RGB(int Y, int I, int Q, int &R, int &G, int &B, int max_val);
 
 void RGB_to_YUV(int *ImIn, int *ImY,int *ImU,int *ImV, int w, int h);
 void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h);
@@ -163,6 +193,10 @@ void ClearImageOpt3(int *Im, int w, int h, int LH, int LMAXY, int jI_min, int jI
 
 int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe, int white);
 
+void SaveTextLineParameters(string ImageName, int YB, int LH, int LY, int LXB, int LXE, int LYB, int LYE, int mY, int mI, int mQ);
+void GetSymbolAvgColor(CMyClosedFigure *pFigure);
+void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, int &XE, int &YB, int &YE, int &mY, int &mI, int &mQ, int white);
+
 int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY, 
 					int jY_min, int jY_max, int jI_min, int jI_max, int jQ_min, int jQ_max,
 					int mY, int dY, int mI, int dI, int mQ, int dQ, 
@@ -176,5 +210,5 @@ int CompareTXTImages(int *Im1, int *Im2, int w1, int h1, int w2, int h2, int YB1
 
 void SaveRGBImage(int *Im, string name, int w, int h);
 void LoadRGBImage(int *Im, string name, int &w, int &h);
-void SaveImage(int *Im, string name, int w, int h);
+void SaveImage(int *Im, string name, int w, int h, int quality = -1, int dpi = -1);
 void LoadImage(int *Im, string name, int &w, int &h);

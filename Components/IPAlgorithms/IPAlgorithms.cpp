@@ -102,10 +102,78 @@ int *g_ImSF = NULL;
 int *g_ImFF = NULL;
 int *g_ImRR = NULL;
 
-int g_edgeStr[1024*768];
-int g_LB[768];
-int g_LE[768];
+int *g_ImRGB = NULL;
+int *g_ImF[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+
+JSAMPLE *g_jsrow = NULL;
+
+#define MAX_EDGE_STR 786432 //на сам деле ~ 32*3*255
+
+int g_edgeStr[MAX_EDGE_STR];
+int *g_pLB = NULL;
+int *g_pLE = NULL;
+
 int g_LN;
+
+int *g_pL2 = NULL;
+int *g_pLB2 = NULL;
+int *g_pLE2 = NULL;
+int *g_pLB3 = NULL;
+int *g_pLE3 = NULL;
+int *g_pLB4 = NULL;
+int *g_pLE4 = NULL;
+int *g_pLB5 = NULL;
+int *g_pLE5 = NULL;
+int *g_pLB6 = NULL;
+int *g_pLE6 = NULL;
+int *g_pLB7 = NULL;
+int *g_pLE7 = NULL;
+int *g_pLB8 = NULL;
+int *g_pLE8 = NULL;
+int *g_pLB9 = NULL;
+int *g_pLE9 = NULL;
+
+int *g_pLL = NULL;
+int *g_pLR = NULL;
+int *g_pLLB = NULL;
+int *g_pLLE = NULL;
+int *g_pLW = NULL;
+int *g_pLNN = NULL;
+int **g_ppLLLB = NULL;
+int **g_ppLLLE = NULL;
+
+int *g_pLL2 = NULL;
+int *g_pLR2 = NULL;
+int *g_pLLB2 = NULL;
+int *g_pLLE2 = NULL;
+int *g_pLW2 = NULL;
+int *g_pLNN2 = NULL;
+int **g_ppLLLB2 = NULL;
+int **g_ppLLLE2 = NULL;
+
+int *g_pLL3 = NULL;
+int *g_pLR3 = NULL;
+int *g_pLLB3 = NULL;
+int *g_pLLE3 = NULL;
+int *g_pLW3 = NULL;
+int *g_pLNN3 = NULL;
+int **g_ppLN3 = NULL;
+
+int *g_pLLB4 = NULL;
+int *g_pLLE4 = NULL;
+
+int *g_pImFF1 = NULL;
+int *g_pImVE1 = NULL;
+int *g_pImNE1 = NULL;
+int *g_pImFF2 = NULL;
+int *g_pImVE2 = NULL;
+int *g_pImNE2 = NULL;
+int *g_pImTEMP1 = NULL;
+int *g_pImTEMP2 = NULL;
+int *g_pImTEMP3 = NULL;
+int *g_ImRES10 = NULL;
+int *g_ImRES11 = NULL;
+int *g_ImRES12 = NULL;
 
 int g_scale = 1;
 
@@ -127,7 +195,7 @@ bool g_MMX_SSE = true;
 
 void InitIPData(int w, int h, int scale)
 {
-	int size;
+	int size, i;
 	
 	ReleaseIPData();
 
@@ -224,17 +292,248 @@ void InitIPData(int w, int h, int scale)
 	//-------------
 
 	//-------------
-	memset(g_edgeStr, 0, 1024*768*sizeof(int));
+	memset(g_edgeStr, 0, MAX_EDGE_STR*sizeof(int));
+	//-------------
 
-	size = 768*sizeof(int);
+	//-------------
+	size = g_W*g_H;
 
-	memset(g_LB, 0, size);
-	memset(g_LE, 0, size);	
+	g_ImRGB = new int[size];
+	memset(g_ImRGB, 0, size*sizeof(int));
+
+	for(i=0; i<6; i++)
+	{
+		g_ImF[i] = new int[size];
+		memset(g_ImF[i], 0, size*sizeof(int));	
+	}
+	//-------------
+
+	//-------------
+	size = g_W*3*4;
+
+	g_jsrow = new JSAMPLE[size];
+	memset(g_jsrow, 0, size*sizeof(JSAMPLE));	
+	//-------------
+
+	//-------------
+	size = g_W;
+
+	g_pLB = new int[size];
+	memset(g_pLB, 0, size*sizeof(int));
+
+	g_pLE = new int[size];
+	memset(g_pLE, 0, size*sizeof(int));	
+
+	g_pL2 = new int[size];
+	memset(g_pL2, 0, size*sizeof(int));
+
+	g_pLB2 = new int[size];
+	memset(g_pLB2, 0, size*sizeof(int));
+
+	g_pLE2 = new int[size];
+	memset(g_pLE2, 0, size*sizeof(int));	
+
+	g_pLB3 = new int[size];
+	memset(g_pLB3, 0, size*sizeof(int));
+
+	g_pLE3 = new int[size];
+	memset(g_pLE3, 0, size*sizeof(int));	
+
+	g_pLB4 = new int[size];
+	memset(g_pLB4, 0, size*sizeof(int));
+
+	g_pLE4 = new int[size];
+	memset(g_pLE4, 0, size*sizeof(int));	
+
+	g_pLB5 = new int[size];
+	memset(g_pLB5, 0, size*sizeof(int));
+
+	g_pLE5 = new int[size];
+	memset(g_pLE5, 0, size*sizeof(int));	
+
+	g_pLB6 = new int[size];
+	memset(g_pLB6, 0, size*sizeof(int));
+
+	g_pLE6 = new int[size];
+	memset(g_pLE6, 0, size*sizeof(int));
+
+	g_pLB7 = new int[size];
+	memset(g_pLB7, 0, size*sizeof(int));
+
+	g_pLE7 = new int[size];
+	memset(g_pLE7, 0, size*sizeof(int));
+
+	g_pLB8 = new int[size];
+	memset(g_pLB8, 0, size*sizeof(int));
+
+	g_pLE8 = new int[size];
+	memset(g_pLE8, 0, size*sizeof(int));
+
+	g_pLB9 = new int[size];
+	memset(g_pLB9, 0, size*sizeof(int));
+
+	g_pLE9 = new int[size];
+	memset(g_pLE9, 0, size*sizeof(int));
+	//-------------
+
+	//-------------
+	size = g_W;
+
+	g_pLL = new int[size];
+	memset(g_pLL, 0, size*sizeof(int));	
+
+	g_pLR = new int[size];
+	memset(g_pLR, 0, size*sizeof(int));	
+
+	g_pLLB = new int[size];
+	memset(g_pLLB, 0, size*sizeof(int));	
+
+	g_pLLE = new int[size];
+	memset(g_pLLE, 0, size*sizeof(int));
+
+	g_pLW = new int[size];
+	memset(g_pLW, 0, size*sizeof(int));	
+
+	g_pLNN = new int[size];
+	memset(g_pLNN, 0, size*sizeof(int));	
+
+	g_pLL2 = new int[size];
+	memset(g_pLL2, 0, size*sizeof(int));	
+
+	g_pLR2 = new int[size];
+	memset(g_pLR2, 0, size*sizeof(int));	
+
+	g_pLLB2 = new int[size];
+	memset(g_pLLB2, 0, size*sizeof(int));	
+
+	g_pLLE2 = new int[size];
+	memset(g_pLLE2, 0, size*sizeof(int));
+
+	g_pLW2 = new int[size];
+	memset(g_pLW2, 0, size*sizeof(int));	
+
+	g_pLNN2 = new int[size];
+	memset(g_pLNN2, 0, size*sizeof(int));
+
+	g_pLL3 = new int[size];
+	memset(g_pLL3, 0, size*sizeof(int));	
+
+	g_pLR3 = new int[size];
+	memset(g_pLR3, 0, size*sizeof(int));	
+
+	g_pLLB3 = new int[size];
+	memset(g_pLLB3, 0, size*sizeof(int));	
+
+	g_pLLE3 = new int[size];
+	memset(g_pLLE3, 0, size*sizeof(int));
+
+	g_pLW3 = new int[size];
+	memset(g_pLW3, 0, size*sizeof(int));	
+
+	g_pLNN3 = new int[size];
+	memset(g_pLNN3, 0, size*sizeof(int));
+
+	g_pLLB4 = new int[size];
+	memset(g_pLLB4, 0, size*sizeof(int));	
+
+	g_pLLE4 = new int[size];
+	memset(g_pLLE4, 0, size*sizeof(int));
+	//-------------
+
+	//-------------
+	size = g_H;	
+
+	g_ppLLLB = new int*[size];
+	memset(g_ppLLLB, 0, size*sizeof(int*));	
+
+	for(i=0; i<size; i++)
+	{
+		g_ppLLLB[i] = new int[g_H];
+		memset(g_ppLLLB[i], 0, g_H*sizeof(int));	
+	}
+
+	g_ppLLLE = new int*[size];
+	memset(g_ppLLLE, 0, size*sizeof(int*));	
+
+	for(i=0; i<size; i++)
+	{
+		g_ppLLLE[i] = new int[g_H];
+		memset(g_ppLLLE[i], 0, g_H*sizeof(int));	
+	}
+
+	g_ppLLLB2 = new int*[size];
+	memset(g_ppLLLB2, 0, size*sizeof(int*));	
+
+	for(i=0; i<size; i++)
+	{
+		g_ppLLLB2[i] = new int[g_H];
+		memset(g_ppLLLB2[i], 0, g_H*sizeof(int));	
+	}
+
+	g_ppLLLE2 = new int*[size];
+	memset(g_ppLLLE2, 0, size*sizeof(int*));	
+
+	for(i=0; i<size; i++)
+	{
+		g_ppLLLE2[i] = new int[g_H];
+		memset(g_ppLLLE2[i], 0, g_H*sizeof(int));	
+	}
+
+	g_ppLN3 = new int*[size];
+	memset(g_ppLN3, 0, size*sizeof(int*));	
+
+	for(i=0; i<size; i++)
+	{
+		g_ppLN3[i] = new int[g_W];
+		memset(g_ppLN3[i], 0, g_W*sizeof(int));	
+	}
+	//-------------
+
+	//-------------
+	size = g_W*g_H;
+
+	g_pImFF1 = new int[size];
+	memset(g_pImFF1, 0, size*sizeof(int));
+
+	g_pImVE1 = new int[size];
+	memset(g_pImVE1, 0, size*sizeof(int));
+
+	g_pImNE1 = new int[size];
+	memset(g_pImNE1, 0, size*sizeof(int));
+
+	g_pImFF2 = new int[size];
+	memset(g_pImFF2, 0, size*sizeof(int));
+
+	g_pImVE2 = new int[size];
+	memset(g_pImVE2, 0, size*sizeof(int));
+
+	g_pImNE2 = new int[size];
+	memset(g_pImNE2, 0, size*sizeof(int));
+
+	g_pImTEMP1 = new int[size];
+	memset(g_pImTEMP1, 0, size*sizeof(int));
+
+	g_pImTEMP2 = new int[size];
+	memset(g_pImTEMP2, 0, size*sizeof(int));
+
+	g_pImTEMP3 = new int[size];
+	memset(g_pImTEMP3, 0, size*sizeof(int));
+
+	g_ImRES10 = new int[size];
+	memset(g_ImRES10, 0, size*sizeof(int));
+
+	g_ImRES11 = new int[size];
+	memset(g_ImRES11, 0, size*sizeof(int));
+
+	g_ImRES12 = new int[size];
+	memset(g_ImRES12, 0, size*sizeof(int));
 	//-------------
 }
 
 void ReleaseIPData()
 {
+	int i;
+
 	//-------------
 	if (g_ImYIQ != NULL) 
 	{
@@ -395,6 +694,420 @@ void ReleaseIPData()
 		g_ImRR = NULL;
 	}
 	//-------------
+
+	//-------------
+	if (g_ImRGB != NULL)
+	{
+		delete[] g_ImRGB;
+		g_ImRGB = NULL;
+	}
+
+	for(i=0; i<6; i++)
+	{
+		if (g_ImF[i] != NULL)
+		{
+			delete[] g_ImF[i];
+			g_ImF[i] = NULL;
+		}
+	}
+	//-------------
+
+	//-------------
+	if (g_jsrow != NULL)
+	{
+		delete[] g_jsrow;
+		g_jsrow = NULL;
+	}
+	//-------------
+
+	//-------------
+	if (g_pLB != NULL) 
+	{
+		delete[] g_pLB;
+		g_pLB = NULL;
+	}
+	
+	if (g_pLE != NULL) 
+	{
+		delete[] g_pLE;
+		g_pLE = NULL;
+	}
+
+	if (g_pL2 != NULL) 
+	{
+		delete[] g_pL2;
+		g_pL2 = NULL;
+	}
+
+	if (g_pLB2 != NULL) 
+	{
+		delete[] g_pLB2;
+		g_pLB2 = NULL;
+	}
+	
+	if (g_pLE2 != NULL) 
+	{
+		delete[] g_pLE2;
+		g_pLE2 = NULL;
+	}
+
+	if (g_pLB3 != NULL) 
+	{
+		delete[] g_pLB3;
+		g_pLB3 = NULL;
+	}
+
+	if (g_pLE3 != NULL) 
+	{
+		delete[] g_pLE3;
+		g_pLE3 = NULL;
+	}
+
+	if (g_pLB4 != NULL) 
+	{
+		delete[] g_pLB4;
+		g_pLB4 = NULL;
+	}
+	
+	if (g_pLE4 != NULL) 
+	{
+		delete[] g_pLE4;
+		g_pLE4 = NULL;
+	}
+
+	if (g_pLB5 != NULL) 
+	{
+		delete[] g_pLB5;
+		g_pLB5 = NULL;
+	}
+	
+	if (g_pLE5 != NULL) 
+	{
+		delete[] g_pLE5;
+		g_pLE5 = NULL;
+	}
+
+	if (g_pLB6 != NULL) 
+	{
+		delete[] g_pLB6;
+		g_pLB6 = NULL;
+	}
+	
+	if (g_pLE6 != NULL) 
+	{
+		delete[] g_pLE6;
+		g_pLE6 = NULL;
+	}
+
+	if (g_pLB7 != NULL) 
+	{
+		delete[] g_pLB7;
+		g_pLB7 = NULL;
+	}
+	
+	if (g_pLE7 != NULL) 
+	{
+		delete[] g_pLE7;
+		g_pLE7 = NULL;
+	}
+
+	if (g_pLB8 != NULL) 
+	{
+		delete[] g_pLB8;
+		g_pLB8 = NULL;
+	}
+	
+	if (g_pLE8 != NULL) 
+	{
+		delete[] g_pLE8;
+		g_pLE8 = NULL;
+	}
+
+	if (g_pLB9 != NULL) 
+	{
+		delete[] g_pLB9;
+		g_pLB9 = NULL;
+	}
+	
+	if (g_pLE9 != NULL) 
+	{
+		delete[] g_pLE9;
+		g_pLE9 = NULL;
+	}
+	//-------------
+
+	//-------------
+	if (g_pLL != NULL)
+	{
+		delete[] g_pLL;
+		g_pLL = NULL;
+	}
+
+	if (g_pLR != NULL)
+	{
+		delete[] g_pLR;
+		g_pLR = NULL;
+	}
+
+	if (g_pLLB != NULL)
+	{
+		delete[] g_pLLB;
+		g_pLLB = NULL;
+	}
+
+	if (g_pLLE != NULL)
+	{
+		delete[] g_pLLE;
+		g_pLLE = NULL;
+	}
+
+	if (g_pLW != NULL)
+	{
+		delete[] g_pLW;
+		g_pLW = NULL;
+	}
+
+	if (g_pLNN != NULL)
+	{
+		delete[] g_pLNN;
+		g_pLNN = NULL;
+	}
+
+	if (g_pLL2 != NULL)
+	{
+		delete[] g_pLL2;
+		g_pLL2 = NULL;
+	}
+
+	if (g_pLR2 != NULL)
+	{
+		delete[] g_pLR2;
+		g_pLR2 = NULL;
+	}
+
+	if (g_pLLB2 != NULL)
+	{
+		delete[] g_pLLB2;
+		g_pLLB2 = NULL;
+	}
+
+	if (g_pLLE2 != NULL)
+	{
+		delete[] g_pLLE2;
+		g_pLLE2 = NULL;
+	}
+
+	if (g_pLW2 != NULL)
+	{
+		delete[] g_pLW2;
+		g_pLW2 = NULL;
+	}
+
+	if (g_pLNN2 != NULL)
+	{
+		delete[] g_pLNN2;
+		g_pLNN2 = NULL;
+	}
+
+	if (g_pLL3 != NULL)
+	{
+		delete[] g_pLL3;
+		g_pLL3 = NULL;
+	}
+
+	if (g_pLR3 != NULL)
+	{
+		delete[] g_pLR3;
+		g_pLR3 = NULL;
+	}
+
+	if (g_pLLB3 != NULL)
+	{
+		delete[] g_pLLB3;
+		g_pLLB3 = NULL;
+	}
+
+	if (g_pLLE3 != NULL)
+	{
+		delete[] g_pLLE3;
+		g_pLLE3 = NULL;
+	}
+
+	if (g_pLW3 != NULL)
+	{
+		delete[] g_pLW3;
+		g_pLW3 = NULL;
+	}
+
+	if (g_pLNN3 != NULL)
+	{
+		delete[] g_pLNN3;
+		g_pLNN3 = NULL;
+	}
+
+	if (g_pLLB4 != NULL)
+	{
+		delete[] g_pLLB4;
+		g_pLLB4 = NULL;
+	}
+
+	if (g_pLLE4 != NULL)
+	{
+		delete[] g_pLLE4;
+		g_pLLE4 = NULL;
+	}
+	//-------------
+
+	//-------------
+	if (g_ppLLLB != NULL)
+	{
+		for(i=0; i<g_H; i++)
+		{
+			if (g_ppLLLB[i] != NULL)
+			{
+				delete[] g_ppLLLB[i];
+				g_ppLLLB[i] = NULL;
+			}
+		}
+	
+		delete[] g_ppLLLB;
+		g_ppLLLB = NULL;
+	}
+
+	if (g_ppLLLE != NULL)
+	{
+		for(i=0; i<g_H; i++)
+		{
+			if (g_ppLLLE[i] != NULL)
+			{
+				delete[] g_ppLLLE[i];
+				g_ppLLLE[i] = NULL;
+			}
+		}
+	
+		delete[] g_ppLLLE;
+		g_ppLLLE = NULL;
+	}
+
+	if (g_ppLLLB2 != NULL)
+	{
+		for(i=0; i<g_H; i++)
+		{
+			if (g_ppLLLB2[i] != NULL)
+			{
+				delete[] g_ppLLLB2[i];
+				g_ppLLLB2[i] = NULL;
+			}
+		}
+	
+		delete[] g_ppLLLB2;
+		g_ppLLLB2 = NULL;
+	}
+
+	if (g_ppLLLE2 != NULL)
+	{
+		for(i=0; i<g_H; i++)
+		{
+			if (g_ppLLLE2[i] != NULL)
+			{
+				delete[] g_ppLLLE2[i];
+				g_ppLLLE2[i] = NULL;
+			}
+		}
+	
+		delete[] g_ppLLLE2;
+		g_ppLLLE2 = NULL;
+	}
+
+	if (g_ppLN3 != NULL)
+	{
+		for(i=0; i<g_H; i++)
+		{
+			if (g_ppLN3[i] != NULL)
+			{
+				delete[] g_ppLN3[i];
+				g_ppLN3[i] = NULL;
+			}
+		}
+	
+		delete[] g_ppLN3;
+		g_ppLN3 = NULL;
+	}
+	//-------------
+
+	//-------------
+	if (g_pImFF1 != NULL)
+	{
+		delete[] g_pImFF1;
+		g_pImFF1 = NULL;
+	}
+
+	if (g_pImVE1 != NULL)
+	{
+		delete[] g_pImVE1;
+		g_pImVE1 = NULL;
+	}
+
+	if (g_pImNE1 != NULL)
+	{
+		delete[] g_pImNE1;
+		g_pImNE1 = NULL;
+	}
+
+	if (g_pImFF2 != NULL)
+	{
+		delete[] g_pImFF2;
+		g_pImFF2 = NULL;
+	}
+
+	if (g_pImVE2 != NULL)
+	{
+		delete[] g_pImVE2;
+		g_pImVE2 = NULL;
+	}
+
+	if (g_pImNE2 != NULL)
+	{
+		delete[] g_pImNE2;
+		g_pImNE2 = NULL;
+	}
+
+	if (g_pImTEMP1 != NULL)
+	{
+		delete[] g_pImTEMP1;
+		g_pImTEMP1 = NULL;
+	}
+
+	if (g_pImTEMP2 != NULL)
+	{
+		delete[] g_pImTEMP2;
+		g_pImTEMP2 = NULL;
+	}
+
+	if (g_pImTEMP3 != NULL)
+	{
+		delete[] g_pImTEMP3;
+		g_pImTEMP3 = NULL;
+	}
+
+	if (g_ImRES10 != NULL)
+	{
+		delete[] g_ImRES10;
+		g_ImRES10 = NULL;
+	}
+
+	if (g_ImRES11 != NULL)
+	{
+		delete[] g_ImRES11;
+		g_ImRES11 = NULL;
+	}
+
+	if (g_ImRES12 != NULL)
+	{
+		delete[] g_ImRES12;
+		g_ImRES12 = NULL;
+	}
+	//-------------
 }
 
 void RGB_to_YUV(int *ImIn, int *ImY,int *ImU,int *ImV, int w, int h)
@@ -440,6 +1153,39 @@ void RGB_to_YUV(int *ImIn, int *ImY,int *ImU,int *ImV, int w, int h)
 			v = -v;
 			ImV[i] = -(v >> 16);
 		}
+	}
+}
+
+void YIQ_to_RGB(int Y, int I, int Q, int &R, int &G, int &B, int max_val)
+{
+	R = (int)(1.00000000*(double)Y + 0.95608445*(double)I + 0.62088850*(double)Q);
+	G = (int)(1.00000000*(double)Y - 0.27137664*(double)I - 0.64860590*(double)Q);
+	B = (int)(1.00000000*(double)Y - 1.10561724*(double)I + 1.70250126*(double)Q);
+
+	if (R < 0)
+	{
+		R = 0;
+	}
+	if (G < 0)
+	{
+		G = 0;
+	}
+	if (B < 0)
+	{
+		B = 0;
+	}
+	
+	if (R > max_val)
+	{
+		R = max_val;
+	}
+	if (G > max_val)
+	{
+		G = max_val;
+	}
+	if (B > max_val)
+	{
+		B = max_val;
 	}
 }
 
@@ -1568,7 +2314,7 @@ void AplyECP(int *ImIn, int* ImOut, int w, int h)
 
 void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
 {
-	static int line[768], lb[768], le[768];
+	int *line=g_pL2, *lb=g_pLB2, *le=g_pLE2;
 	int r0, g0, b0, r1, g1, b1;
 	int scd, segw, msegc, i, ib, ia, mi, cnt;
 	int dif, rdif, gdif, bdif;
@@ -1981,7 +2727,7 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 
 	res = 0;
 
-	ColorFiltration(ImRGB, g_LB, g_LE, N, W, H);
+	ColorFiltration(ImRGB, g_pLB, g_pLE, N, W, H);
 
 	ImVE[0] = -1;
 	ImNE[0] = -1;
@@ -2002,9 +2748,9 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	h = 0;
 	for(k=0; k<N; k++)
 	{
-		h += g_LE[k]-g_LB[k]+1;
-		cnt = W*(g_LE[k]-g_LB[k]+1);
-		memcpy(&g_Im[i], &ImRGB[W*g_LB[k]], cnt*sizeof(int));
+		h += g_pLE[k]-g_pLB[k]+1;
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);
+		memcpy(&g_Im[i], &ImRGB[W*g_pLB[k]], cnt*sizeof(int));
 		i += cnt;
 	}
 
@@ -2048,8 +2794,8 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		ApplyModerateThreshold(&g_ImRES4[i], g_mthr, W, g_LE[k]-g_LB[k]+1);
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		ApplyModerateThreshold(&g_ImRES4[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
 	//ApplyModerateThreshold(g_ImRES4, g_mthr, w, h);
@@ -2082,8 +2828,8 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		ApplyModerateThreshold(&g_ImRES1[i], g_mthr, W, g_LE[k]-g_LB[k]+1);
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		ApplyModerateThreshold(&g_ImRES1[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
 	//ApplyModerateThreshold(g_ImRES1, g_mthr, w, h);
@@ -2095,8 +2841,8 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		memcpy(&ImFF[W*g_LB[k]], &g_ImRES1[i], cnt*sizeof(int));
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		memcpy(&ImFF[W*g_pLB[k]], &g_ImRES1[i], cnt*sizeof(int));
 		i += cnt;
 	}
 
@@ -2183,32 +2929,32 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	segh = g_segh;
 	for(k=0; k<N; k++)
 	{
-		val = g_LB[k]%segh;
-		g_LB[k] -= val;
+		val = g_pLB[k]%segh;
+		g_pLB[k] -= val;
 		
-		val = g_LE[k]%segh;
+		val = g_pLE[k]%segh;
 		if (val > 0) val = segh - val;
-		if (g_LE[k] + val < H) g_LE[k] += val;
+		if (g_pLE[k] + val < H) g_pLE[k] += val;
 	}
 
 	t2 = clock()-t2;
 	//t2 = clock();
 
-	res = SecondFiltration(ImSF, ImRGB, ImVE, ImNE, g_LB, g_LE, N, W, H);
+	res = SecondFiltration(ImSF, ImRGB, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
 	memcpy(ImTF, ImSF, W*H*sizeof(int));
 
-	if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_LB, g_LE, N, W, H);
+	if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
 
-	if (res == 1) res = SecondFiltration(ImTF, ImRGB, ImVE, ImNE, g_LB, g_LE, N, W, H);
+	if (res == 1) res = SecondFiltration(ImTF, ImRGB, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
 
-	if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_LB, g_LE, N, W, H);
+	if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
 
 	return res;
 }
 
 void FreeImage(int *Im, int* LB, int* LE, int N, int w, int h)
 {
-	static int LLB[756], LLE[756];
+	int *LLB=g_pLLB4, *LLE=g_pLLE4;
 	int i, j;
 	
 	if (LB[0] > 0)
@@ -2267,19 +3013,19 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 {
 	int i, j, k, cnt, val, N;
 	int x, y, mx, my, segh;
-	static int LB[768], LE[768]; 
+	int *LB=g_pLB3, *LE=g_pLE3; 
 	int w, h, dh;
 	int res;
 
-	/*g_LB[0] = 0;
-	g_LE[0] = H-1;
+	/*g_pLB[0] = 0;
+	g_pLE[0] = H-1;
 	N = 1;*/
 
 	res = 0;
 	g_blnVNE = 0;
 	g_blnHE = 0;
 
-	ColorFiltration(ImRGB, g_LB, g_LE, N, W, H);
+	ColorFiltration(ImRGB, g_pLB, g_pLE, N, W, H);
 
 	if (N == 0) 
 	{	
@@ -2291,24 +3037,24 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	val = (int)(0.02*(double)H)+1;
 	for(k=0; k<N; k++)
 	{
-		g_LB[k] -= val;		
-		g_LE[k] += val;
+		g_pLB[k] -= val;		
+		g_pLE[k] += val;
 
-		if (g_LB[k] < 0) g_LB[k] = 0;
-		if (g_LE[k] > H-1) g_LE[k] = H-1;
+		if (g_pLB[k] < 0) g_pLB[k] = 0;
+		if (g_pLE[k] > H-1) g_pLE[k] = H-1;
 	}
 
 	i=0;
 	while(i < N-1)
 	{
-		if (g_LB[i+1] <= g_LE[i])
+		if (g_pLB[i+1] <= g_pLE[i])
 		{
-			g_LE[i] = g_LE[i+1];
+			g_pLE[i] = g_pLE[i+1];
 
 			for (j=i+1; j<N-1; j++)
 			{
-				g_LB[j] = g_LB[j+1];
-				g_LE[j] = g_LE[j+1];
+				g_pLB[j] = g_pLB[j+1];
+				g_pLE[j] = g_pLE[j+1];
 			}
 
 			N--;
@@ -2326,12 +3072,12 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	h = 0;
 	for(k=0; k<N; k++)
 	{
-		dh = g_LE[k]-g_LB[k]+1;
+		dh = g_pLE[k]-g_pLB[k]+1;
 		LB[k] = h;
 		h += dh;
 		LE[k] = h-1;
 		cnt = W*dh;
-		memcpy(&g_Im[i], &ImRGB[W*g_LB[k]], cnt*sizeof(int));
+		memcpy(&g_Im[i], &ImRGB[W*g_pLB[k]], cnt*sizeof(int));
 		i += cnt;
 	}
 
@@ -2375,8 +3121,8 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		ApplyModerateThreshold(&g_ImRES5[i], g_mthr, W, g_LE[k]-g_LB[k]+1);
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		ApplyModerateThreshold(&g_ImRES5[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
 
@@ -2407,8 +3153,8 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		ApplyModerateThreshold(&g_ImRES1[i], g_mthr, W, g_LE[k]-g_LB[k]+1);
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		ApplyModerateThreshold(&g_ImRES1[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
 	CombineTwoImages(g_ImRES5, g_ImRES1, w, h);
@@ -2517,15 +3263,15 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	/////////////////
 	if (res == 1)
 	{
-		FreeImage(ImF, g_LB, g_LE, N, W, H);
-		FreeImage(ImVE, g_LB, g_LE, N, W, H);
+		FreeImage(ImF, g_pLB, g_pLE, N, W, H);
+		FreeImage(ImVE, g_pLB, g_pLE, N, W, H);
 
 		i = 0;
 		for(k=0; k<N; k++)
 		{
-			cnt = W*(g_LE[k]-g_LB[k]+1);		
-			memcpy(&ImF[W*g_LB[k]], &g_ImRES5[i], cnt*sizeof(int));
-			memcpy(&ImVE[W*g_LB[k]], &g_ImRES1[i], cnt*sizeof(int));
+			cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+			memcpy(&ImF[W*g_pLB[k]], &g_ImRES5[i], cnt*sizeof(int));
+			memcpy(&ImVE[W*g_pLB[k]], &g_ImRES1[i], cnt*sizeof(int));
 			i += cnt;
 		}		
 	}
@@ -2538,19 +3284,19 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 {
 	int i, j, k, cnt, val, N;
 	int x, y, mx, my, segh;
-	static int LB[768], LE[768]; 
+	int *LB=g_pLB4, *LE=g_pLE4; 
 	int w, h, dh;
 	int res;
 
-	/*g_LB[0] = 0;
-	g_LE[0] = H-1;
+	/*g_pLB[0] = 0;
+	g_pLE[0] = H-1;
 	N = 1;*/
 	
 	res = 0;
 	g_blnVNE = 0;
 	g_blnHE = 0;
 
-	ColorFiltration(ImRGB, g_LB, g_LE, N, W, H);
+	ColorFiltration(ImRGB, g_pLB, g_pLE, N, W, H);
 
 	if (N == 0) 
 	{	
@@ -2562,24 +3308,24 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	val = (int)(0.02*(double)H)+1;
 	for(k=0; k<N; k++)
 	{
-		g_LB[k] -= val;		
-		g_LE[k] += val;
+		g_pLB[k] -= val;		
+		g_pLE[k] += val;
 
-		if (g_LB[k] < 0) g_LB[k] = 0;
-		if (g_LE[k] > H-1) g_LE[k] = H-1;
+		if (g_pLB[k] < 0) g_pLB[k] = 0;
+		if (g_pLE[k] > H-1) g_pLE[k] = H-1;
 	}
 
 	i=0;
 	while(i < N-1)
 	{
-		if (g_LB[i+1] <= g_LE[i])
+		if (g_pLB[i+1] <= g_pLE[i])
 		{
-			g_LE[i] = g_LE[i+1];
+			g_pLE[i] = g_pLE[i+1];
 
 			for (j=i+1; j<N-1; j++)
 			{
-				g_LB[j] = g_LB[j+1];
-				g_LE[j] = g_LE[j+1];
+				g_pLB[j] = g_pLB[j+1];
+				g_pLE[j] = g_pLE[j+1];
 			}
 
 			N--;
@@ -2597,12 +3343,12 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	h = 0;
 	for(k=0; k<N; k++)
 	{
-		dh = g_LE[k]-g_LB[k]+1;
+		dh = g_pLE[k]-g_pLB[k]+1;
 		LB[k] = h;
 		h += dh;
 		LE[k] = h-1;
 		cnt = W*dh;
-		memcpy(&g_Im[i], &ImRGB[W*g_LB[k]], cnt*sizeof(int));
+		memcpy(&g_Im[i], &ImRGB[W*g_pLB[k]], cnt*sizeof(int));
 		i += cnt;
 	}
 
@@ -2627,12 +3373,12 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 
 	//return 1;
 	/*ApplyModerateThreshold(g_ImRES5, g_mthr, w, h);
-	FreeImage(ImF, g_LB, g_LE, N, W, H);
+	FreeImage(ImF, g_pLB, g_pLE, N, W, H);
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		memcpy(&ImF[W*g_LB[k]], &g_ImRES5[i], cnt*sizeof(int));
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		memcpy(&ImF[W*g_pLB[k]], &g_ImRES5[i], cnt*sizeof(int));
 		i += cnt;
 	}
 	return 1;*/
@@ -2655,8 +3401,8 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		ApplyModerateThreshold_MMX_SSE(&g_ImRES8[i], g_mthr, W, g_LE[k]-g_LB[k]+1);
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		ApplyModerateThreshold_MMX_SSE(&g_ImRES8[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
 	
@@ -2678,8 +3424,8 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	i = 0;
 	for(k=0; k<N; k++)
 	{
-		cnt = W*(g_LE[k]-g_LB[k]+1);		
-		ApplyModerateThreshold_MMX_SSE(&g_ImRES7[i], g_mthr, W, g_LE[k]-g_LB[k]+1);
+		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+		ApplyModerateThreshold_MMX_SSE(&g_ImRES7[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
 	CombineTwoImages(g_ImRES7, g_ImRES8, w, h);
@@ -2722,15 +3468,15 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	/////////////////
 	if (res == 1)
 	{
-		FreeImage(ImF, g_LB, g_LE, N, W, H);
-		FreeImage(ImVE, g_LB, g_LE, N, W, H);
+		FreeImage(ImF, g_pLB, g_pLE, N, W, H);
+		FreeImage(ImVE, g_pLB, g_pLE, N, W, H);
 
 		i = 0;
 		for(k=0; k<N; k++)
 		{
-			cnt = W*(g_LE[k]-g_LB[k]+1);		
-			memcpy(&ImF[W*g_LB[k]], &g_ImRES7[i], cnt*sizeof(int));
-			memcpy(&ImVE[W*g_LB[k]], &g_ImRES1[i], cnt*sizeof(int));
+			cnt = W*(g_pLE[k]-g_pLB[k]+1);		
+			memcpy(&ImF[W*g_pLB[k]], &g_ImRES7[i], cnt*sizeof(int));
+			memcpy(&ImVE[W*g_pLB[k]], &g_ImRES1[i], cnt*sizeof(int));
 			i += cnt;
 		}		
 	}
@@ -2743,7 +3489,7 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 
 int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE, int N, int w, int h)
 {
-	static int lb[1024], le[1024];
+	int *lb=g_pLB5, *le=g_pLE5;
 	int segh, ln;
 	int x, y, da, ia, ib, ic, ie, i, k, l, ll, val, val1, val2, offset;
 	int bln, res;
@@ -3326,7 +4072,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
 int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, int LN, int w, int h)
 {
-	static int LL[768], LR[768], LLB[768], LLE[768], LW[768], LLLB[768][768], LLLE[768][768], NN[768];
+	int *LL=g_pLL, *LR=g_pLR, *LLB=g_pLLB, *LLE=g_pLLE, *LW=g_pLW, **LLLB=g_ppLLLB, **LLLE=g_ppLLLE, *NN=g_pLNN;
 	int wmin, wmax, nmin, im, vmin, vmax, bln, bln2, res, x, y, k, l, r, val, val1, val2;
 	int i, j, da, ib, ie, S, segh, N;
 	double mphd, mpnd, mpvd;
@@ -3926,7 +4672,7 @@ L:		ib = yb*w;
 
 int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, int LN, int w, int h)
 {
-	static int LL[768], LR[768], LLB[768], LLE[768], LW[768], LLLB[768][768], LLLE[768][768], NN[768];
+	int *LL=g_pLL2, *LR=g_pLR2, *LLB=g_pLLB2, *LLE=g_pLLE2, *LW=g_pLW2, **LLLB=g_ppLLLB2, **LLLE=g_ppLLLE2, *NN=g_pLNN2;
 	int wmin, wmax, nmin, im, vmin, vmax, bln, bln2, res, x, y, k, l, r, val, val1, val2;
 	int i, j, da, ib, ie, S, segh, YMIN, YMAX, K, N;
 	double mphd, mpnd, mpvd;
@@ -4213,7 +4959,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 
 			bln = 0;
 
-			if ((xm-xb+1 < g_W/5) && ((g_ymin + g_LB[K] + yb - LB[K]) > 0.7*g_H))
+			if ((xm-xb+1 < g_W/5) && ((g_ymin + g_pLB[K] + yb - LB[K]) > 0.7*g_H))
 			{
 				bln2 = 1;
 			}
@@ -4523,10 +5269,10 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 
 int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, int W, int H)
 {
-	static int LL[768], LR[768], LLB[768], LLE[768], LW[768];
-	static int LN[768][1024], LNN[768];
-	int i, j, k, l, r, x, y, ib, bln, N, N1, N2, N3, N4, N5, N6, N7, minN, maxN, w, h, cnt;
-	int XB, XE, YB, YE;
+	int *LL = g_pLL3, *LR = g_pLR3, *LLB = g_pLLB3, *LLE = g_pLLE3, *LW = g_pLW3;
+	int **LN = g_ppLN3, *LNN = g_pLNN3;
+	int i, j, k, l, r, x, y, ib, bln, N, N1, N2, N3, N4, N5, N6, N7, minN, maxN, w, h, ww, hh, cnt;
+	int XB, XE, YB, YE, DXB, DXE, DYB, DYE;
 	int xb, xe, yb, ye, segh;
 	int delta, val, val1, val2, val3, val4, val5, cnt1, cnt2, NN, ys1, ys2, ys3, ys4, ys5, val_min, val_max;
 	static int GRStr[256*2], smax[256*2], smaxi[256*2];
@@ -4534,7 +5280,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 	int mY, dY, mI, mQ, dI, dQ, jY_min, jY_max, mmY, ddY1, ddY2, mmI, mmQ, ddI, ddQ;
 	int LH, LMAXY;
 	double mthr;
-	string SaveName, Str;
+	string SaveName, FullName, Str;
 	char str[30];
 	int res;
 
@@ -4659,7 +5405,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 					if (bln == 0)
 					{
 						LN[k][LNN[k]] = val1;
-						if (LNN[k]+1 < 1024) LNN[k]++;
+						//if (LNN[k]+1 < 1024) LNN[k]++;
 					}
 				}
 			}
@@ -5347,7 +6093,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 			for (i=0; i<w*h; i++)
 			{
 				val1 = g_ImY[i];
-				val1 = g_ImY[i];
 				val2 = g_ImU[i];
 				val3 = g_ImV[i];
 				val4 = g_ImI[i];
@@ -5501,7 +6246,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 				for (i=0; i<w*h; i++)
 				{
 					val1 = g_ImY[i];
-					val1 = g_ImY[i];
 					val2 = g_ImU[i];
 					val3 = g_ImV[i];
 					val4 = g_ImI[i];
@@ -5533,7 +6277,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 				val_max = j1_max;
 				for (i=0; i<w*h; i++)
 				{
-					val1 = g_ImY[i];
 					val1 = g_ImY[i];
 					val2 = g_ImU[i];
 					val3 = g_ImV[i];
@@ -6078,38 +6821,41 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 		
         g_pViewRGBImage(g_ImFF, w, h);
 
-		memset(g_ImRES1, 0, (W*4*h)*sizeof(int));
+		ww = W*4;
+		hh = h;
+
+		memset(g_ImRES1, 0, (ww*hh)*sizeof(int));
 
 		for(y=0, i=0; y<h; y++)
 		for(x=0; x<w; x++, i++)
 		{
-			j = y*(W*4) + (XB + x);
+			j = y*ww + (XB*4) + x;
 
 			if (g_ImFF[i] != 0) g_ImRES1[j] = 255;
 		}
 
-        Str = string("\\TXTImages\\").append(SaveName);
-		
+		GetTextLineParameters(g_ImFF, w, h, LH, LMAXY, DXB, DXE, DYB, DYE, mY, mI, mQ, r);
+
+        FullName = string("\\TXTImages\\");
+		FullName += SaveName;
+
 		sprintf(str, "%.2d", (int)SavedFiles.size() + 1);
-		Str += string("_");
-        Str += string(str);
+		FullName += string("_");
+        FullName += string(str);
 
-		sprintf(str, "%.4d", YB);
-		Str += string("_");
-        Str += string(str);
-		
-		sprintf(str, "%.4d", YE);
-		Str += string("_");
-        Str += string(str);
-		
-		Str += string(".jpeg");
+		FullName += string(".jpeg");
 
-		SavedFiles.push_back(Str);
+		SaveTextLineParameters(	FullName, YB, 
+								LH/4, YB + LMAXY/4, 
+								XB + DXB/4, XB + DXE/4,
+								YB + DYB/4, YB + DYE/4,
+								mY, mI, mQ );
 
-		SaveImage(g_ImRES1, Str, W*4, h);
+		SavedFiles.push_back(FullName);
+
+		SaveImage(g_ImRES1, FullName, ww, hh, -1, 300);
 
 		res = 1;
-		//break;
 	}
 
 	return res;
@@ -7292,6 +8038,504 @@ int IsComma(CMyClosedFigure *pFigure, int LMAXY, int LLH)
 	return ret;
 }
 
+void SaveTextLineParameters(string ImageName, int YB, int LH, int LY, int LXB, int LXE, int LYB, int LYE, int mY, int mI, int mQ)
+{
+	char str[100];
+	string PropString, fname;
+	ofstream fout;
+
+	sprintf(str, "%.4d", YB);
+	PropString = string("YB ");
+    PropString += string(str);
+	
+	sprintf(str, "%.4d", LH);
+	PropString += string(" LH ");
+    PropString += string(str);
+
+	sprintf(str, "%.4d", LY);
+	PropString += string(" LY ");
+    PropString += string(str);
+	
+	sprintf(str, "%.4d", LXB);
+	PropString += string(" LXB ");
+    PropString += string(str);
+
+	sprintf(str, "%.4d", LXE);
+	PropString += string(" LXE ");
+    PropString += string(str);
+
+	sprintf(str, "%.4d", LYB);
+	PropString += string(" LYB ");
+    PropString += string(str);
+
+	sprintf(str, "%.4d", LYE);
+	PropString += string(" LYE ");
+    PropString += string(str);
+
+	sprintf(str, "%.3d %.3d %.3d", mY, mI, mQ);
+	PropString += string(" YIQ ");
+    PropString += string(str);		
+	
+	fname = g_dir + string("\\text_lines.info");
+	fout.open(fname.c_str(), ios::out | ios::app);
+
+	fout << ImageName << " = " << PropString << '\n';
+
+	fout.close();
+}
+
+void GetSymbolAvgColor(CMyClosedFigure *pFigure)
+{
+	int *pImage;
+	int *pImageY;
+	int *pImageI;
+	int *pImageQ;
+	CMyPoint *PA;
+	int i, ii, j, w, h, x, y, xx, yy, val;
+	int r, min_x, max_x, min_y, max_y, mY, mI, mQ, weight;
+
+	w = pFigure->m_maxX - pFigure->m_minX + 1;
+	h = pFigure->m_maxY - pFigure->m_minY + 1;
+
+	r = max(8, h/6);
+
+	pImage = new int[w*h];
+	pImageY = new int[w*h];
+	pImageI = new int[w*h];
+	pImageQ = new int[w*h];
+
+	memset(pImage, 0, w*h*sizeof(int));
+
+	PA = pFigure->m_PointsArray;
+
+	for(i=0; i < pFigure->m_Square; i++)
+	{
+		ii = PA[i].m_i;
+		j = (PA[i].m_y - pFigure->m_minY)*w + (PA[i].m_x - pFigure->m_minX);
+
+		pImage[j] = 1;
+		pImageY[j] = g_ImY[ii];
+		pImageI[j] = g_ImI[ii];
+		pImageQ[j] = g_ImQ[ii];
+	}
+
+	//находим все точки границы
+	for(y=0, i=0; y<h; y++)
+	{
+		for(x=0; x<w; x++, i++)
+		{
+			if (pImage[i] == 1)
+			{
+				if ( (x==0) || (x==w-1) ||
+				  	 (y==0) || (y==h-1) )
+				{
+					pImage[i] = -1;
+				}
+				else
+				{
+					if ( (pImage[i-1] == 0) ||
+						 (pImage[i+1] == 0) ||
+						 (pImage[i-w] == 0) ||
+						 (pImage[i+w] == 0) ||
+						 (pImage[i-1-w] == 0) ||
+						 (pImage[i+1-w] == 0) ||
+						 (pImage[i-1+w] == 0) ||
+						 (pImage[i+1+w] == 0) )
+					{
+						pImage[i] = -1;
+					}
+				}
+			}
+		}
+	}
+
+	do
+	{
+		//помечаем все точки символа отстоящие от границы не более чем на r
+		for(y=0, i=0; y<h; y++)
+		{
+			for(x=0; x<w; x++, i++)
+			{
+				if (pImage[i] == -1)
+				{
+					min_x = max(0, x-r);
+					max_x = min(w-1, x+r);
+					min_y = max(0, y-r);
+					max_y = min(h-1, y+r);
+
+					for (yy=min_y; yy<max_y; yy++)
+					for (xx=min_x; xx<max_x; xx++)
+					{
+						j = yy*w + xx;
+
+						if (pImage[j] == 1)
+						{
+							val = (yy-y)*(yy-y) + (xx-x)*(xx-x);
+
+							if (val <= r*r)
+							{
+								pImage[j] = -2;	
+							}
+						}					
+					}
+				}
+			}
+		}
+
+		weight = 0;
+		mY = 0;
+		mI = 0;
+		mQ = 0;
+
+		for(y=0, i=0; y<h; y++)
+		{
+			for(x=0; x<w; x++, i++)
+			{
+				if (pImage[i] == 1)
+				{
+					mY += pImageY[i];
+					mI += pImageI[i];
+					mQ += pImageQ[i];
+					weight++;
+				}
+			}
+		}
+
+		if (weight < pFigure->m_Square/5)
+		{
+			if (r == 0)
+			{
+				if (weight == 0)
+				{
+					for(y=0, i=0; y<h; y++)
+					{
+						for(x=0; x<w; x++, i++)
+						{
+							if (pImage[i] == -1)
+							{
+								mY += pImageY[i];
+								mI += pImageI[i];
+								mQ += pImageQ[i];
+								weight++;
+							}
+						}
+					}
+				}
+
+				break;
+			}
+
+			for(y=0, i=0; y<h; y++)
+			{
+				for(x=0; x<w; x++, i++)
+				{
+					if (pImage[i] == -2)
+					{
+						pImage[i] = 1;
+					}
+				}
+			}
+			r = (r*3)/4;
+		}
+	} while (weight < pFigure->m_Square/5);
+
+	mY = mY/weight;
+	mI = mI/weight;
+	mQ = mQ/weight;
+
+	pFigure->m_mY = mY;
+	pFigure->m_mI = mI;
+	pFigure->m_mQ = mQ;
+	pFigure->m_Weight = weight;
+
+	delete[] pImage;
+	delete[] pImageY;
+	delete[] pImageI;
+	delete[] pImageQ;
+}
+
+void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, int &XE, int &YB, int &YE, int &mY, int &mI, int &mQ, int white)
+{
+	CMyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL;
+	CMyPoint *PA = NULL;
+	int i, j, k, l, N, val, val1, val2, val3, val4;
+	int *maxY = NULL, *NN = NULL, *NY = NULL, *NH = NULL, NNY, min_h, min_w, prev_min_w;
+	int dmaxy = g_dmaxy;
+	int dminy = g_dminy;
+	clock_t t;
+
+	LH = 14*4;
+	XB = w/2;
+	XE = w/2;
+	YB = h/2-LH/2;
+	YE = YB + LH - 1;	
+	LMAXY = YE;
+	mY = 0;
+	mI = 0;
+	mQ = 0;
+
+	min_h = (int)(0.6*(double)LH);
+
+	t = SearchClosedFigures(Im, w, h, white, pFigures, N);
+
+	if (N == 0)
+	{
+		return;
+	}
+
+	ppFigures = new CMyClosedFigure*[N];
+	for(i=0; i<N; i++)
+	{
+		ppFigures[i] = &(pFigures[i]);
+	}
+
+	// определяем цвет текста
+
+	k = 0;
+	min_w = prev_min_w = min_h;
+
+	while (k == 0)
+	{
+		for(i=0; i<N; i++)
+		{
+			pFigure = ppFigures[i];
+
+			if ( (pFigure->m_h >= min_h) && (pFigure->m_w >= min_w) )
+			{				
+				k++;
+			}
+		}
+
+		if (k == 0)
+		{
+			prev_min_w = min_w;
+			min_w = (min_w*2)/3;
+		}
+
+		if (prev_min_w == 0)
+		{
+			return;
+		}
+	}
+
+	val = 0;
+	val1 = 0;
+	val2 = 0;
+	val3 = 0;
+	for(i=0; i<N; i++)
+	{
+		pFigure = ppFigures[i];
+		
+		if ( (pFigure->m_h >= min_h) && (pFigure->m_w >= min_w) )
+		{		
+			GetSymbolAvgColor(pFigure);
+
+			val += pFigure->m_Weight;
+			val1 += pFigure->m_mY*pFigure->m_Weight;
+			val2 += pFigure->m_mI*pFigure->m_Weight;
+			val3 += pFigure->m_mQ*pFigure->m_Weight;
+		}
+	}
+
+	mY = val1/val;
+	mI = val2/val;
+	mQ = val3/val;
+
+	// определяем размеры символов и расположение текста по высоте
+
+	maxY = new int[N];
+	NN = new int[N];
+	NY = new int[N];
+
+	for(i=0, j=0; i < N; i++)
+	{
+		if (ppFigures[i]->m_h >= min_h)
+		{
+			maxY[j] = ppFigures[i]->m_maxY;
+			j++;
+		}
+	}
+	NNY = j;
+
+	for(i=0; i<NNY-1; i++)
+	{
+		for(j=i+1; j<NNY; j++)
+		{
+			if(maxY[j] > maxY[i])
+			{
+				val = maxY[i];
+				maxY[i] = maxY[j];
+				maxY[j] = val;
+			}
+		}
+	}
+
+	// отыскиваем группы символов, чья высота различается не более чем на dmaxy по всевозможным высотам
+	// (такие группы могут частично содержать одни и теже символы)
+	j=0;
+	k=0;
+	i=0;
+	while(i < NNY)
+	{
+		if ((maxY[j]-maxY[i]) > dmaxy)
+		{
+			NN[k] = i-j;
+			NY[k] = maxY[j];
+			k++;
+			
+			l = j+1;
+			while(maxY[l] == maxY[j]) l++;
+
+			j = i = l;
+		}
+
+		i++;
+	}
+	NN[k] = i-j;
+	NY[k] = maxY[j];
+	k++;
+
+	val = NN[0];
+	j = 0;
+	for(i=0; i<k; i++)
+	{
+		if(NN[i] > val)
+		{
+			val = NN[i];
+			j = i;
+		}
+	}
+
+	if (val > 1)
+	{
+		LMAXY = NY[j];
+	}
+	else if (val == 1)
+	{
+		val = maxY[NNY-1] + dmaxy;
+		j = NNY-2;
+
+		while ((j >= 0) && (maxY[j] <= val)) j--;
+		j++;
+		
+		LMAXY = NY[j];
+	}
+
+	delete[] maxY;
+	delete[] NN;
+	delete[] NY;
+
+	if (val == 0)
+	{
+		delete[] pFigures;
+		delete[] ppFigures;
+
+		return;
+	}
+	
+	XB = w-1;
+	XE = 0;
+	YB = h-1;
+	YE = 0;
+	val1 = 0;
+	val2 = h-1;
+	for(i=0; i<N; i++)
+	{
+		pFigure = ppFigures[i];
+
+		if (pFigure->m_minX < XB)
+		{
+			XB = pFigure->m_minX;
+		}
+
+		if (pFigure->m_maxX > XE)
+		{
+			XE = pFigure->m_maxX;
+		}
+
+		if (pFigure->m_minY < YB)
+		{
+			YB = pFigure->m_minY;
+		}
+
+		if (pFigure->m_maxY > YE)
+		{
+			YE = pFigure->m_maxY;
+		}
+
+		if ( (pFigure->m_maxY <= LMAXY) && 
+			 (pFigure->m_maxY >= LMAXY-dmaxy) &&
+             (pFigure->m_h >= min_h) )
+		{
+			if (pFigure->m_minY > val1)
+			{
+				val1 = pFigure->m_minY;
+			}
+
+			if (pFigure->m_minY < val2)
+			{
+				val2 = pFigure->m_minY;
+			}
+		}
+	}
+
+	val3 = (val1*2 + val2)/3;
+	val4 = val2 + (int)((double)(LMAXY-val2+1)*0.12) + 1;
+
+	val1 = 0;
+	val2 = 0;
+	j = 0;
+	k = 0;
+	for(i=0; i<N; i++)
+	{
+		pFigure = ppFigures[i];
+
+		if ( (pFigure->m_maxY <= LMAXY) && 
+			(pFigure->m_maxY >= LMAXY-dmaxy) &&
+			(pFigure->m_h >= min_h) )
+		{
+			if (pFigure->m_minY >= val3)
+			{
+				val1 += pFigure->m_minY;
+				j++;
+			}
+			if (pFigure->m_minY >= val4)
+			{
+				val2 += pFigure->m_minY;
+				k++;
+			}
+		}
+	}
+
+	if (j > 2)
+	{
+		val = val1/j;
+	}
+	else
+	{
+		if (k > 0)
+		{
+			val = val2/k;
+		}
+		else
+		{
+			if (j > 0)
+			{
+				val = val1/j;
+			}
+			else
+			{				
+				val = LMAXY + 1 - LH;
+			}
+		}
+	}
+
+	LH = LMAXY - val + 1;
+
+	delete[] pFigures;
+	delete[] ppFigures;
+}
+
 int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe, int white)
 {
 	CMyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL, *pFigure2 = NULL, **ppFgs = NULL;
@@ -7316,6 +8560,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	maxph = g_maxph;
 	minpwh = g_minpwh;
 
+	// Увеличиваем область основных текстовых симоволов
+	// если её длина меньше 120 пикселов на оригинальном изображении
+
 	val = 120*4 - (xe-xb+1);
 	if (val > 0)
 	{
@@ -7326,6 +8573,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		if (xb < 0) xb = 0;
 		if (xe > w-1) xe = w-1;
 	}
+
+	// Убиваем все горизонтальные отрезки чья длина <= 2
+	// (что означает что в оригинале их длина меньше 1-го пиксела)
 
 	for (y=0, ib=0; y<h; y++, ib+=w)
 	{
@@ -7356,6 +8606,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 			}
 		}
 	}
+
+	// Убиваем все вертикальные отрезки чья длина <= 2
+	// (что означает что в оригинале их длина меньше 1-го пиксела)
 
 	for (x=0; x<w; x++)
 	{
@@ -7445,6 +8698,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		}
 	}
 
+	// отыскиваем группы символов, чья высота различается не более чем на dmaxy по всевозможным высотам
+	// (такие группы могут частично содержать одни и теже символы)
 	j=0;
 	k=0;
 	i=0;
@@ -8874,7 +10129,7 @@ void SaveRGBImage(int *Im, string name, int w, int h)
 	jpeg_error_mgr jerr;
 	JSAMPROW row_pointer[1];
 	int row_stride, i, bi, ei, j;	
-	JSAMPLE row[1024*3*4];
+	JSAMPLE *row = (JSAMPLE*)g_jsrow;
 	JSAMPLE *color;
     string full_name;
 
@@ -8900,7 +10155,7 @@ void SaveRGBImage(int *Im, string name, int w, int h)
 
 	row_stride = w*3;
 
-	row_pointer[0] = (JSAMPLE*)row;
+	row_pointer[0] = row;
 
 	bi = 0;
 	ei = w;
@@ -8933,7 +10188,7 @@ void LoadRGBImage(int *Im, string name, int &w, int &h)
 	jpeg_error_mgr jerr;
 	JSAMPROW row_pointer[1];
 	int row_stride, i, j, bi, ei;	
-	JSAMPLE row[1024*3*4];
+	JSAMPLE *row = (JSAMPLE*)g_jsrow;
 	int color = 0;
 	u8 *pColor = (u8*)(&color);
 
@@ -8957,7 +10212,7 @@ void LoadRGBImage(int *Im, string name, int &w, int &h)
 
 	row_stride = w*3;
 
-	row_pointer[0] = (JSAMPLE*)row;
+	row_pointer[0] = row;
 
 	bi = 0;
 	ei = w;
@@ -8983,14 +10238,14 @@ void LoadRGBImage(int *Im, string name, int &w, int &h)
 	fclose(fin);
 }
 
-void SaveImage(int *Im, string name, int w, int h)
+void SaveImage(int *Im, string name, int w, int h, int quality, int dpi)
 {
 	FILE * outfile;
 	jpeg_compress_struct cinfo;
 	jpeg_error_mgr jerr;
 	JSAMPROW row_pointer[1];
 	int row_stride, i, bi, ei, j;	
-	JSAMPLE row[1024*4];
+	JSAMPLE *row = (JSAMPLE*)g_jsrow;
 	JSAMPLE *color;
     string full_name;
 
@@ -9010,13 +10265,24 @@ void SaveImage(int *Im, string name, int w, int h)
 	cinfo.in_color_space = JCS_GRAYSCALE; 
 
 	jpeg_set_defaults(&cinfo);
-	//jpeg_set_quality(&cinfo, 100, TRUE);
+	
+	if (dpi != -1)
+	{
+		cinfo.density_unit = 0x01;
+		cinfo.X_density = dpi;
+		cinfo.Y_density = dpi;
+	}
+
+	if (quality != -1)
+	{
+		jpeg_set_quality(&cinfo, 100, TRUE);
+	}
 
 	jpeg_start_compress(&cinfo, TRUE);
 
 	row_stride = w;
 
-	row_pointer[0] = (JSAMPLE*)row;
+	row_pointer[0] = row;
 
 	bi = 0;
 	ei = w;
@@ -9047,7 +10313,7 @@ void LoadImage(int *Im, string name, int &w, int &h)
 	jpeg_error_mgr jerr;
 	JSAMPROW row_pointer[1];
 	int row_stride, i, j, bi, ei;	
-	JSAMPLE row[1024*4];
+	JSAMPLE *row = (JSAMPLE*)g_jsrow;
 
     if ((fin = fopen(name.c_str(), "rb")) == NULL) return;
 
@@ -9069,7 +10335,7 @@ void LoadImage(int *Im, string name, int &w, int &h)
 
 	row_stride = w;
 
-	row_pointer[0] = (JSAMPLE*)row;
+	row_pointer[0] = row;
 
 	bi = 0;
 	ei = w;

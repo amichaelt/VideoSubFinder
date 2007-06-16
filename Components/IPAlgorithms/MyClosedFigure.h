@@ -47,6 +47,7 @@ public:
 	int m_h;
 	int m_Square;
 	int m_Count;
+	int m_Weight;
 	int m_DY;
 	string m_SymbolValue;
 	string m_ParentImageName;
@@ -77,6 +78,7 @@ public:
 	bool IsNear(CMyClosedFigure &other,int pogreshnost);	
 	void CreateImage(int w,int h,char White,char Black);
 	double CompareWith(CMyClosedFigure &other,double MaxPercentDeviation);
+
 	//bool IsPointIn(CMyPoint *Point);
 	//void AddPoints(CMyClosedFigure *other);	
 	

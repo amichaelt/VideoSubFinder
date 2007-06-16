@@ -20,9 +20,6 @@
 #include <afxext.h>
 #include "ObjectInspector.h"
 
-extern int g_ImRGB[1024*768];
-extern int g_ImF[6][1024*768];
-
 class CMainFrame;
 class CSSOWnd;
 

@@ -74,8 +74,8 @@ s64 SearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 	int **ImS_SQ;
 	int **ImVES_SQ;
 	int **ImNES_SQ;
-	int lb[768];
-	int le[768];
+	int *lb=g_pLB8;
+	int *le=g_pLE8;
 
 	string Str;
 	
@@ -521,8 +521,8 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 	int *ImRES;
 	int **ImS_SQ;
 	int **mImRGB;
-	int lb[768];
-	int le[768];
+	int *lb=g_pLB9;
+	int *le=g_pLE9;
 
 	string Str;
 	
@@ -1421,10 +1421,10 @@ int FinalCompareTwoSubs2(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
 
 int DifficultCompareTwoSubs(int *ImRGB1, int *ImF1, int *ImRGB2, int *ImF2, int w, int h)
 {
-	static int ImFF1[1024*768], ImVE1[1024*768], ImNE1[1024*768];
-	static int ImFF2[1024*768], ImVE2[1024*768], ImNE2[1024*768];
-	static int ImTEMP1[1024*768], ImTEMP2[1024*768], ImTEMP3[1024*768];
-	static int lb[768], le[768];
+	int *ImFF1=g_pImFF1, *ImVE1=g_pImVE1, *ImNE1=g_pImNE1;
+	int *ImFF2=g_pImFF2, *ImVE2=g_pImVE2, *ImNE2=g_pImNE2;
+	int *ImTEMP1=g_pImTEMP1, *ImTEMP2=g_pImTEMP2, *ImTEMP3=g_pImTEMP3;
+	int *lb=g_pLB6, *le=g_pLE6;
 	int res, size, ln, i;
 
 	res = 0;
@@ -1458,7 +1458,7 @@ int DifficultCompareTwoSubs(int *ImRGB1, int *ImF1, int *ImRGB2, int *ImF2, int 
 
 int CompareTwoSubs(int *Im1, int *ImVE1, int *Im2, int *ImVE2, int w, int h)
 {
-	static int ImRES[1024*768], lb[768], le[768];
+	int *ImRES=g_ImRES10, *lb=g_pLB7, *le=g_pLE7;
 	int i, ib, ie, k, y, l, ln, bln, val1, val2, dif, dif1, dif2, cmb, segh, dn;
 	double veple;
 
@@ -1731,7 +1731,7 @@ int ConvertImage(int *ImRGB, int *ImF, int *ImVE, int w, int h)
 
 int GetAndConvertImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, int *ImNE, int *ImHE, CVideo *pVideo, int w, int h)
 {
-	static int ImRES[1024*768];
+	int *ImRES=g_ImRES11;
 	int i, wh, S;
 	int res;
 	
@@ -1756,7 +1756,7 @@ int GetAndConvertImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, i
 
 void ImToNativeSize(int *Im, int w, int h)
 {
-	static int ImRES[1024*768];
+	int *ImRES=g_ImRES12;
 	int i, j, dj, x, y;
 
 	memcpy(ImRES, Im, w*h*sizeof(int));

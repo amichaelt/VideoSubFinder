@@ -106,7 +106,7 @@ void CMainFrame::Init()
 	m_Menu.LoadMenu(IDR_MENU);
 	this->SetMenu(&m_Menu);
 
-	this->SetTitle("VideoSubFinder 1.76 beta version");
+	this->SetTitle("VideoSubFinder 1.78 beta version");
 	this->MoveWindow(0, 0, 1024, 768-30);
 
 	if (IsMMX_and_SSE() == true)
@@ -772,6 +772,25 @@ CString VideoTimeToStr2(s64 pos)
 	}
 
 	return Str;
+}
+
+CString VideoTimeToStr3(s64 pos)
+{
+	static char str[100];
+	int hour, min, sec, sec_100, vl;
+	
+	vl = (int)(pos/10000000);
+	hour = vl/3600;
+	vl -= hour*3600;
+	min = vl/60;
+	vl -= min*60;
+	sec = vl;
+
+	sec_100 = (int)((pos%10000000)/10000)/10;
+
+	sprintf(str, "%.1d:%.2d:%.2d.%.2d", hour, min, sec, sec_100);
+
+	return CString(str);
 }
 
 s64 GetVideoTime(int minute, int sec, int mili_sec)

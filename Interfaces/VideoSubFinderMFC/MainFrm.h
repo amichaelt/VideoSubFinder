@@ -31,6 +31,7 @@ using namespace std;
 s64 GetVideoTime(int minute, int sec, int mili_sec);
 CString ConvertVideoTime(s64 pos);
 CString VideoTimeToStr2(s64 pos);
+CString VideoTimeToStr3(s64 pos);
 
 class CMainFrame : public CMDIFrameWnd
 {

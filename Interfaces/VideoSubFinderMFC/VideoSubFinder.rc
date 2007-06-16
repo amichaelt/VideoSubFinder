@@ -128,14 +128,14 @@ CAPTION "About program..."
 FONT 8, "Microsoft Sans Serif", 400, 0, 0xCC
 BEGIN
     LTEXT           "",IDC_STATIC,8,37,290,76,WS_BORDER
-    LTEXT           "VideoSubFinder Version 1.76 beta",IDC_STATIC,65,13,134,
+    LTEXT           "VideoSubFinder Version 1.78 beta",IDC_STATIC,65,13,134,
                     14,0,WS_EX_DLGMODALFRAME
     DEFPUSHBUTTON   "OK",IDOK,235,13,48,16,WS_GROUP
-    LTEXT           "Copyright (C) 2005\n\n   This program was developed and implemented by Simeon Kosnitsky,\n   the 5-th year studen of Nizhniy Novgorod State University, Department\n   of Mechanics and Mathematics, Speciality Applied Mathematics and\n   Information Science.",
+    LTEXT           "Copyright (C) 2007\n\n   This program was developed and implemented by Simeon Kosnitsky,\n   the Master of Applied Mathematics and Informatics of Nizhniy Novgorod\n   State University.",
                     IDC_STATIC,24,42,232,50
     ICON            IDR_MAINFRAME,IDC_STATIC,19,10,20,20
     LTEXT           "   Forum and playing nik names PredatorNEW, PredatorMIPT.",
-                    IDC_STATIC,24,92,225,10
+                    IDC_STATIC,24,84,225,8
 END
 
 
@@ -148,8 +148,8 @@ IDR_MENU MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Open Video Normally",         ID_FILE_OPENVIDEONORMALLY
         MENUITEM "Open Video All Default",      ID_FILE_OPENVIDEOALLDEFAULT
+        MENUITEM "Open Video Normally",         ID_FILE_OPENVIDEONORMALLY
         MENUITEM "Open Video Hard",             ID_FILE_OPENVIDEOHARD
         MENUITEM "Open Or Continue Previous Video", 
                                                 ID_FILE_OPENPREVIOUSVIDEO

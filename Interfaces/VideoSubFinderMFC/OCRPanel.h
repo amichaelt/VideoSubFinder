@@ -17,7 +17,9 @@
 
 #pragma once
 #include "SSOWnd.h"
-#include "vector"
+#include "DataTypes.h"
+#include <windows.h>
+#include <vector>
 #include <fstream>
 
 using namespace std;
@@ -34,6 +36,80 @@ extern bool g_CLEAN_RGB_IMAGES;
 
 class CMainFrame;
 class CSSOWnd;
+class AssTXTStyle;
+
+class AssTXTLine
+{
+public:
+	AssTXTLine();
+
+	AssTXTLine& operator=(const AssTXTLine& other);
+
+	string	m_TXTStr;
+	int		m_LH;
+	int		m_LY;
+	int		m_LXB;
+	int		m_LXE;
+	int		m_LYB;
+	int		m_LYE;
+
+	int		m_mY; // main color in YIQ color system
+	int		m_mI;
+	int		m_mQ;
+
+	s64		m_BT;
+	s64		m_ET;
+
+	int		m_dX; //смещение pos(m_dX, m_dY)
+	int		m_dY;
+
+	int		m_Alignment;
+
+	int			 m_AssStyleIndex;
+	AssTXTStyle *m_pAssStyle;
+};
+
+struct YIQ_LH_Struct
+{
+	int		m_mY;
+	int		m_mI;
+	int		m_mQ;
+
+	int		m_LH;
+};
+
+class AssTXTStyle
+{
+public:
+	AssTXTStyle();
+
+	vector<YIQ_LH_Struct> m_data;
+	
+	void Compute();
+
+	int		m_minY;
+	int		m_minI;
+	int		m_minQ;
+	
+	int		m_maxY;
+	int		m_maxI;
+	int		m_maxQ;
+
+	int		m_mY;
+	int		m_mI;
+	int		m_mQ;
+
+	int		m_minLH;
+	int		m_maxLH;
+
+	int		m_LH;
+
+	int		m_Alignment;
+	int		m_MarginL;
+	int		m_MarginR;
+	int		m_MarginV;
+	string  m_Name;
+};
 
 class COCRPanel : public CWnd
 {

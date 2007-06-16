@@ -67,6 +67,7 @@ CImageBox::CImageBox()
 	m_w = 0;
 	m_h = 0;
 	m_hbm = NULL;
+	m_hdc = NULL;
 
 	m_WasInited = false;
 }
@@ -76,7 +77,7 @@ CImageBox::~CImageBox()
 	if (m_hbm != NULL)
 	{
 		DeleteObject(m_hbm);
-		DeleteObject(m_hdc);
+		DeleteDC(m_hdc);
 	}
 }
 
@@ -189,7 +190,7 @@ void CImageBox::ViewRGBImage(int *Im, int w, int h)
 		if ((m_w!=w) || (m_h!=h))
 		{
 			DeleteObject(m_hbm);
-			DeleteObject(m_hdc);
+			DeleteDC(m_hdc);
 			
 			m_hbm = CreateCompatibleBitmap(hdc, w, h);
 			m_hdc = CreateCompatibleDC(hdc);
@@ -274,7 +275,7 @@ void CImageBox::ViewImage(int *Im, int w, int h)
 		if ((m_w!=w) || (m_h!=h))
 		{
 			DeleteObject(m_hbm);
-			DeleteObject(m_hdc);
+			DeleteDC(m_hdc);
 			
 			m_hbm = CreateCompatibleBitmap(hdc, w, h);
 			m_hdc = CreateCompatibleDC(hdc);

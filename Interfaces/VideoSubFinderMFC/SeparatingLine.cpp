@@ -155,7 +155,7 @@ void CSeparatingLine::CreateNewRgn()
 	m_old_h = m_w;
 }
 
-void CSeparatingLine::DoCreate(CWnd* pParentWnd, int w, int h, int sw, int sh, int minpos, int maxpos, int offset, int orientation, UINT nID)
+void CSeparatingLine::DoCreate(CVideoWindow* pParentWnd, int w, int h, int sw, int sh, int minpos, int maxpos, int offset, int orientation, UINT nID)
 {
 	m_pParentWnd = pParentWnd;
 	
@@ -207,7 +207,9 @@ void CSeparatingLine::DoCreate(CWnd* pParentWnd, int w, int h, int sw, int sh, i
 
 	Create(strSLClass, 
 			"", 
-			WS_CLIPSIBLINGS | WS_BORDER,
+			0
+			| WS_CLIPSIBLINGS 
+			| WS_BORDER,
 			rc,
 			pParentWnd,
 			nID );
@@ -238,6 +240,12 @@ void CSeparatingLine::OnPaint()
 
 	dc.FillRect( rect, &blackBrush );
 	res = dc.FillRgn( &rgn, &whiteBrush );
+
+	for (int i=0; i<100; i++)
+	{
+		//m_pParentWnd->m_pVB->m_lblTIME.SetWindowText("!!!!!!!");
+		//m_pParentWnd->m_pVB->m_lblTIME.SetWindowText("");
+	}
 }
 
 void CSeparatingLine::OnLButtonDown(UINT nFlags, CPoint point)

@@ -18,6 +18,8 @@
 #pragma once
 #include ".\videobox.h"
 
+class CVideoWindow;
+
 class CSeparatingLine : public CWnd
 {
 public:
@@ -42,13 +44,13 @@ public:
 	double	m_pos_min;
 	double	m_pos_max;
 
-	CWnd*	m_pParentWnd;
+	CVideoWindow*	m_pParentWnd;
 	CRgn*	m_pRgn;
 
 	bool	m_bDown;
 
 public:
-	void DoCreate(CWnd* pParentWnd, int w, int h, int sw, int sh, int minpos, int maxpos, int offset, int orientation, UINT nID);
+	void DoCreate(CVideoWindow* pParentWnd, int w, int h, int sw, int sh, int minpos, int maxpos, int offset, int orientation, UINT nID);
 	void CreateNewRgn();
 	void MoveSL();
 	void Update();

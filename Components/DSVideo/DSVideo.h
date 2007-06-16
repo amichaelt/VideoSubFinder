@@ -19,6 +19,7 @@
 
 #include "DataTypes.h"
 #include "Video.h"
+#include <Dshow.h>
 #include <strmif.h>
 #include <control.h>
 #include <uuids.h>
@@ -82,7 +83,7 @@ public:
 	
 public:	
 
-	int				m_ImRES[1024*768];
+	int			   *m_pBuffer;
 	
 	bool			m_IsMSSuported;
 
@@ -101,6 +102,8 @@ public:
 	IBaseFilter		*m_pSourceFilter;
 	IBaseFilter		*m_pSampleGrabberFilter; 
 	IBaseFilter		*m_pVideoRenderFilter;
+
+	ICaptureGraphBuilder2  *m_pBuilder;
 
 	MySampleGrabberCallback m_SGCallback;
 
@@ -138,6 +141,10 @@ public:
 	s64 PosToMilliSeconds(s64 pos);
 
 	void SetVideoWindowPosition(int left, int top, int width, int height);
+
+	void ErrorMessage(string str);
+
+	HRESULT CheckMediaType(IPin *pPinIn, IPin *pPinOut, AM_MEDIA_TYPE *pmtOut);
 
 public:
 	HRESULT CleanUp();

@@ -150,6 +150,8 @@ DSVideo::DSVideo()
 	m_pSourceFilter=NULL;
 	m_pSampleGrabberFilter=NULL;
 	m_pVideoRenderFilter=NULL;
+	m_pBuilder=NULL;
+	m_pBuffer=NULL;
 	m_IsMSSuported = true;
 	m_SGCallback.m_st = 0;
 }
@@ -179,7 +181,7 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 
 	Str = m_MovieName.substr(m_MovieName.size()-3, 3);
 		
-	if ( (Str == string("avi")) || (Str == string("mp4")) )
+	if ( (Str == string("avi")) || (Str == string("mp4")) || (Str == string("mkv") ) )
 	{
 		hr = CoInitialize(NULL);
 
@@ -308,9 +310,10 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 
 	hr = m_pMF->SetSyncSource(NULL);
 
-	hr = m_pVW->put_Owner(*((OAHWND*)pHWnd));
 
 	hr = m_pVW->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
+
+	hr = m_pVW->put_Owner(*((OAHWND*)pHWnd));
 	
 	hr = m_pVW->put_MessageDrain(*((OAHWND*)pHWnd));
 
@@ -318,16 +321,17 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 
 	hr = m_pMS->GetStopPosition(&m_Duration);
 
+	
+	hr = m_pVW->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
 
 	hr = m_pVW->put_Owner(*((OAHWND*)pHWnd));
-
-	hr = m_pVW->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
 	
 	hr = m_pVW->put_MessageDrain(*((OAHWND*)pHWnd));
 
 	hr = m_pBV->GetVideoSize(&m_Width,&m_Height);
 
 	hr = m_pMS->GetStopPosition(&m_Duration);
+
 	
 	m_Inited = true;
 
@@ -343,14 +347,10 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 	return true;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-
 bool DSVideo::OpenMovieAllDefault(string csMovieName, void *pHWnd)
 { 	
 	HRESULT hr;
 	string Str;
-	
-	IPin *pOutGB, *pInGB, *pOutD, *pInVR;
 	
 	m_MovieName = csMovieName;
 
@@ -362,10 +362,19 @@ bool DSVideo::OpenMovieAllDefault(string csMovieName, void *pHWnd)
 	hr = CoInitialize(NULL);
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, 
-						IID_IGraphBuilder, (void **)&m_pGB);
+							IID_IGraphBuilder, (void **)&m_pGB);
 
-	hr = m_pGB->RenderFile(StringToLPCWSTR(m_MovieName), NULL);
-	if (hr != S_OK) { CleanUp(); return false; }
+	hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL,
+							CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, 
+							(void **)&m_pBuilder);
+    
+    hr = m_pBuilder->SetFiltergraph(m_pGB);
+
+	hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER,
+							IID_IBaseFilter, (void**)&m_pSampleGrabberFilter);
+
+	hr = CoCreateInstance(CLSID_VideoMixingRenderer, NULL, CLSCTX_INPROC_SERVER,
+							IID_IBaseFilter,(void**)&m_pVideoRenderFilter);
 
 	hr = m_pGB->QueryInterface(IID_IMediaControl, (void **)&m_pMC);
 
@@ -373,12 +382,11 @@ bool DSVideo::OpenMovieAllDefault(string csMovieName, void *pHWnd)
 
 	hr = m_pGB->QueryInterface(IID_IMediaSeeking,(void **)&m_pMS);
 
-	hr = m_pGB->QueryInterface(IID_IMediaFilter, (void **)&m_pMF); 
-
-	hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER,
-							IID_IBaseFilter, (void**)&m_pSampleGrabberFilter);
+	hr = m_pGB->AddSourceFilter(StringToLPCWSTR(m_MovieName), L"Source1", &m_pSourceFilter);
 
 	hr = m_pGB->AddFilter(m_pSampleGrabberFilter, L"SampleGrabber");
+
+	hr = m_pGB->AddFilter(m_pVideoRenderFilter, L"Video Renderer");
 
 	hr = m_pSampleGrabberFilter->QueryInterface(IID_ISampleGrabber, (void**)&m_pGrabber);
 
@@ -389,54 +397,28 @@ bool DSVideo::OpenMovieAllDefault(string csMovieName, void *pHWnd)
 	mt.bTemporalCompression = false;
 
 	hr = m_pGrabber->SetMediaType(&mt);
+
+	hr = m_pBuilder->RenderStream(0, 0, m_pSourceFilter, m_pSampleGrabberFilter, m_pVideoRenderFilter);
+
 	hr = m_pGrabber->SetOneShot(FALSE);
 	hr = m_pGrabber->SetBufferSamples(TRUE);
 	hr = m_pGrabber->SetCallback(&m_SGCallback,1);
 	m_SGCallback.m_pVideo = this;
 	m_SGCallback.m_ImageGeted = false;
-
-	hr = m_pGB->FindFilterByName(L"Video Renderer", &m_pVideoRenderFilter);
-	if (hr != S_OK) { CleanUp(); return false; }
-
-	hr = GetPin(m_pVideoRenderFilter, PINDIR_INPUT, &pInVR);
-	if (hr != S_OK) { CleanUp(); return false; }
-
-	hr = pInVR->ConnectedTo(&pOutD);
-	if (hr != S_OK) { CleanUp(); return false; }
-
-	hr = GetPin(m_pSampleGrabberFilter, PINDIR_INPUT, &pInGB);
-	if (hr != S_OK) { CleanUp(); return false; }
-
-	hr = GetPin(m_pSampleGrabberFilter, PINDIR_OUTPUT, &pOutGB);
-	if (hr != S_OK) { CleanUp(); return false; }
-
-	hr = pInVR->Disconnect();
 	
-	hr = pOutD->Disconnect();
+	hr = m_pGB->QueryInterface(IID_IMediaFilter, (void **)&m_pMF); 
 
-	hr = m_pGB->Connect(pOutD, pInGB);
-	if (hr != S_OK) { CleanUp(); return false; }
-
-	hr = m_pGB->Connect(pOutGB, pInVR);
-	if (hr != S_OK) { CleanUp(); return false; }
-	
 	hr = m_pGB->QueryInterface(IID_IVideoWindow,(void **)&m_pVW);
 
 	hr = m_pGB->QueryInterface(IID_IBasicVideo,(void **)&m_pBV);
 	
-	hr = m_pGB->QueryInterface(IID_IBasicAudio,(void **)&m_pBA);
-
-	hr = m_pBA->put_Volume(-10000);
-
-	//hr = m_pMF->SetSyncSource(NULL);
-
-	hr = m_pVW->put_Owner(*((OAHWND*)pHWnd));
-
 	hr = m_pVW->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
+	
+	hr = m_pVW->put_Owner(*((OAHWND*)pHWnd));
 	
 	hr = m_pVW->put_MessageDrain(*((OAHWND*)pHWnd));
 
-	hr = m_pBV->GetVideoSize(&m_Width,&m_Height);
+	hr = m_pBV->GetVideoSize(&m_Width, &m_Height);
 
 	hr = m_pMS->GetStopPosition(&m_Duration);
 	
@@ -1036,14 +1018,18 @@ bool DSVideo::SetNullRender()
 
 void DSVideo::SetPos(s64 Pos)
 {
+	HRESULT hr;
 	s64 endPos;
 	long evCode;
+	
 	endPos = m_Duration;
+
 	m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
 	m_SGCallback.m_st = Pos;  
+
 	m_SGCallback.m_ImageGeted = false;
-	m_pMC->Run();
-	m_pME->WaitForCompletion(300, &evCode);
+	hr = m_pMC->Run();
+	hr = m_pME->WaitForCompletion(300, &evCode);
 
 	if (m_SGCallback.m_ImageGeted != true)
 	{
@@ -1055,15 +1041,19 @@ void DSVideo::SetPos(s64 Pos)
 
 void DSVideo::SetPos(double pos)
 {
+	HRESULT hr;
 	s64 Pos, endPos;
 	long evCode;
+
 	endPos = m_Duration;
 	Pos = (s64)(pos*10000000.0);
+
 	m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
 	m_SGCallback.m_st = Pos;  
+
 	m_SGCallback.m_ImageGeted = false;
-	m_pMC->Run();
-	m_pME->WaitForCompletion(300, &evCode);
+	hr = m_pMC->Run();
+	hr = m_pME->WaitForCompletion(300, &evCode);
 
 	if (m_SGCallback.m_ImageGeted != true)
 	{
@@ -1075,12 +1065,16 @@ void DSVideo::SetPos(double pos)
 
 void DSVideo::SetPosFast(s64 Pos)
 {
+	HRESULT hr;
 	s64 endPos;
 	long evCode;
+	
 	endPos = m_Duration;
-	m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
+	hr = m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
 	m_SGCallback.m_st = Pos;  
-	m_pME->WaitForCompletion(300, &evCode);
+
+	hr = m_pME->WaitForCompletion(300, &evCode);
+	
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1114,25 +1108,26 @@ HRESULT DSVideo::CleanUp()
 	fstream fout;
 	string fname;
 	
-	/*if (m_pVW != NULL)
-	{
-		hr = m_pVW->put_MessageDrain(NULL);
-		hr = m_pVW->put_Owner(NULL);
-	}*/
-	
-	fname = m_Dir + string("\\clean_video.log");
+	fname = m_Dir + string("/clean_video.log");
 	fout.open(fname.c_str(), ios_base::out | ios_base::app);
 	fout <<	"";
 	fout.close();
-	
-	m_pDecoder = GetDecoder();
-
-	if (m_pDecoder != NULL)	log += "PASS: GetDecoder()\n";
-	else log += "FAIL: GetDecoder()\n";
 
 	this->Stop();
 
 	log += "PASS: m_pME->WaitForCompletion(...)\n";
+	
+	if (m_pVW != NULL)
+	{
+		hr = m_pVW->put_Visible(OAFALSE);
+		hr = m_pVW->put_MessageDrain(NULL);
+		hr = m_pVW->put_Owner(NULL);
+	}
+
+	m_pDecoder = GetDecoder();
+
+	if (m_pDecoder != NULL)	log += "PASS: GetDecoder()\n";
+	else log += "FAIL: GetDecoder()\n";
 
 	if (m_pVideoRenderFilter != NULL)
 	{
@@ -1234,8 +1229,14 @@ HRESULT DSVideo::CleanUp()
 	if(m_pGB != NULL) i = m_pGB->Release();
 	m_pGB = NULL;
 
+	if(m_pBuilder != NULL) i = m_pBuilder->Release();
+	m_pBuilder = NULL;
+
 	CoUninitialize();
 	
+	if (m_pBuffer != NULL) delete[] m_pBuffer;
+	m_pBuffer = NULL;
+
 	m_Inited = false;
 
 	m_IsMSSuported = true;
@@ -1304,6 +1305,8 @@ s64 DSVideo::OneStepWithTimeout()
 				while ( ((clock() - start_t) < dt) && 
 						(m_SGCallback.m_ImageGeted == false) )
 				{
+					this->SetPos(PrevPos);
+
 					m_pMC->Run();
 					m_pME->WaitForCompletion(1000, &evCode);
 					m_pMC->Pause();
@@ -1406,6 +1409,13 @@ s64 DSVideo::OneStepWithTimeout()
 
 /////////////////////////////////////////////////////////////////////////////
 
+void DSVideo::ErrorMessage(string str)
+{
+	MessageBox(NULL, str.c_str(), "ERROR MESSAGE", MB_ICONERROR);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 s64 DSVideo::GetPos()
 {
     s64 pos = -1;
@@ -1434,7 +1444,7 @@ void DSVideo::GetRGBImage(int *ImRGB, int xmin, int xmax, int ymin, int ymax)
 {
 	int w, h, x, y, i, j, wh, di, dj;
 	long BufferSize;
-	int *ImRES = m_ImRES;
+	int *pBuffer;
 	
     w = xmax-xmin+1;
 	h = ymax-ymin+1;
@@ -1444,7 +1454,14 @@ void DSVideo::GetRGBImage(int *ImRGB, int xmin, int xmax, int ymin, int ymax)
 	wh = w*h;
 	BufferSize = m_Width*m_Height*sizeof(int);
 
-	HRESULT hr = m_pGrabber->GetCurrentBuffer(&BufferSize,(long*)(ImRES));
+	if (m_pBuffer == NULL)
+	{
+		m_pBuffer = new int[m_Width*m_Height];
+	}
+
+	pBuffer = m_pBuffer;
+
+	HRESULT hr = m_pGrabber->GetCurrentBuffer(&BufferSize,(long*)(pBuffer));
 	
 	i = (m_Height-1-ymax)*m_Width + xmin;
 	j = (h-1)*w;
@@ -1453,7 +1470,7 @@ void DSVideo::GetRGBImage(int *ImRGB, int xmin, int xmax, int ymin, int ymax)
 	{
 		for(x=0; x<w; x++)
 		{
-			ImRGB[j] = ImRES[i];
+			ImRGB[j] = pBuffer[i];
 			i++;
 			j++;
 		}
@@ -1483,7 +1500,9 @@ void DSVideo::RunWithTimeout(s64 timeout)
 
 void DSVideo::Run()
 {
-	m_pMC->Run();
+	HRESULT hr;
+
+	hr = m_pMC->Run();
 }
 
 /////////////////////////////////////////////////////////////////////////////
