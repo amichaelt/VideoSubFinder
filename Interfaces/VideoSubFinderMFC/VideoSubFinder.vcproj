@@ -48,7 +48,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="c:\strmiids.lib ..\..\Dependencies\jpeg\Release\jpeg.lib  ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
+				AdditionalDependencies="..\..\Dependencies\jpeg\Release\jpeg.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib &quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; ..\..\Components\DSVideo\Release\DSVideo.lib &quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses\Release\strmbase.lib&quot; winmm.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="FALSE"
 				GenerateDebugInformation="FALSE"
@@ -94,7 +94,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Dependencies\jpeg;..\..\Components\Include;..\..\Components\IPAlgorithms;..\..\Components\DSVideo"
+				AdditionalIncludeDirectories="c:\;..\..\Dependencies\jpeg;..\..\Components\Include;..\..\Components\IPAlgorithms;..\..\Components\DSVideo"
 				PreprocessorDefinitions="WIN32,_DEBUG,_WINDOWS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="3"
@@ -107,7 +107,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="c:\strmiids.lib ..\..\Dependencies\jpeg\Debug\jpeg.lib  ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib"
+				AdditionalDependencies="..\..\Dependencies\jpeg\Debug\jpeg.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib &quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; ..\..\Components\DSVideo\Debug\DSVideo.lib &quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses\Debug\strmbasd.lib&quot; winmm.lib"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"

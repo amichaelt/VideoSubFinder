@@ -19,6 +19,8 @@
 
 #include "DataTypes.h"
 #include "Video.h"
+
+#include <streams.h>
 #include <Dshow.h>
 #include <strmif.h>
 #include <control.h>
@@ -35,13 +37,41 @@ using namespace std;
 
 class DSVideo;
 
+class CTransNull32 : public CTransInPlaceFilter
+{
+public:
+    int             **m_ppBuffer;
+    bool            *m_pImageGeted;
+    bool            *m_pIsSetNullRender;
+    s64             *m_pST;
+    IMediaControl	*m_pMC;
+    int             m_ft;
+    int             m_w;
+    int             m_h;
+
+    CTransNull32( int **ppBuffer, s64 *pST, 
+                  bool *pImageGeted, IMediaControl *pMC,
+                  bool *pIsSetNullRender, LPUNKNOWN punk, HRESULT *phr );
+
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+
+    HRESULT Transform(IMediaSample *pSample);
+    HRESULT CheckInputType(const CMediaType *mtIn);
+};
+
 class MySampleGrabberCallback :	public ISampleGrabberCB
 {
 public:
-	DSVideo					*m_pVideo; 
-	bool					 m_ImageGeted;
-	s64						 m_st;
+	int             **m_ppBuffer;
+    bool            *m_pImageGeted;
+    bool            *m_pIsSetNullRender;
+    s64             *m_pST;
+    DSVideo	        *m_pVideo;
 	
+	MySampleGrabberCallback( int **ppBuffer, s64 *pST, 
+                             bool *pImageGeted, DSVideo *pVideo,
+                             bool *pIsSetNullRender);
+
 	STDMETHODIMP_(ULONG) AddRef() { return 1; }
 	
 	STDMETHODIMP_(ULONG) Release() { return 2; }
@@ -81,11 +111,14 @@ public:
 	DSVideo();
 	~DSVideo();
 	
-public:	
-
-	int			   *m_pBuffer;
-	
+public:		
 	bool			m_IsMSSuported;
+	bool			m_IsSetNullRender;
+
+    int     *m_pBuffer;
+    int     m_BufferSize;
+    bool    m_ImageGeted;
+    s64     m_st;
 
 	IGraphBuilder	*m_pGB;
 	IMediaControl	*m_pMC; 
@@ -102,10 +135,11 @@ public:
 	IBaseFilter		*m_pSourceFilter;
 	IBaseFilter		*m_pSampleGrabberFilter; 
 	IBaseFilter		*m_pVideoRenderFilter;
+    IBaseFilter		*m_pTransNull32Filter;
 
 	ICaptureGraphBuilder2  *m_pBuilder;
 
-	MySampleGrabberCallback m_SGCallback;
+	MySampleGrabberCallback *m_pSGCallback;
 
 public:
 	IBaseFilter* GetDecoder();

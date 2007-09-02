@@ -597,11 +597,16 @@ void COCRPanel::CreateSubFromTXTResults()
 	AssTXTVector = new AssTXTLine[(int)FileNamesVector.size()];
 
 	NS = 0;
-	AssTXTStyleVector = new AssTXTStyle[(int)FileNamesVector.size()];
+	AssTXTStyleVector = new AssTXTStyle[(int)FileNamesVector.size()];	
+	
+    //--------------
 
-	image_name = g_dir+string("\\RGBImages\\")+string(FileNamesVector[0]).substr(0, 24) + string(".jpeg");		
-	LoadRGBImage(g_ImRGB, image_name, g_W, g_H);
+    image_name = g_dir+string("\\RGBImages\\")+string(FileNamesVector[0]).substr(0, 24) + string(".jpeg");
+    GetImageSize(image_name, g_W, g_H);    
+	InitIPData(g_W, g_H, 1);
 
+    //--------------
+    
 	k = 0;
 	while (k < (int)FileNamesVector.size())
 	{
@@ -655,8 +660,14 @@ void COCRPanel::CreateSubFromTXTResults()
 
 			image_name = string("\\TXTImages\\") + string(FileNamesVector[k]).substr(0, 27) + string(".jpeg");
 			
+            fname = string("");
 			do
 			{
+                if ( txt_info.eof() )                
+                {
+                    break;
+                }
+
 				txt_info >> fname; // file name
 				
 				txt_info >> str; // "="
@@ -684,7 +695,9 @@ void COCRPanel::CreateSubFromTXTResults()
 			if (fname != image_name)
 			{
 				txt_info.close();
-				Str = CString("There is not info about \"") + CString(image_name.c_str()) + CString("\" in \"text_lines.info\" file.");
+				Str = CString("There is not info about \"") + CString(image_name.c_str()) 
+                    + CString("\" in \"text_lines.info\" file.\n") 
+                    + CString("Please run \"Create Cleared Text Images\" again.");
 				::MessageBox(NULL, Str, "CreateSubFromTXTResults", MB_ICONERROR);
 				return;
 			}
@@ -1466,30 +1479,34 @@ DWORD WINAPI ThreadCreateClearedTextImages(PVOID pParam)
 	sprintf(str, "%.4d", val);
 	dStr = CString(" : ") + CString(str);
 
+    g_W = -1;
+    g_H = -1;
+    w = 0;
+    h = 0;
+
 	for (k=0; k<(int)FileNamesVector.size(); k++)
 	{
 		if (g_RunCreateClearedTextImages == 0) break;
 
 		Str = pMainFrm->m_Dir+"\\RGBImages\\"+FileNamesVector[k];
 		
+        GetImageSize(string(Str), w, h);
+        
+        if ( (g_W != w) || (g_H != h) )
+        {
+            g_W = w;
+	        g_H = h;
+
+            g_xmin = 0;
+	        g_xmax = w-1;
+	        g_ymin = 0;
+	        g_ymax = h-1;
+            
+	        InitIPData(w, h, 3);
+        }
+
 		LoadRGBImage(g_ImRGB, string(Str), w, h);		
-		//pMainFrm->m_pVideoBox->ViewImage(ImRGB, w, h);
-
-		if (k == 0)
-		{
-			g_W = w;
-			g_H = h;
-
-			g_xmin = 0;
-			g_xmax = w-1;
-			g_ymin = 0;
-			g_ymax = h-1;
-			
-			InitIPData(w, h, 3);
-
-			//ImRES1 = new int[w*h*3];
-			//ImRES2 = new int[w*h*3];
-		}
+		//pMainFrm->m_pVideoBox->ViewImage(ImRGB, w, h);		
 
 		GetTransformedImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], w, h);
 

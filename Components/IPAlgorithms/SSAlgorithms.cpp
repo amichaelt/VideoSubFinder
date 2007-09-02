@@ -625,6 +625,7 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 		while (found_sub == 0)
 		{
 			pos = CurPos;
+            n_fs = 0;
 
 			while( (n_fs < DL) && (pos < End) )
 			{			
@@ -635,7 +636,7 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 				fn++;
 				n_fs++;
 			}
-			if (pos == End)
+			if (pos >= End)
 			{
 				while(n_fs < DL)
 				{
@@ -657,7 +658,7 @@ s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End)
 			}
 			else
 			{
-				prev_pos = mPrevPos[DL-1];
+				prev_pos = CurPos = mPrevPos[DL-1];
 				n_fs = 0;
 			}
 

@@ -106,7 +106,7 @@ void CMainFrame::Init()
 	m_Menu.LoadMenu(IDR_MENU);
 	this->SetMenu(&m_Menu);
 
-	this->SetTitle("VideoSubFinder 1.78 beta version");
+	this->SetTitle("VideoSubFinder 1.79 beta version");
 	this->MoveWindow(0, 0, 1024, 768-30);
 
 	if (IsMMX_and_SSE() == true)

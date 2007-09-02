@@ -208,6 +208,7 @@ void ResizeGrayscaleImage4x(int *Im, int *ImRES, int w, int h);
 
 int CompareTXTImages(int *Im1, int *Im2, int w1, int h1, int w2, int h2, int YB1, int YB2);
 
+void GetImageSize(string name, int &w, int &h);
 void SaveRGBImage(int *Im, string name, int w, int h);
 void LoadRGBImage(int *Im, string name, int &w, int &h);
 void SaveImage(int *Im, string name, int w, int h, int quality = -1, int dpi = -1);

@@ -466,7 +466,7 @@ HBRUSH CSettingsPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void CSettingsPanel::OnBnClickedTest()
 {
 	CVideo *pVideo;
-	int i, k, w, h, S;
+	int i, k, w, h, S=0;
 	char str[30];
 	clock_t t;
 	

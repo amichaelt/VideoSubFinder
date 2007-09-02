@@ -204,9 +204,9 @@ void InitIPData(int w, int h, int scale)
 
 	g_scale = scale;
 
-	size = w*h*scale;
+    //-------------
+	size = w*h*scale;	
 	
-	//-------------
 	g_ImYIQ = new s64[size];
 	memset(g_ImYIQ, 0, size*sizeof(s64));
 
@@ -215,10 +215,8 @@ void InitIPData(int w, int h, int scale)
 
 	g_ImRES2_64 = new s64[size];
 	memset(g_ImRES2_64, 0, size*sizeof(s64));
-	//-------------
 
-	//-------------
-	g_ImY = new int[size];
+    g_ImY = new int[size];
 	memset(g_ImY, 0, size*sizeof(int));
 
 	g_ImU = new int[size];
@@ -232,10 +230,8 @@ void InitIPData(int w, int h, int scale)
 
 	g_ImQ = new int[size];
 	memset(g_ImQ, 0, size*sizeof(int));
-	//-------------
 
-	//-------------
-	g_ImYMOE = new int[size];
+    g_ImYMOE = new int[size];
 	memset(g_ImYMOE, 0, size*sizeof(int));
 
 	g_ImUMOE = new int[size];
@@ -246,10 +242,8 @@ void InitIPData(int w, int h, int scale)
 
 	g_ImCMOE = new int[size];
 	memset(g_ImCMOE, 0, size*sizeof(int));
-	//-------------
 
-	//-------------
-	g_Im = new int[size];
+    g_Im = new int[size];
 	memset(g_Im, 0, size*sizeof(int));
 
 	g_ImRES1 = new int[size];
@@ -278,9 +272,7 @@ void InitIPData(int w, int h, int scale)
 
 	g_ImRES9 = new int[size];
 	memset(g_ImRES9, 0, size*sizeof(int));
-	//-------------
-
-	//-------------
+	
 	g_ImSF = new int[size];
 	memset(g_ImSF, 0, size*sizeof(int));
 
@@ -316,7 +308,7 @@ void InitIPData(int w, int h, int scale)
 	//-------------
 
 	//-------------
-	size = g_W;
+	size = max(g_W, g_H);
 
 	g_pLB = new int[size];
 	memset(g_pLB, 0, size*sizeof(int));
@@ -377,7 +369,7 @@ void InitIPData(int w, int h, int scale)
 	//-------------
 
 	//-------------
-	size = g_W;
+	size = max(g_W, g_H);
 
 	g_pLL = new int[size];
 	memset(g_pLL, 0, size*sizeof(int));	
@@ -2937,8 +2929,16 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 		if (g_pLE[k] + val < H) g_pLE[k] += val;
 	}
 
+    if ((g_pLE[N-1] + g_segh) > H)
+	{
+		val = g_pLE[N-1]-(H-g_segh);
+		g_pLE[N-1] = H-g_segh;
+
+		memset(&ImSF[W*(g_pLE[N-1]+1)], 0, W*val*sizeof(int));
+		memset(&ImVE[W*(g_pLE[N-1]+1)], 0, W*val*sizeof(int));		
+	}
+
 	t2 = clock()-t2;
-	//t2 = clock();
 
 	res = SecondFiltration(ImSF, ImRGB, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
 	memcpy(ImTF, ImSF, W*H*sizeof(int));
@@ -10179,6 +10179,28 @@ void SaveRGBImage(int *Im, string name, int w, int h)
 	jpeg_destroy_compress(&cinfo);
 
 	fclose(outfile);
+}
+
+void GetImageSize(string name, int &w, int &h)
+{
+    FILE *fin;
+	jpeg_decompress_struct cinfo;
+	jpeg_error_mgr jerr;
+
+    if ((fin = fopen(name.c_str(), "rb")) == NULL) return;
+
+	cinfo.err = jpeg_std_error(&jerr);
+
+	jpeg_create_decompress(&cinfo);
+
+	jpeg_stdio_src(&cinfo, fin);
+
+	jpeg_read_header(&cinfo, TRUE);
+
+	w = cinfo.image_width; 	
+	h = cinfo.image_height;
+
+    fclose(fin);
 }
 
 void LoadRGBImage(int *Im, string name, int &w, int &h)

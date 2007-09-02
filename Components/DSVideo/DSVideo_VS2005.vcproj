@@ -110,7 +110,7 @@
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\Include;C:\Program Files\DirectShow\Include;C:\Program Files\Microsoft DirectX SDK (August 2006)\Include"
+				AdditionalIncludeDirectories="..\Include;$(DSHOW_DIR)\Include;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses;$(DXSDK_DIR)\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"

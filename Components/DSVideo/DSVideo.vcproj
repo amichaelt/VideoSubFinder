@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\Include;C:\Program Files\DirectShow\Include;C:\Program Files\Microsoft DirectX SDK (August 2006)\Include;C:\Program Files\DirectShow\Samples\C++\DirectShow\BaseClasses;"
+				AdditionalIncludeDirectories="..\Include;&quot;$(DSHOW_DIR)\Include&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -62,7 +62,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\Include;C:\Program Files\DirectShow\Include;C:\Program Files\Microsoft DirectX SDK (August 2006)\Include;C:\Program Files\DirectShow\Samples\C++\DirectShow\BaseClasses;"
+				AdditionalIncludeDirectories="..\Include;&quot;$(DSHOW_DIR)\Include&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -114,6 +114,9 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
 				RelativePath="..\Include\DataTypes.h">
+			</File>
+			<File
+				RelativePath=".\DSFilters.h">
 			</File>
 			<File
 				RelativePath=".\DSVideo.h">
