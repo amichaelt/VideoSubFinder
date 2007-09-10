@@ -74,12 +74,15 @@ CTransNull32::CTransNull32( int **ppBuffer, s64 *pST,
     m_pIsSetNullRender = pIsSetNullRender;
 
     *m_pImageGeted = true;
+	m_TriengToGetImage = false;
     *m_pST = 0;
 
     m_w = 0;
     m_h = 0;
  
     m_ft = 1; //format type
+
+	m_blnReInit = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -129,43 +132,62 @@ HRESULT CTransNull32::Transform(IMediaSample *pSample)
     //int TypeChanged;
     //AM_SAMPLE2_PROPERTIES* pProps;
     AM_MEDIA_TYPE mt, *pmt;
-    IPin *pIn = NULL;    
+    IPin *pIn = NULL;
+	//bool ImageGeted = *m_pImageGeted;
+
+	/*if (m_TriengToGetImage == true)
+	{
+		m_pMC->Pause();
+		return NOERROR;
+	}*/
+
+	//if (ImageGeted == false)
+	//{
+		//m_TriengToGetImage = true;
+		//m_pMC->Pause();
+    //}
 
     if ( (*m_pIsSetNullRender == false) || (*m_pImageGeted == false) )
-    {
+    {	
         hr = pSample->GetPointer(&pBuffer);
         BufferLen = pSample->GetSize();
         pIntBuffer = (int*)pBuffer;
 
-        //pProps = m_pInput->SampleProps();
-        //TypeChanged = pProps->dwSampleFlags & AM_SAMPLE_TYPECHANGED;
+		if (m_blnReInit == 1)
+		{
+			//pProps = m_pInput->SampleProps();
+			//TypeChanged = pProps->dwSampleFlags & AM_SAMPLE_TYPECHANGED;
 
-        hr = m_pInput->ConnectedTo(&pIn);
-        hr = pIn->ConnectionMediaType(&mt);
-        pmt = &mt;
-        
-        if (hr == S_OK)
-        {
-            if (pmt->formattype == FORMAT_VideoInfo2)
-            {
-                m_ft = 2;
-                pVi2 = (VIDEOINFOHEADER2*)pmt->pbFormat;
-                m_w = pVi2->bmiHeader.biWidth;
-                m_h = pVi2->bmiHeader.biHeight;
-            }
-            else
-            {
-                m_ft = 1;
-                pVi1 = (VIDEOINFOHEADER*)pmt->pbFormat;
-                m_w = pVi1->bmiHeader.biWidth;
-                m_h = pVi1->bmiHeader.biHeight;
-            }
-        }
+			hr = m_pInput->ConnectedTo(&pIn);
+			hr = pIn->ConnectionMediaType(&mt);
+			pmt = &mt;
+	        
+			if (hr == S_OK)
+			{
+				if (pmt->formattype == FORMAT_VideoInfo2)
+				{
+					m_ft = 2;
+					pVi2 = (VIDEOINFOHEADER2*)pmt->pbFormat;
+					m_w = pVi2->bmiHeader.biWidth;
+					m_h = pVi2->bmiHeader.biHeight;
+				}
+				else
+				{
+					m_ft = 1;
+					pVi1 = (VIDEOINFOHEADER*)pmt->pbFormat;
+					m_w = pVi1->bmiHeader.biWidth;
+					m_h = pVi1->bmiHeader.biHeight;
+				}
+			}			
 
-        if (*m_ppBuffer == NULL)
-	    {
-		    *m_ppBuffer = new int[BufferLen/sizeof(int)];
-	    }        
+			if (*m_ppBuffer == NULL)
+			{
+				*m_ppBuffer = new int[BufferLen/sizeof(int)];
+			}
+
+			m_blnReInit = 0;
+		}
+                
 
         if (m_h < 0)
         {
@@ -197,12 +219,12 @@ HRESULT CTransNull32::Transform(IMediaSample *pSample)
         StartTime += m_pInput->CurrentStartTime();        
         *m_pST = StartTime;
 
-        if (*m_pImageGeted == false)
-	    {
-            *m_pImageGeted = true;
-
-		    m_pMC->Pause();
-        }
+		if (*m_pImageGeted == false)
+		{
+			*m_pImageGeted = true;
+			m_pMC->Pause();
+			//m_TriengToGetImage = false;
+		}
     }
 
     return NOERROR;
@@ -358,6 +380,8 @@ DSVideo::DSVideo()
     
     m_pBuffer=NULL;
 	m_st = 0;
+
+	m_type = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -376,6 +400,8 @@ bool DSVideo::OpenMovieAllDefault(string csMovieName, void *pHWnd)
 	ULONG res;
 	int i;
 	
+	m_type = 1;
+
 	m_MovieName = csMovieName;
 
 	if (m_Inited) 
@@ -541,11 +567,20 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 	string Str;
 	vector<CLSID> cls;
 	vector<string> fnames;
-    AM_MEDIA_TYPE mt;
+    AM_MEDIA_TYPE mt;	
     IPin *pIn;
 	ULONG res;
 	int i;
 	
+	if (m_type == -3)
+	{
+		m_type = 3;
+	}
+	else
+	{
+		m_type = 2;
+	}
+
 	m_MovieName = csMovieName;
 
 	if (m_Inited) 
@@ -580,12 +615,12 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 							IID_IBaseFilter,(void**)&m_pVideoRenderFilter);
     if (FAILED(hr)) { CleanUp(); return false; }
 
-    CTransNull32 *pTransNull32 = new CTransNull32(&m_pBuffer, &m_st, 
+    m_pTransNull32 = new CTransNull32(&m_pBuffer, &m_st, 
                                                   &m_ImageGeted, m_pMC,
                                                   &m_IsSetNullRender, NULL, &hr); 
 	if (FAILED(hr)) { CleanUp(); return false; }
 	   
-	hr = pTransNull32->QueryInterface(IID_IBaseFilter, 
+	hr = m_pTransNull32->QueryInterface(IID_IBaseFilter, 
 							reinterpret_cast<void**>(&m_pTransNull32Filter));
 	if (FAILED(hr)) { CleanUp(); return false; }
    
@@ -742,6 +777,8 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
     if (m_pBuffer == NULL) delete[] m_pBuffer;
 	m_pBuffer = new int[m_Width*m_Height];*/
 
+	m_pTransNull32->m_blnReInit = 1;
+
 	m_Inited = true;
 
 	return true;
@@ -751,6 +788,7 @@ bool DSVideo::OpenMovieNormally(string csMovieName, void *pHWnd)
 
 bool DSVideo::OpenMovieHard(string csMovieName, void *pHWnd)
 { 	
+	m_type = -3;
     return OpenMovieNormally(csMovieName, pHWnd);
 }
 
@@ -907,43 +945,53 @@ bool DSVideo::SetNullRender()
 
 	if (m_Inited == false) return false;
 	
-	//this->Stop();
+	hr = m_pVW->put_Visible(false);	
+
+	if (m_type != 3)
+	{
+		hr = m_pVW->put_MessageDrain(NULL);
 	
-	hr = m_pVW->put_Visible(false);
+		hr = m_pVW->put_Owner(NULL);
 
-	hr = m_pVW->put_MessageDrain(NULL);
-	
-	hr = m_pVW->put_Owner(NULL);
+		hr = m_pGB->RemoveFilter(m_pVideoRenderFilter);
+		if (hr != S_OK) { CleanUp(); return false; }
 
-	hr = m_pGB->RemoveFilter(m_pVideoRenderFilter);
-	if (hr != S_OK) { CleanUp(); return false; }
+		if (m_pSampleGrabberFilter != NULL)
+		{
+			hr = GetPin(m_pSampleGrabberFilter, PINDIR_OUTPUT, &pOutGB);
+			if (hr != S_OK) { CleanUp(); return false; }
+		}
+		else
+		{
+			hr = GetPin(m_pTransNull32Filter, PINDIR_OUTPUT, &pOutGB);
+			if (hr != S_OK) { CleanUp(); return false; }
+		}
 
-    if (m_pSampleGrabberFilter != NULL)
-    {
-	    hr = GetPin(m_pSampleGrabberFilter, PINDIR_OUTPUT, &pOutGB);
-	    if (hr != S_OK) { CleanUp(); return false; }
-    }
-    else
-    {
-        hr = GetPin(m_pTransNull32Filter, PINDIR_OUTPUT, &pOutGB);
-	    if (hr != S_OK) { CleanUp(); return false; }
-    }
+		m_pVideoRenderFilter = NULL;
+		hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER,
+								IID_IBaseFilter,(void**)&m_pVideoRenderFilter);
 
-	m_pVideoRenderFilter = NULL;
-	hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER,
-							IID_IBaseFilter,(void**)&m_pVideoRenderFilter);
+		hr = m_pGB->AddFilter(m_pVideoRenderFilter, L"Video Render");
 
-	hr = m_pGB->AddFilter(m_pVideoRenderFilter, L"Video Render");
+		hr = GetPin(m_pVideoRenderFilter, PINDIR_INPUT, &pInVR);
+		if (hr != S_OK) { CleanUp(); return false; }
 
-	hr = GetPin(m_pVideoRenderFilter, PINDIR_INPUT, &pInVR);
-	if (hr != S_OK) { CleanUp(); return false; }
+		hr = pInVR->Disconnect();
 
-	hr = pInVR->Disconnect();
+		hr = pOutGB->Disconnect();
 
-	hr = pOutGB->Disconnect();
+		hr = m_pGB->Connect(pOutGB, pInVR);
+		if (hr != S_OK) { CleanUp(); return false; }
 
-	hr = m_pGB->Connect(pOutGB, pInVR);
-	if (hr != S_OK) { CleanUp(); return false; }
+		if (m_pTransNull32Filter != NULL)
+		{
+			m_pTransNull32->m_blnReInit = 1;
+		}
+	}
+	else
+	{
+		hr = m_pVW->SetWindowPosition(-(100+m_Width), -(100+m_Height), m_Width, m_Height);
+	}
 
 	hr = m_pMF->SetSyncSource(NULL);
 
@@ -963,6 +1011,8 @@ void DSVideo::SetPos(s64 Pos)
 	long evCode;
 	
 	endPos = m_Duration;
+
+	m_ImageGeted = true;
 
 	m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
 	m_st = Pos;  
@@ -988,6 +1038,8 @@ void DSVideo::SetPos(double pos)
 	endPos = m_Duration;
 	Pos = (s64)(pos*10000000.0);
 
+	m_ImageGeted = true;
+
 	m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
 	m_st = Pos;  
 
@@ -1010,6 +1062,9 @@ void DSVideo::SetPosFast(s64 Pos)
 	long evCode;
 	
 	endPos = m_Duration;
+
+	m_ImageGeted = true;
+
 	hr = m_pMS->SetPositions(&Pos,AM_SEEKING_AbsolutePositioning,&endPos,AM_SEEKING_AbsolutePositioning);
 	m_st = Pos;  
 
@@ -1047,7 +1102,7 @@ HRESULT DSVideo::CleanUp()
 	IPin *pOut, *pIn;
 	fstream fout;
 	string fname;
-	
+
 	fname = m_Dir + string("/clean_video.log");
 	fout.open(fname.c_str(), ios_base::out | ios_base::app);
 	fout <<	"";
@@ -1481,6 +1536,15 @@ void DSVideo::Run()
 void DSVideo::Pause()
 {
 	m_pMC->Pause();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void DSVideo::WaitForCompletion(s64 timeout)
+{
+	long evCode;
+
+	m_pME->WaitForCompletion((long)timeout, &evCode);
 }
 
 /////////////////////////////////////////////////////////////////////////////

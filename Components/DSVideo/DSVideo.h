@@ -43,11 +43,13 @@ public:
     int             **m_ppBuffer;
     bool            *m_pImageGeted;
     bool            *m_pIsSetNullRender;
+	bool			 m_TriengToGetImage; 
     s64             *m_pST;
     IMediaControl	*m_pMC;
     int             m_ft;
     int             m_w;
     int             m_h;
+	int				m_blnReInit;
 
     CTransNull32( int **ppBuffer, s64 *pST, 
                   bool *pImageGeted, IMediaControl *pMC,
@@ -119,6 +121,7 @@ public:
     int     m_BufferSize;
     bool    m_ImageGeted;
     s64     m_st;
+	int		m_type; //video open type
 
 	IGraphBuilder	*m_pGB;
 	IMediaControl	*m_pMC; 
@@ -136,6 +139,7 @@ public:
 	IBaseFilter		*m_pSampleGrabberFilter; 
 	IBaseFilter		*m_pVideoRenderFilter;
     IBaseFilter		*m_pTransNull32Filter;
+	CTransNull32	*m_pTransNull32;
 
 	ICaptureGraphBuilder2  *m_pBuilder;
 
@@ -162,6 +166,9 @@ public:
 
 	void Run();
 	void Pause();
+
+	void WaitForCompletion(s64 timeout);
+
 	void StopFast();
 
 	void RunWithTimeout(s64 timeout);

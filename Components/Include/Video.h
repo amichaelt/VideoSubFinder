@@ -111,6 +111,10 @@ public:
 	{
 	}
 
+	virtual void WaitForCompletion(s64 timeout)
+	{		
+	}
+
 	virtual void StopFast()
 	{
 	}
