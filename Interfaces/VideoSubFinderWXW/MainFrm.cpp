@@ -220,6 +220,9 @@ void CMainFrame::Init()
 
 	this->SetMenuBar(pMenuBar);
 
+	m_SettingsFileName = m_Dir+string("/settings.cfg");
+	LoadSettings(m_SettingsFileName);
+
 	if (IsMMX_and_SSE() == true)
 	{
 		g_MMX_SSE = true;
@@ -243,9 +246,6 @@ void CMainFrame::Init()
 
 	m_pVideoBox->SetSize(80, 22, 408, 404);
 	m_pVideoBox->Show(true);
-
-	m_SettingsFileName = m_Dir+string("/settings.cfg");
-	LoadSettings(m_SettingsFileName);
 
 	this->SetSize(0, 0, 1024, 768-30);
 
@@ -607,6 +607,8 @@ void CMainFrame::LoadSettings(string fname)
 
 	ReadProperty(fin, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
 
+	ReadProperty(fin, g_DefStringForEmptySub, "def_string_for_empty_sub");
+	
 	fin.close();
 
 	//m_pPanel->m_pSSPanel->Refresh();
@@ -646,6 +648,8 @@ void CMainFrame::SaveSettings(string fname)
 	WriteProperty(fout, g_veple, "vedges_points_line_error");
 
 	WriteProperty(fout, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
+
+	WriteProperty(fout, g_DefStringForEmptySub, "def_string_for_empty_sub");
 
 	fout.close();
 }
@@ -1002,7 +1006,7 @@ void CMainFrame::ClearDir(string DirName)
 
 void CMainFrame::OnAppAbout(wxCommandEvent& event)
 {
-	(void)wxMessageBox("This program was developed and \nimplemented by Simeon Kosnitsky. \nPublished under GPL license.", "VideoSubFinder Version 1.76 beta");
+	(void)wxMessageBox("This program was developed and \nimplemented by Simeon Kosnitsky. \nPublished under GPL license.", "VideoSubFinder Version 1.80 beta");
 }
 
 void CMainFrame::OnSetPriorityIdle(wxCommandEvent& event)
@@ -1128,6 +1132,11 @@ void WriteProperty(ofstream &fout, double val, string Name)
 	fout << Name << " = " << val << '\n';
 }
 
+void WriteProperty(ofstream &fout, wxString val, string Name)
+{
+	fout << Name << " = " << val << '\n';
+}
+
 void ReadProperty(ifstream &fin, int &val, string Name)
 {
 	char name[100], str[100];
@@ -1137,7 +1146,13 @@ void ReadProperty(ifstream &fin, int &val, string Name)
 	{
 		fin >> name;
 		fin >> str;
-		fin >> str;
+		str[0] = '\0';
+
+		fin.getline(str, 100);
+		for(int i=0; i<(100-1); i++)
+		{
+			str[i] = str[i+1];
+		}
 	} while((Name != string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
@@ -1155,7 +1170,13 @@ void ReadProperty(ifstream &fin, bool &val, string Name)
 	{
 		fin >> name;
 		fin >> str;
-		fin >> str;
+		str[0] = '\0';
+
+		fin.getline(str, 100);
+		for(int i=0; i<(100-1); i++)
+		{
+			str[i] = str[i+1];
+		}
 	} while((Name != string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
@@ -1182,11 +1203,41 @@ void ReadProperty(ifstream &fin, double &val, string Name)
 	{
 		fin >> name;
 		fin >> str;
-		fin >> str;
+		str[0] = '\0';
+		
+		fin.getline(str, 100);
+		for(int i=0; i<(100-1); i++)
+		{
+			str[i] = str[i+1];
+		}
 	} while((Name != string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
 	{
 		val = strtod(str, NULL);
+	}
+}
+
+void ReadProperty(ifstream &fin, wxString &val, string Name)
+{
+	char name[100], str[100];
+
+	fin.seekg(0);
+	do
+	{
+		fin >> name;
+		fin >> str;
+		str[0] = '\0';
+
+		fin.getline(str, 100);
+		for(int i=0; i<(100-1); i++)
+		{
+			str[i] = str[i+1];
+		}
+	} while((Name != string(name)) && !fin.eof());
+	
+	if (!fin.eof()) 
+	{
+		val = wxString(str);
 	}
 }

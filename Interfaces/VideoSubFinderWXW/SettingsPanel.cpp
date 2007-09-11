@@ -64,6 +64,8 @@ void CSettingsPanel::Init()
 	m_CL1 = wxColour(255, 215, 0);
 	m_CL2 = wxColour(127, 255, 0);
 	m_CL3 = wxColour(127, 255, 212);
+	m_CL4 = wxColour(255, 255, 0);
+	m_CLGG = wxColour(0, 255, 255);
 
 	//"Arial Black"
 	m_BTNFont = wxFont(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
@@ -194,113 +196,64 @@ void CSettingsPanel::Init()
 	m_pOI = new CDataGrid( m_pP2, ID_OI,
                            rcOI.GetPosition(), rcOI.GetSize() );
 
-    m_pOI->AppendRows(20);
+    m_pOI->AddGroup("Глобальные Настройки Обработки Изображений", m_CLGG, m_LBLFont);
+	m_pOI->AddProperty("Using fast version (partially reduced) : ", m_CL2, m_CL4, m_LBLFont, &g_fast_search);
+	m_pOI->AddProperty("Using MMX and SSE optimization : ", m_CL2, m_CL4, m_LBLFont, &g_MMX_SSE);
+	
+	m_pOI->AddGroup("Первичная Обработка Изображения", m_CLGG, m_LBLFont);
+	m_pOI->AddSubGroup("Настройки Для Операторов Собеля", m_CL1, m_LBLFont);
+	m_pOI->AddProperty("Moderate Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mthr, 0.0, 1.0);
+	m_pOI->AddProperty("Moderate VEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mvthr, 0.0, 1.0);
+	m_pOI->AddProperty("Moderate NEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mnthr, 0.0, 1.0);
+	m_pOI->AddProperty("Moderate HEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mhthr, 0.0, 1.0);
+	m_pOI->AddSubGroup("Настройки Для Цветовой Фильтрации", m_CL1, m_LBLFont);	
+	m_pOI->AddProperty("Segment Width : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_segw, 4, 50);
+	m_pOI->AddProperty("Min Segments Count : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_msegc, 1, 10);
+	m_pOI->AddProperty("Min Sum Color Difference : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_scd, 0, 10000);
 
-	/*int ir = grid->GetNumberRows();
-    m_pOI->DeleteRows(0, ir);
-    m_pOI->AppendRows(ir);*/
+	m_pOI->AddGroup("Вторичная Обработка Изображения", m_CLGG, m_LBLFont);
+	m_pOI->AddSubGroup("Настройки Для Линейной Фильтрации", m_CL1, m_LBLFont);
+	m_pOI->AddProperty("Line Height : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_segh, 1, 50);
+	m_pOI->AddProperty("Max Between Text Distance : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_btd, 0.0, 1.0);
+	m_pOI->AddProperty("Max Text Centre Offset : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_tco, 0.0, 1.0);
+	m_pOI->AddProperty("Max Text Centre Percent Offset : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_tcpo, 0.0, 1.0);
+	m_pOI->AddSubGroup("Настройки Для Точек Цветовых Границ", m_CL1, m_LBLFont);
+	m_pOI->AddProperty("Min Points Number : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpn, 0, 10000);
+	m_pOI->AddProperty("Min Points Density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpd, 0.0, 1.0);
+	m_pOI->AddProperty("Min VEdges points density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpved, 0.0, 1.0);
+	m_pOI->AddProperty("Min NEdges points density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpned, 0.0, 1.0);
+	m_pOI->AddSubGroup("Настройки Для Цветовой Фильтрации", m_CL1, m_LBLFont);
+	m_pOI->AddProperty("Min Sum Multiple Color Difference : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_smcd, 0, 10000);
 
-	////////////////////////////////////////////////////////////////////////
-
-	//m_OI.Create(rcOI, this, ID_OI, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW/*WS_BORDER*/);
-
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Глобальные Настройки Обработки Изображений", RGB(0, 255, 255)));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Using fast version (partially reduced) : ", &g_fast_search));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Using MMX and SSE optimization : ", &g_MMX_SSE));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Первичная Обработка Изображения", RGB(0, 255, 255)));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Операторов Собеля"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Moderate Threshold : ", &g_mthr, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Moderate VEdges Threshold : ", &g_mvthr, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Moderate NEdges Threshold : ", &g_mnthr, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Moderate HEdges Threshold : ", &g_mhthr, 0.0, 1.0));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Цветовой Фильтрации"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Segment Width : ", &g_segw, 4, 50));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min Segments Count : ", &g_msegc, 1, 10));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min Sum Color Difference : ", &g_scd, 0, 10000));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Вторичная Обработка Изображения", RGB(0, 255, 255)));	
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Линейной Фильтрации"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Line Height : ", &g_segh, 1, 50));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Max Between Text Distance : ", &g_btd, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Max Text Centre Offset : ", &g_tco, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Max Text Centre Percent Offset : ", &g_tcpo, 0.0, 1.0));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Точек Цветовых Границ"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min Points Number : ", &g_mpn, 0, 10000));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min Points Density : ", &g_mpd, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min VEdges points density : ", &g_mpved, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min NEdges points density : ", &g_mpned, 0.0, 1.0));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Цветовой Фильтрации"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min Sum Multiple Color Difference : ", &g_smcd, 0, 10000));
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Третичная Обработка Изображения", RGB(0, 255, 255)));	
-	//m_OI.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Линейной Фильтрации"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min VEdges points density (per half line) : ", &g_mpvd, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min HEdges points density (per half line) : ", &g_mphd, 0.0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min NEdges points density (per half line) : ", &g_mpnd, 0.0, 1.0));	
-
-	//m_OI.SetBorderStyle (CObjectInspector::bsLowered);
-	//m_OI.SetHotTrack (true);
-	//m_OI.Set3dFocus (true);
-	//m_OI.SetStyle(true);
-	//m_OI.SetMinPropertyColWidth (50);
-	//m_OI.SetMinValueColWidth (50);
-	//m_OI.SetHeaderTitles ("Property", "Value");
-	//m_OI.SetBackColor(::GetSysColor(COLOR_BTNFACE));
-	//m_OI.SetPropertyHPTColor(RGB(0, 0, 0));
-	//m_OI.SetPropertyHPColor(RGB(255, 215, 0));
-	//m_OI.SetPropertyCPColor(RGB(127, 255, 0));
-	//m_OI.SetPropertyCVPColor(RGB(255, 255, 0));
-	//m_OI.SetPropertyColTextColor (RGB(0,0,0));
-	//m_OI.SetValueColTextColor (RGB(0,0,0));
-	//m_OI.SetGridLineColor (RGB(80,80,80));
-	//m_OI.SetFocusLineColor (RGB(100,100,255));
+	m_pOI->AddGroup("Третичная Обработка Изображения", m_CLGG, m_LBLFont);
+	m_pOI->AddSubGroup("Настройки Для Линейной Фильтрации", m_CL1, m_LBLFont);
+	m_pOI->AddProperty("Min VEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpvd, 0.0, 1.0);
+	m_pOI->AddProperty("Min HEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mphd, 0.0, 1.0);
+	m_pOI->AddProperty("Min NEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpnd, 0.0, 1.0);
 
 	////////////////////////////////////////////////////////////////////////
 
-	//m_OIM.Create(rcOIM, this, ID_OIM, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW /*WS_BORDER*/);
+	m_pOIM = new CDataGrid( m_pP2, ID_OIM,
+                           rcOIM.GetPosition(), rcOIM.GetSize() );
 
-	//m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("OCR настройки", RGB(0, 255, 255)));	
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Clear RGBImages after search subtitles : ", &g_CLEAN_RGB_IMAGES));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Using hard algorithm for text mining from background : ", &g_hard_sub_mining));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Using FRDImages for getting TXT areas : ", &g_use_FRD_images));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Validate And Compare Cleared TXT Images : ", &g_ValidateAndCompareTXTImages));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Dont Delete Unrecognized Images (First) : ", &g_DontDeleteUnrecognizedImages1));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Dont Delete Unrecognized Images (Second) : ", &g_DontDeleteUnrecognizedImages2));
-	//m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Мультифреймовой Обработки Изображений", RGB(0, 255, 255)));
-	//m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Обнаружения Саба"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Sub Frames Length : ", &g_DL, 1, 100));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Sub Square Error : ", &g_sse, 0.0, 1.0));
-	//m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Сравнения Сабов"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("VEdges Points line error : ", &g_veple, 0.0, 1.0));
-	//m_OIM.AddProperty (pProp = new CObjectInspector::CProperty("Настройки Для Проверки Саба"));
-	//pProp->Expand ();
-	//pProp->AddProperty (new CObjectInspector::CProperty("Text Procent : ", &g_tp, 0, 1.0));
-	//pProp->AddProperty (new CObjectInspector::CProperty("Min Text Length : ", &g_mtpl, 0.0, 1.0));
-
-	//m_OIM.SetBorderStyle (CObjectInspector::bsLowered);
-	//m_OIM.SetHotTrack (true);
-	//m_OIM.Set3dFocus (true);
-	//m_OIM.SetStyle(true);
-	//m_OIM.SetMinPropertyColWidth (50);
-	//m_OIM.SetMinValueColWidth (50);
-	//m_OIM.SetHeaderTitles ("Property", "Value");
-	//m_OIM.SetBackColor(::GetSysColor(COLOR_BTNFACE));
-	//m_OIM.SetPropertyHPTColor(RGB(0, 0, 0));
-	//m_OIM.SetPropertyHPColor(RGB(255, 215, 0));
-	//m_OIM.SetPropertyCPColor(RGB(127, 255, 0));
-	//m_OIM.SetPropertyCVPColor(RGB(255, 255, 0));
-	//m_OIM.SetPropertyColTextColor (RGB(0,0,0));
-	//m_OIM.SetValueColTextColor (RGB(0,0,0));
-	//m_OIM.SetGridLineColor (RGB(80,80,80));
-	//m_OIM.SetFocusLineColor (RGB(100,100,255));
+	m_pOIM->AddGroup("OCR настройки", m_CLGG, m_LBLFont);
+	m_pOIM->AddProperty("Clear RGBImages after search subtitles : ", m_CL2, m_CL4, m_LBLFont, &g_CLEAN_RGB_IMAGES);
+	m_pOIM->AddProperty("Using hard algorithm for text mining : ", m_CL2, m_CL4, m_LBLFont, &g_hard_sub_mining);
+	m_pOIM->AddProperty("Using FRDImages for getting TXT areas : ", m_CL2, m_CL4, m_LBLFont, &g_use_FRD_images);
+	m_pOIM->AddProperty("Validate And Compare Cleared TXT Images : ", m_CL2, m_CL4, m_LBLFont, &g_ValidateAndCompareTXTImages);
+	m_pOIM->AddProperty("Dont Delete Unrecognized Images (First) : ", m_CL2, m_CL4, m_LBLFont, &g_DontDeleteUnrecognizedImages1);
+	m_pOIM->AddProperty("Dont Delete Unrecognized Images (Second) : ", m_CL2, m_CL4, m_LBLFont, &g_DontDeleteUnrecognizedImages2);
+	m_pOIM->AddProperty("Default string for empty sub : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_DefStringForEmptySub);
+	
+	m_pOIM->AddGroup("Настройки Мультифреймовой Обработки Изображений", m_CLGG, m_LBLFont);
+	m_pOIM->AddSubGroup("Настройки Для Обнаружения Саба", m_CL1, m_LBLFont);
+	m_pOIM->AddProperty("Sub Frames Length : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_DL, 1, 100);
+	m_pOIM->AddProperty("Sub Square Error : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_sse, 0.0, 1.0);
+	m_pOIM->AddSubGroup("Настройки Для Сравнения Сабов", m_CL1, m_LBLFont);
+	m_pOIM->AddProperty("VEdges Points line error : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_veple, 0.0, 1.0);
+	m_pOIM->AddSubGroup("Настройки Для Проверки Саба", m_CL1, m_LBLFont);
+	m_pOIM->AddProperty("Text Procent : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_tp, 0.0, 1.0);
+	m_pOIM->AddProperty("Min Text Length : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mtpl, 0.0, 1.0);
 }
 
 

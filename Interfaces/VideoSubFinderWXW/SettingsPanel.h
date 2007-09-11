@@ -34,56 +34,14 @@ public:
 	wxFont    m_BTNFont;
 	wxFont    m_LBLFont;
 
-	//CStatic m_lblPOS;
-	//CStatic m_lblMDT;
-	//CStatic m_lblHVT;
-	//CStatic m_lblLNH;
-	//CStatic m_lblPLF;
-	//CStatic m_lblBTD;
-	//CStatic m_lblTCO;
-	//CEdit m_MDT;
-	//CEdit m_HVT;
-	//CEdit m_LNH;
-	//CEdit m_BTD;
-	//CEdit m_TCO;
-	//CStatic m_lblPPCE;
-	//CStatic m_lblMPN;
-	//CStatic m_lblMPD;
-	//CStatic m_lblPCF;
-	//CStatic m_lblSW;
-	//CStatic m_lblMSC;
-	//CStatic m_lblSCD;
-	//CStatic m_lblSMCD;
-	//CEdit m_MPN;
-	//CEdit m_MPD;
-	//CEdit m_SW;
-	//CEdit m_MSC;
-	//CEdit m_SCD;
-	//CEdit m_SMCD;
-	//CStatic m_lblPFFS;
-	//CStatic m_lblSFL;
-	//CStatic m_lblSSE;
-	//CStatic m_lblPFCS;
-	//CStatic m_lblVEPLE;
-	//CStatic m_lblPFVS;
-	//CStatic m_lblTP;
-	//CStatic m_lblMTL;
-	//CEdit m_SFL;
-	//CEdit m_SSE;
-	//CEdit m_VEPLE;
-	//CEdit m_TP;
-	//CEdit m_MTL;
-
 	CDataGrid	*m_pOI;
+	CDataGrid	*m_pOIM;
 
 	wxButton	*m_pTest;
 	wxStaticBox *m_pGB1;
 	wxStaticBox *m_pGB2;
 	wxStaticBox	*m_pGB3;
 	wxPanel		*m_pP2;
-
-	//CObjectInspector m_OI;
-	//CObjectInspector m_OIM;
 
 	wxBitmapButton *m_pLeft;
 	wxBitmapButton *m_pRight;
@@ -99,6 +57,8 @@ public:
 	wxColour   m_CL1;
 	wxColour   m_CL2;
 	wxColour   m_CL3;
+	wxColour   m_CL4;
+	wxColour   m_CLGG;
 
 	//HCURSOR  m_hCursor;
 

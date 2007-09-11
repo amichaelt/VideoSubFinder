@@ -132,9 +132,11 @@ string VideoTimeToStr3(s64 pos);
 void WriteProperty(ofstream &fout, int val, string Name);
 void WriteProperty(ofstream &fout, bool val, string Name);
 void WriteProperty(ofstream &fout, double val, string Name);
+void WriteProperty(ofstream &fout, wxString val, string Name);
 void ReadProperty(ifstream &fin, int &val, string Name);
 void ReadProperty(ifstream &fin, bool &val, string Name);
 void ReadProperty(ifstream &fin, double &val, string Name);
+void ReadProperty(ifstream &fin, wxString &val, string Name);
 
 bool IsMMX_and_SSE();
 bool IsSSE2();

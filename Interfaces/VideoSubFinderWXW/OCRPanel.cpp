@@ -25,6 +25,8 @@ bool g_ValidateAndCompareTXTImages = false;
 bool g_DontDeleteUnrecognizedImages1 = false;
 bool g_DontDeleteUnrecognizedImages2 = true;
 
+wxString g_DefStringForEmptySub = "sub duration: %sub_duration%";
+
 bool g_CLEAN_RGB_IMAGES = false;
 
 AssTXTLine::AssTXTLine()
@@ -276,7 +278,7 @@ void COCRPanel::Init()
 
 void COCRPanel::OnBnClickedCreateEmptySub(wxCommandEvent& event)
 {
-	wxString Str, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
+	wxString Str, SubStr, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
 	int i, j, k, sec, msec;
 	fstream fout;
 	u64 bt, et, dt, mdt;
@@ -373,7 +375,14 @@ void COCRPanel::OnBnClickedCreateEmptySub(wxCommandEvent& event)
 			else msec1 = str; 
 		}
 
-		fout << (k+1) << "\n" << Str << "\n" << "sub duration: " + sec1 + "," + msec1 << "\n\n";
+		SubStr = g_DefStringForEmptySub;
+
+		if (g_DefStringForEmptySub.Contains("%sub_duration%"))
+		{			
+			SubStr.Replace("%sub_duration%", sec1 + "," + msec1);
+		}
+
+		fout << (k+1) << "\n" << Str << "\n" << SubStr << "\n\n";
 	}
 
 	fout.close();
@@ -386,7 +395,7 @@ void COCRPanel::OnBnClickedCreateSubFromTXTResults(wxCommandEvent& event)
 
 void COCRPanel::OnBnClickedCreateSubFromClearedTXTImages(wxCommandEvent& event)
 {
-	wxString Str, Name, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
+	wxString Str, SubStr, Name, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
 	int i, j, k, kb, sec, msec;
 	fstream fout;
 	char str[30];
@@ -493,7 +502,14 @@ void COCRPanel::OnBnClickedCreateSubFromClearedTXTImages(wxCommandEvent& event)
 			else msec1 = str; 
 		}
 
-		fout << (k+1) << "\n" << Str << "\n" << "sub duration: " + sec1 + "," + msec1 << "\n\n";
+		SubStr = g_DefStringForEmptySub;
+
+		if (g_DefStringForEmptySub.Contains("%sub_duration%"))
+		{			
+			SubStr.Replace("%sub_duration%", sec1 + "," + msec1);
+		}
+
+		fout << (k+1) << "\n" << Str << "\n" << SubStr << "\n\n";
 	}
 
 	fout.close();

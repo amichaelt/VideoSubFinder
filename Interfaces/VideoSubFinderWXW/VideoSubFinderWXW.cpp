@@ -19,7 +19,7 @@
 
 bool CVideoSubFinderApp::OnInit() 
 {
-	m_pMainWnd = new CMainFrame("VideoSubFinder 1.76 beta version");
+	m_pMainWnd = new CMainFrame("VideoSubFinder 1.80 beta version");
 	
 	m_pMainWnd->Init();	
 

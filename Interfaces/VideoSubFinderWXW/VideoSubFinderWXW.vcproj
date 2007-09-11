@@ -93,7 +93,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; &quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses\Release\strmbase.lib&quot; wxmsw28_aui.lib wxmsw28_media.lib wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
+				AdditionalDependencies="&quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; &quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses\Release\strmbase.lib&quot; wxmsw28_aui.lib wxmsw28_media.lib wxmsw28_core.lib wxmsw28_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
 				OutputFile="$(OutDir)/VideoSubFinderWXW.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
