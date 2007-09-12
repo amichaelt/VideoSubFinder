@@ -4330,8 +4330,8 @@ int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, 
 
 		if ((LLE[k]-LLB[k]+1) > segh)
 		{
-			ym = yb + dy;
-			if (ym >= h) ym = h-1;
+			ym = yb + dy;			
+			
 			if (k < N-1)
 			{
 				if (LLB[k+1] < ym)
@@ -4339,6 +4339,12 @@ int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, 
 					ym = LLB[k+1] - 1;
 				}
 			}
+
+			if ((ym + segh - 1) >= h)
+			{
+				ym = h-segh;
+			}
+
 			ym -= ym%segh;
 		}
 		else
@@ -4347,10 +4353,9 @@ int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, 
 
 			ym = yb + 2*segh;
 			
-			if (ym >= h) 
+			while ((ym + segh - 1) >= h)
 			{
-				ym = h-1;
-				ym -= ym%segh;
+				ym -= segh;
 			}
 		}
 

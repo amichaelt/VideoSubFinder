@@ -138,6 +138,8 @@ CMainFrame::CMainFrame(const wxString& title)
 							wxDEFAULT_FRAME_STYLE | wxFRAME_NO_WINDOW_MENU )
 		, m_timer(this, TIMER_ID)
 {
+	wxString Str;
+
 	m_WasInited = false;
 	m_VIsOpen = false;
 
@@ -151,7 +153,9 @@ CMainFrame::CMainFrame(const wxString& title)
 
 	m_pVideo = GetDSVideoObject();
 
-	m_Dir = wxGetCwd();
+	Str = wxGetCwd();
+	Str.Replace("\\", "/"); 
+	m_Dir = Str;
 
 	g_dir = m_Dir;
 	m_pVideo->m_Dir = m_Dir;
@@ -303,27 +307,10 @@ void CMainFrame::OnFileOpenVideo(int type)
 
 	if (m_blnReopenVideo == false)
 	{
-		OPENFILENAME ofn;       // common dialog box structure
-		char szFile[260];       // buffer for file name
+		wxFileDialog fd(this, _T("Open Video File"),
+						wxEmptyString, wxEmptyString, wxT("Video Files (*.avi;*.mp4;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm)|*.avi;*.mp4;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm|All Files (*.*)|*.*"), wxFD_OPEN);
 
-		// Initialize OPENFILENAME
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = (HWND)this->m_hWnd;
-		ofn.lpstrFile = szFile;
-
-		ofn.lpstrFile[0] = '\0';
-		strcpy(ofn.lpstrFile, (char*)csFileName.c_str());
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = "Video Files (*.avi;*.mp4;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm)\0*.avi;*.mp4;*.mpg;*.mpeg;*.mpv;*.m1v;*.dat;*.avs;*.vdr;*.asf;*.asx;*.wmv;*.mkv;*.ogm\0All Files (*.*)\0*.*\0";
-		ofn.lpstrTitle = "Open Video File";
-		ofn.nFilterIndex = 1;
-		ofn.lpstrFileTitle = NULL;
-		ofn.nMaxFileTitle = 0;
-		ofn.lpstrInitialDir = NULL;
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-		if (FALSE == GetOpenFileName( &ofn )) 
+		if(fd.ShowModal() != wxID_OK)
 		{
 			if (was_open_before) 
 			{
@@ -333,7 +320,8 @@ void CMainFrame::OnFileOpenVideo(int type)
 
 			return;
 		}
-		csFileName = string(ofn.lpstrFile);
+
+		csFileName = fd.GetPath();
 	}
 
 	m_FileName = csFileName;
@@ -684,73 +672,37 @@ void CMainFrame::OnEditSetEndTime(wxCommandEvent& event)
 
 void CMainFrame::OnFileLoadSettings(wxCommandEvent& event)
 {
-	string csFileName;
-
-	csFileName = m_SettingsFileName;
-
-	OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
-
-	// Initialize OPENFILENAME
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = (HWND)this->m_hWnd;
-	ofn.lpstrFile = szFile;
-
-	ofn.lpstrFile[0] = '\0';
-	strcpy(ofn.lpstrFile, csFileName.c_str());
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = "Settings Files (*.cfg)\0*.cfg\0";
-	ofn.lpstrTitle = "Open Settings File";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
 	if (m_blnReopenVideo == false)
 	{
-		if (FALSE == GetOpenFileName( &ofn )) return;
-		csFileName = string(ofn.lpstrFile);
+		wxFileDialog fd(this, _T("Open Settings File"),
+						m_Dir, wxEmptyString, wxT("*.cfg"), wxFD_OPEN);
+
+		if(fd.ShowModal() != wxID_OK)
+		{
+			return;
+		}
+
+		m_SettingsFileName = fd.GetPath();
 	}
 
-	m_SettingsFileName = csFileName;
 	LoadSettings(m_SettingsFileName);
 }
 
 void CMainFrame::OnFileSaveSettingsAs(wxCommandEvent& event)
 {
-	string csFileName;
-
-	csFileName = m_SettingsFileName;
-
-	OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
-
-	// Initialize OPENFILENAME
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = (HWND)this->m_hWnd;
-	ofn.lpstrFile = szFile;
-
-	ofn.lpstrFile[0] = '\0';
-	strcpy(ofn.lpstrFile, csFileName.c_str());
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = "Settings Files (*.cfg)\0*.cfg\0";
-	ofn.lpstrTitle = "Save Settings File";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_OVERWRITEPROMPT; 
+	wxFileDialog fd(this, _T("Save Settings File"),
+						m_Dir, wxEmptyString, wxT("Settings Files (*.cfg)|*.cfg"), wxFD_SAVE);
 
 	if (m_blnReopenVideo == false)
 	{
-		if (FALSE == GetSaveFileName( &ofn )) return;
-		csFileName = string(ofn.lpstrFile);
+		if(fd.ShowModal() != wxID_OK)
+		{
+			return;
+		}
+
+		m_SettingsFileName = fd.GetPath();
 	}
 
-	m_SettingsFileName = csFileName;
 	SaveSettings(m_SettingsFileName);
 }
 
