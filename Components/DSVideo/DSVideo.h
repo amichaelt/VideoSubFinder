@@ -21,6 +21,7 @@
 #include "Video.h"
 
 #include <streams.h>
+#include <limits.h>
 #include <Dshow.h>
 #include <strmif.h>
 #include <control.h>

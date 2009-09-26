@@ -1,129 +1,192 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9,00"
 	Name="VideoSubFinderWXW"
 	ProjectGUID="{6786A82F-9596-45FF-9A44-7C1AF39EDE35}"
 	RootNamespace="VideoSubFinderWXW"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\Build\Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib\mswd;$(WX_WIDGETS_PATH)\include;..\..\Dependencies\jpeg;..\..\Components\Include;..\..\Components\IPAlgorithms;..\..\Components\DSVideo"
+				AdditionalIncludeDirectories="&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;..\..\Components\Include;..\..\Components\IPAlgorithms;..\..\Components\DSVideo"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH"
-				MinimalRebuild="FALSE"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
-				BufferSecurityCheck="FALSE"
-				RuntimeTypeInfo="TRUE"
+				BufferSecurityCheck="false"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				CompileAs="2"/>
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; &quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses\Debug\strmbasd.lib&quot; wxmsw28d_aui.lib wxmsw28d_media.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib"
-				OutputFile="$(OutDir)/VideoSubFinderWXW.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/VideoSubFinderWXW.pdb"
-				SubSystem="2"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG,__WXMSW__,__WXDEBUG__,_WINDOWS,NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib\mswd;$(WX_WIDGETS_PATH)\include;"/>
+				AdditionalIncludeDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib\mswd;$(WX_WIDGETS_PATH)\include;"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				AdditionalDependencies="&quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; &quot;$(DSHOW_BASE_ClASSES)\Debug\strmbasd.lib&quot; wxmsw28d_aui.lib wxmsw28d_media.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib"
+				OutputFile="$(OutDir)/VideoSubFinderWXW.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/VideoSubFinderWXW.pdb"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\Build\Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="0">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHsc"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib\mswd;$(WX_WIDGETS_PATH)\include;..\..\Dependencies\jpeg;..\..\Components\Include;..\..\Components\IPAlgorithms;..\..\Components\DSVideo"
+				AdditionalIncludeDirectories="&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;..\..\Components\Include;..\..\Components\IPAlgorithms;..\..\Components\DSVideo"
 				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="TRUE"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib\msw;$(WX_WIDGETS_PATH)\include;"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; &quot;$(DSHOW_DIR)\Samples\C++\DirectShow\BaseClasses\Release\strmbase.lib&quot; wxmsw28_aui.lib wxmsw28_media.lib wxmsw28_core.lib wxmsw28_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
+				AdditionalDependencies="&quot;$(DSHOW_DIR)\Lib\x86\strmiids.lib&quot; &quot;$(DSHOW_BASE_ClASSES)\Release\strmbase.lib&quot; wxmsw28_aui.lib wxmsw28_media.lib wxmsw28_core.lib wxmsw28_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
 				OutputFile="$(OutDir)/VideoSubFinderWXW.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib"
-				GenerateDebugInformation="FALSE"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(WX_WIDGETS_PATH)\lib\vc_lib\msw;$(WX_WIDGETS_PATH)\include;"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -132,100 +195,131 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\DataGrid.cpp">
+				RelativePath=".\DataGrid.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ImageBox.cpp">
+				RelativePath=".\ImageBox.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\MainFrm.cpp">
+				RelativePath=".\MainFrm.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\OCRPanel.cpp">
+				RelativePath=".\OCRPanel.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ScrollBar.cpp">
+				RelativePath=".\ScrollBar.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SearchPanel.cpp">
+				RelativePath=".\SearchPanel.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SeparatingLine.cpp">
+				RelativePath=".\SeparatingLine.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SettingsPanel.cpp">
+				RelativePath=".\SettingsPanel.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SSOWnd.cpp">
+				RelativePath=".\SSOWnd.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\TextBox.cpp">
+				RelativePath=".\TextBox.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoBox.cpp">
+				RelativePath=".\VideoBox.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoSubFinderWXW.cpp">
+				RelativePath=".\VideoSubFinderWXW.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\DataGrid.h">
+				RelativePath=".\DataGrid.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Components\Include\DataTypes.h">
+				RelativePath="..\..\Components\Include\DataTypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ImageBox.h">
+				RelativePath=".\ImageBox.h"
+				>
 			</File>
 			<File
-				RelativePath=".\MainFrm.h">
+				RelativePath=".\MainFrm.h"
+				>
 			</File>
 			<File
-				RelativePath=".\MyResource.h">
+				RelativePath=".\MyResource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\OCRPanel.h">
+				RelativePath=".\OCRPanel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\resource.h">
+				RelativePath=".\resource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ScrollBar.h">
+				RelativePath=".\ScrollBar.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SearchPanel.h">
+				RelativePath=".\SearchPanel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SeparatingLine.h">
+				RelativePath=".\SeparatingLine.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SettingsPanel.h">
+				RelativePath=".\SettingsPanel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SSOWnd.h">
+				RelativePath=".\SSOWnd.h"
+				>
 			</File>
 			<File
-				RelativePath=".\TextBox.h">
+				RelativePath=".\TextBox.h"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoBox.h">
+				RelativePath=".\VideoBox.h"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoSubFinderWXW.h">
+				RelativePath=".\VideoSubFinderWXW.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 			<File
-				RelativePath=".\VideoSubFinderWXW.rc">
+				RelativePath=".\VideoSubFinderWXW.rc"
+				>
 			</File>
 		</Filter>
 	</Files>

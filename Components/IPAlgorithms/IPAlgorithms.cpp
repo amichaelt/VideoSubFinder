@@ -105,7 +105,7 @@ int *g_ImRR = NULL;
 int *g_ImRGB = NULL;
 int *g_ImF[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
-JSAMPLE *g_jsrow = NULL;
+//JSAMPLE *g_jsrow = NULL;
 
 #define MAX_EDGE_STR 786432 //на сам деле ~ 32*3*255
 
@@ -184,6 +184,8 @@ int g_str_size = 256*2;
 
 bool g_hard_sub_mining = false;
 int g_show_results = 1;
+
+bool g_wxImageHandlersInitialized = false;
 
 #ifdef _DEBUG
 int g_debug = 1;
@@ -303,8 +305,8 @@ void InitIPData(int w, int h, int scale)
 	//-------------
 	size = g_W*3*4;
 
-	g_jsrow = new JSAMPLE[size];
-	memset(g_jsrow, 0, size*sizeof(JSAMPLE));	
+	//g_jsrow = new JSAMPLE[size];
+	//memset(g_jsrow, 0, size*sizeof(JSAMPLE));	
 	//-------------
 
 	//-------------
@@ -705,11 +707,11 @@ void ReleaseIPData()
 	//-------------
 
 	//-------------
-	if (g_jsrow != NULL)
+	/*if (g_jsrow != NULL)
 	{
 		delete[] g_jsrow;
 		g_jsrow = NULL;
-	}
+	}*/
 	//-------------
 
 	//-------------
@@ -6841,7 +6843,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 
 		GetTextLineParameters(g_ImFF, w, h, LH, LMAXY, DXB, DXE, DYB, DYE, mY, mI, mQ, r);
 
-        FullName = string("\\TXTImages\\");
+        FullName = string("/TXTImages/");
 		FullName += SaveName;
 
 		sprintf(str, "%.2d", (int)SavedFiles.size() + 1);
@@ -10127,267 +10129,134 @@ int CompareTXTImages(int *Im1, int *Im2, int w1, int h1, int w2, int h2, int YB1
 	return 0;
 }
 
-void SaveRGBImage(int *Im, string name, int w, int h)
-{
-	FILE * outfile;
-	jpeg_compress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, bi, ei, j;	
-	JSAMPLE *row = (JSAMPLE*)g_jsrow;
-	JSAMPLE *color;
-    string full_name;
-
-    full_name = g_dir;
-    full_name += name; 
-
-    if ((outfile = fopen(full_name.c_str(), "wb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_compress(&cinfo);
-
-	jpeg_stdio_dest(&cinfo, outfile);
-
-	cinfo.image_width = w; 	
-	cinfo.image_height = h;
-	cinfo.input_components = 3;	
-	cinfo.in_color_space = JCS_RGB; 
-
-	jpeg_set_defaults(&cinfo);
-	jpeg_set_quality(&cinfo, 100, TRUE);
-
-	jpeg_start_compress(&cinfo, TRUE);
-
-	row_stride = w*3;
-
-	row_pointer[0] = row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.next_scanline < cinfo.image_height) 
-	{
-	    for(i=bi, j=0; i<ei; i++, j+=3)
-		{
-			color = (JSAMPLE*)(&Im[i]);
-			row[j] = color[2];
-			row[j+1] = color[1];
-			row[j+2] = color[0];	
-		}
-		
-	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
-		
-		bi += w;
-		ei += w;
-	}
-
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
-
-	fclose(outfile);
-}
-
 void GetImageSize(string name, int &w, int &h)
 {
-    FILE *fin;
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
+	if (!g_wxImageHandlersInitialized)
+	{
+		wxImage::AddHandler(new wxJPEGHandler);	
+		g_wxImageHandlersInitialized = true;
+	}
 
-    if ((fin = fopen(name.c_str(), "rb")) == NULL) return;
+	wxImage wxIm(name);
 
-	cinfo.err = jpeg_std_error(&jerr);
+	w = wxIm.GetWidth();
+	h = wxIm.GetHeight();
+}
 
-	jpeg_create_decompress(&cinfo);
+void SaveRGBImage(int *Im, string name, int w, int h)
+{	
+	wxImage wxIm(w, h, true);
+	int i, x, y;
+	u8 *color;
+	string full_name;
 
-	jpeg_stdio_src(&cinfo, fin);
+	if (!g_wxImageHandlersInitialized)
+	{
+		wxImage::AddHandler(new wxJPEGHandler);	
+		g_wxImageHandlersInitialized = true;
+	}
 
-	jpeg_read_header(&cinfo, TRUE);
+    full_name = g_dir;
+    full_name += name; 	
 
-	w = cinfo.image_width; 	
-	h = cinfo.image_height;
+	for (y=0, i=0; y<h; y++)
+	for (x=0; x<w; x++, i++)
+	{
+		color = (u8*)(&Im[i]);
+		wxIm.SetRGB(x, y, color[2], color[1], color[0]);		
+	}
 
-    fclose(fin);
+	wxIm.SetOption(wxIMAGE_OPTION_QUALITY, 100);
+	wxIm.SaveFile(full_name, wxBITMAP_TYPE_JPEG);
 }
 
 void LoadRGBImage(int *Im, string name, int &w, int &h)
 {
-	FILE *fin;
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, j, bi, ei;	
-	JSAMPLE *row = (JSAMPLE*)g_jsrow;
-	int color = 0;
-	u8 *pColor = (u8*)(&color);
-
-    if ((fin = fopen(name.c_str(), "rb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-
-	jpeg_create_decompress(&cinfo);
-
-	jpeg_stdio_src(&cinfo, fin);
-
-	jpeg_read_header(&cinfo, TRUE);
-
-	cinfo.out_color_space = JCS_RGB;
-	cinfo.out_color_components = 3;
-
-	w = cinfo.image_width; 	
-	h = cinfo.image_height;
-
-	jpeg_start_decompress(&cinfo);
-
-	row_stride = w*3;
-
-	row_pointer[0] = row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.output_scanline < cinfo.output_height) 
+	if (!g_wxImageHandlersInitialized)
 	{
-		jpeg_read_scanlines(&cinfo, row_pointer, 1);
-
-		for(i=bi, j=0; i<ei; i++, j+=3)
-		{
-			pColor[2] = row[j];
-			pColor[1] = row[j+1];
-			pColor[0] = row[j+2];
-			Im[i] = color;
-		}			
-		
-		bi += w;
-		ei += w;
+		wxImage::AddHandler(new wxJPEGHandler);	
+		g_wxImageHandlersInitialized = true;
 	}
 
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
+	wxImage wxIm(name);
+	int i, x, y;
+	u8 *color;
 
-	fclose(fin);
+	w = wxIm.GetWidth();
+	h = wxIm.GetHeight();
+
+	for (y=0, i=0; y<h; y++)
+	for (x=0; x<w; x++, i++)
+	{		
+		Im[i] = 0;
+		color = (u8*)(&Im[i]);
+		color[2] = wxIm.GetRed(x, y);
+		color[1] = wxIm.GetGreen(x, y);
+		color[0] = wxIm.GetBlue(x, y);
+	}
 }
 
 void SaveImage(int *Im, string name, int w, int h, int quality, int dpi)
 {
-	FILE * outfile;
-	jpeg_compress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, bi, ei, j;	
-	JSAMPLE *row = (JSAMPLE*)g_jsrow;
-	JSAMPLE *color;
-    string full_name;
+	wxImage wxIm(w, h, true);
+	int i, x, y;
+	u8 *color;
+	string full_name;
+
+	if (!g_wxImageHandlersInitialized)
+	{
+		wxImage::AddHandler(new wxJPEGHandler);	
+		g_wxImageHandlersInitialized = true;
+	}
 
     full_name = g_dir;
-    full_name += name; 
+    full_name += name; 	
 
-    if ((outfile = fopen(full_name.c_str(), "wb")) == NULL) return;
+	for (y=0, i=0; y<h; y++)
+	for (x=0; x<w; x++, i++)
+	{
+		color = (u8*)(&Im[i]);
+		wxIm.SetRGB(x, y, color[0], color[0], color[0]);		
+	}
 
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_compress(&cinfo);
-
-	jpeg_stdio_dest(&cinfo, outfile);
-
-	cinfo.image_width = w; 	
-	cinfo.image_height = h;
-	cinfo.input_components = 1;	
-	cinfo.in_color_space = JCS_GRAYSCALE; 
-
-	jpeg_set_defaults(&cinfo);
-	
 	if (dpi != -1)
 	{
-		cinfo.density_unit = 0x01;
-		cinfo.X_density = dpi;
-		cinfo.Y_density = dpi;
+		wxIm.SetOption(wxIMAGE_OPTION_RESOLUTIONX, dpi);
+		wxIm.SetOption(wxIMAGE_OPTION_RESOLUTIONY, dpi);
 	}
-
+	
 	if (quality != -1)
 	{
-		jpeg_set_quality(&cinfo, 100, TRUE);
+		wxIm.SetOption(wxIMAGE_OPTION_QUALITY, 100);
 	}
-
-	jpeg_start_compress(&cinfo, TRUE);
-
-	row_stride = w;
-
-	row_pointer[0] = row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.next_scanline < cinfo.image_height) 
-	{
-	    for(i=bi, j=0; i<ei; i++, j++)
-		{
-			color = (JSAMPLE*)(&Im[i]);
-			row[j] = color[0];
-		}
-		
-	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
-		
-		bi += w;
-		ei += w;
-	}
-
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
-
-	fclose(outfile);
+	
+	wxIm.SaveFile(full_name, wxBITMAP_TYPE_JPEG);
 }
 
 void LoadImage(int *Im, string name, int &w, int &h)
 {
-	FILE *fin;
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[1];
-	int row_stride, i, j, bi, ei;	
-	JSAMPLE *row = (JSAMPLE*)g_jsrow;
-
-    if ((fin = fopen(name.c_str(), "rb")) == NULL) return;
-
-	cinfo.err = jpeg_std_error(&jerr);
-
-	jpeg_create_decompress(&cinfo);
-
-	jpeg_stdio_src(&cinfo, fin);
-
-	jpeg_read_header(&cinfo, TRUE);
-
-	cinfo.out_color_space = JCS_GRAYSCALE;
-	cinfo.out_color_components = 1;
-
-	w = cinfo.image_width; 	
-	h = cinfo.image_height;
-
-	jpeg_start_decompress(&cinfo);
-
-	row_stride = w;
-
-	row_pointer[0] = row;
-
-	bi = 0;
-	ei = w;
-	while (cinfo.output_scanline < cinfo.output_height) 
+	if (!g_wxImageHandlersInitialized)
 	{
-		jpeg_read_scanlines(&cinfo, row_pointer, 1);
-
-		for(i=bi, j=0; i<ei; i++, j++)
-		{
-			if (row[j] < 100) 
-			{
-				Im[i] = 0;
-			}
-			else
-			{
-				Im[i] = 255;
-			}
-		}			
-		
-		bi += w;
-		ei += w;
+		wxImage::AddHandler(new wxJPEGHandler);	
+		g_wxImageHandlersInitialized = true;
 	}
 
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
+	wxImage wxIm(name);
+	int i, x, y;
 
-	fclose(fin);
+	w = wxIm.GetWidth();
+	h = wxIm.GetHeight();
+
+	for (y=0, i=0; y<h; y++)
+	for (x=0; x<w; x++, i++)
+	{		
+		if (wxIm.GetRed(x, y) != 0)
+		{
+			Im[i] = 255;
+		}
+		else
+		{
+			Im[i] = 0;
+		}
+	}
 }
