@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef IMAGEBOX_H
+#define IMAGEBOX_H
+
 #include <wx/mdi.h>
 #include <wx/image.h>
 #include "MyResource.h"
@@ -81,4 +83,4 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-
+#endif

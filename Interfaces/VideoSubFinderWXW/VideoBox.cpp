@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #include "VideoBox.h"
+#include <QtCore/QtGlobal>
 
 BEGIN_EVENT_TABLE(CVideoWnd, wxWindow)
 	EVT_PAINT(CVideoWnd::OnPaint)
@@ -99,7 +100,7 @@ void CVideoWindow::Update()
 	{
 		if (m_pVB->m_pMF->m_vs != CMainFrame::Play)
 		{
-			s64 Cur;
+			qint64 Cur;
 			Cur = m_pVB->m_pMF->m_pVideo->GetPos();
 			m_pVB->m_pMF->m_pVideo->SetPos(Cur);
 		}
@@ -204,8 +205,8 @@ CVideoBox::~CVideoBox()
 
 void CVideoBox::Init()
 {
-	//string strVBClass;
-	//string strVBXClass;
+	//std::string strVBClass;
+	//std::string strVBXClass;
 	wxBitmap bmp;
 
 	m_VBX = wxColour(125, 125, 125);
@@ -364,7 +365,7 @@ void CVideoBox::OnBnClickedStop(wxCommandEvent& event)
 
 void CVideoBox::OnKeyDown(wxKeyEvent& event)
 {
-	s64 Cur;
+	qint64 Cur;
 
 	if ( !m_pMF->m_VIsOpen )
 	{
@@ -412,7 +413,7 @@ void CVideoBox::OnMouseWheel(wxMouseEvent& event)
 {
 	if (m_pMF->m_VIsOpen)
 	{
-		s64 Cur;
+		qint64 Cur;
 
 		if (event.m_wheelRotation > 0)
 		{
@@ -433,7 +434,7 @@ void CVideoBox::OnMouseWheel(wxMouseEvent& event)
 void CVideoBox::ViewImage(int *Im, int w, int h)
 {
 	int i, x, y;
-	u8 *color;
+	quint8 *color;
 	wxMemoryDC dc;
 
 	if (m_pBmp == NULL) 
@@ -459,7 +460,7 @@ void CVideoBox::ViewImage(int *Im, int w, int h)
 	for(y=0, i=0; y<h; y++)
 	for(x=0; x<w; x++, i++)
 	{
-		color = (u8*)(&Im[i]);
+		color = (quint8*)(&Im[i]);
 
 		dc.SetPen(wxPen(wxColor(color[2], color[1], color[0])));
 		dc.DrawPoint(x, y);
@@ -482,17 +483,17 @@ void CVideoBox::ViewImage(int *Im, int w, int h)
 
 void CVideoBox::OnHScroll(wxScrollEvent& event)
 {
-	s64 SP = event.GetPosition();
+	qint64 SP = event.GetPosition();
 
 	if (m_pMF->m_VIsOpen) 
 	{
-		s64 Cur, Pos, endPos;
+		qint64 Cur, Pos, endPos;
 		
 		if (SP >= 0)
 		{
 			m_pMF->PauseVideo();
 			
-			Pos = SP*(s64)10000;
+			Pos = SP*(qint64)10000;
 
 			endPos = m_pMF->m_pVideo->m_Duration;
 			Cur = m_pMF->m_pVideo->GetPos();

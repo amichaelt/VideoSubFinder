@@ -19,6 +19,7 @@
 #include <math.h>
 #include <assert.h>
 #include <emmintrin.h>
+#include <QtCore/QtGlobal>
 
 void    (*g_pViewRGBImage)(int *Im, int w, int h);
 void    (*g_pViewImage[2])(int *Im, int w, int h);
@@ -32,7 +33,7 @@ int g_xmax;
 int g_ymin;
 int g_ymax;
 
-string  g_dir;
+std::string  g_dir;
 
 double	g_mthr = 0.4;
 double	g_mvthr = 0.3;
@@ -72,9 +73,9 @@ int g_min_dQ = 9;
 int g_min_ddI = 14;
 int g_min_ddQ = 14;
 
-s64 *g_ImYIQ = NULL;
-s64 *g_ImRES1_64 = NULL;
-s64 *g_ImRES2_64 = NULL;
+qint64 *g_ImYIQ = NULL;
+qint64 *g_ImRES1_64 = NULL;
+qint64 *g_ImRES2_64 = NULL;
 
 int *g_ImY = NULL;
 int *g_ImU = NULL;
@@ -104,8 +105,6 @@ int *g_ImRR = NULL;
 
 int *g_ImRGB = NULL;
 int *g_ImF[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
-
-//JSAMPLE *g_jsrow = NULL;
 
 #define MAX_EDGE_STR 786432 //на сам деле ~ 32*3*255
 
@@ -209,14 +208,14 @@ void InitIPData(int w, int h, int scale)
     //-------------
 	size = w*h*scale;	
 	
-	g_ImYIQ = new s64[size];
-	memset(g_ImYIQ, 0, size*sizeof(s64));
+	g_ImYIQ = new qint64[size];
+	memset(g_ImYIQ, 0, size*sizeof(qint64));
 
-	g_ImRES1_64 = new s64[size];
-	memset(g_ImRES1_64, 0, size*sizeof(s64));
+	g_ImRES1_64 = new qint64[size];
+	memset(g_ImRES1_64, 0, size*sizeof(qint64));
 
-	g_ImRES2_64 = new s64[size];
-	memset(g_ImRES2_64, 0, size*sizeof(s64));
+	g_ImRES2_64 = new qint64[size];
+	memset(g_ImRES2_64, 0, size*sizeof(qint64));
 
     g_ImY = new int[size];
 	memset(g_ImY, 0, size*sizeof(int));
@@ -303,10 +302,7 @@ void InitIPData(int w, int h, int scale)
 	//-------------
 
 	//-------------
-	size = g_W*3*4;
-
-	//g_jsrow = new JSAMPLE[size];
-	//memset(g_jsrow, 0, size*sizeof(JSAMPLE));	
+	size = g_W*3*4;	
 	//-------------
 
 	//-------------
@@ -704,15 +700,6 @@ void ReleaseIPData()
 			g_ImF[i] = NULL;
 		}
 	}
-	//-------------
-
-	//-------------
-	/*if (g_jsrow != NULL)
-	{
-		delete[] g_jsrow;
-		g_jsrow = NULL;
-	}*/
-	//-------------
 
 	//-------------
 	if (g_pLB != NULL) 
@@ -1104,27 +1091,27 @@ void ReleaseIPData()
 	//-------------
 }
 
-void RGB_to_YUV(int *ImIn, int *ImY,int *ImU,int *ImV, int w, int h)
+void RGB_to_YUV(int *ImIn, int *ImY, int *ImU, int *ImV, int w, int h)
 {
-	u8 *color;
+	quint8 *color;
 	int i, r, g, b, y, u, v;
 
-	for(i=0; i<w*h; i++)
+	for(i = 0; i < w * h; ++i)
 	{
-		color = (u8*)(&ImIn[i]);
+		color = (quint8*)(&ImIn[i]);
 
 		r = color[2];
 		g = color[1];
 		b = color[0];
 		
-		//---(0.299*2^16)(0.587*2^16)(0.114*2^16)-----
-		y = 19595*r + 38470*g + 7471*b;
+		//---(0.299 * 2^16)(0.587 * 2^16)(0.114 * 2^16)-----
+		y = 19595 * r + 38470 * g + 7471 * b;
 
-		//-(-0.147*2^16)(-0.289*2^16)(0.436*2^16)-----      
-		u = -9634*r - 18940*g + 28574*b;
+		//-(-0.147 * 2^16)(-0.289 * 2^16)(0.436 * 2^16)-----      
+		u = -9634 * r - 18940 * g + 28574 * b;
 		
-		//---(0.615*2^16)(-0.515*2^16)(-0.100*2^16)---
-		v = 40305*r - 33751*g - 6554*b;
+		//---(0.615 * 2^16)(-0.515 * 2^16)(-0.100 * 2^16)---
+		v = 40305 * r - 33751 * g - 6554 * b;
 		
 		ImY[i] = y >> 16;
 		
@@ -1185,12 +1172,12 @@ void YIQ_to_RGB(int Y, int I, int Q, int &R, int &G, int &B, int max_val)
 
 void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h)
 {
-	u8 *color;
+	quint8 *color;
 	int i, r, g, b, Y, I, Q;
 
 	for(i=0; i<w*h; i++)
 	{
-		color = (u8*)(&ImIn[i]);
+		color = (quint8*)(&ImIn[i]);
 
 		r = color[2];
 		g = color[1];
@@ -1229,9 +1216,9 @@ void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h)
 	}
 }
 
-void RGB_to_YIQ(int *ImRGB, s64 *ImYIQ, int w, int h)
+void RGB_to_YIQ(int *ImRGB, qint64 *ImYIQ, int w, int h)
 {
-	u8 *color;
+	quint8 *color;
 	int i;
 	int r, g, b, Y, I, Q;
 	int *pImRGB = ImRGB;
@@ -1241,7 +1228,7 @@ void RGB_to_YIQ(int *ImRGB, s64 *ImYIQ, int w, int h)
 
 	for(i=0; i<w*h; i++, pImRGB++, pImYIQ++)
 	{
-		color = (u8*)pImRGB;
+		color = (quint8*)pImRGB;
 
 		r = color[2];
 		g = color[1];
@@ -1284,72 +1271,6 @@ void RGB_to_YIQ(int *ImRGB, s64 *ImYIQ, int w, int h)
 	}
 }
 
-void RGB_to_HSL(int *ImIn, int *ImH,int *ImS,int *ImL, int w, int h)
-{
-}
-
-void GetGrayscaleImage(int *ImIn, int *ImY, int w, int h)
-{
-	u8 *color;
-	int i, r, g, b, wh;
-
-	wh = w*h;
-
-	for(i=0; i<wh; i++)
-	{
-		color = (u8*)(&ImIn[i]);
-
-		r = color[2];
-		g = color[1];
-		b = color[0];
-		
-		ImY[i] = (19595*r + 38470*g + 7471*b) >> 16;
-	}
-}
-
-void SobelMEdge(int *ImIn, int *ImMOE, int w, int h)
-{
-	int i, x, y, mx, my, val, val1, val2, val3, val4, max;
-
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{		
-		//val1 = lt - rb;
-		val1 = ImIn[i-w-1] - ImIn[i+w+1];
-		//val2 = rt - lb;
-		val2 = ImIn[i-w+1] - ImIn[i+w-1];
-		//val3 = mt - mb;
-		val3 = ImIn[i-w] - ImIn[i+w];
-		//val4 = lm - rm;
-		val4 = ImIn[i-1] - ImIn[i+1];
-
-		//val = lt + rt - lb - rb + 2*(mt-mb);
-		val = val1 + val2 + 2*val3;
-		if (val<0) max = -val;
-		else max = val;
-
-		//val = lt - rt + lb - rb + 2*(lm-rm);
-		val = val1 - val2 + 2*val4;
-		if (val<0) val = -val;
-		if (max<val) max = val;
-
-		//val = mt + lm - rm - mb + 2*(lt-rb);
-		val = val3 + val4 + 2*val1;
-		if (val<0) val = -val;
-		if (max<val) max = val;
-
-		//val = mt + rm - lm - mb + 2*(rt-lb);
-		val = val3 - val4 + 2*val2;
-		if (val<0) val = -val;
-		if (max<val) max = val;
-
-		ImMOE[i] = max;
-	}
-}
-
 void ImprovedSobelMEdge(int *ImIn, int *ImMOE, int w, int h)
 {
 	int x, y, mx, my, val, val1, val2, val3, val4, max;
@@ -1363,31 +1284,26 @@ void ImprovedSobelMEdge(int *ImIn, int *ImMOE, int w, int h)
 	for(y=1; y<my; y++, pIm += 2, pImMOE += 2)
 	for(x=1; x<mx; x++, pIm++, pImMOE++)
 	{
-		//val1 = lt - rb;
 		val1 = *(pIm - w - 1) - *(pIm + w + 1);
-		//val2 = rt - lb;
+
 		val2 = *(pIm - w + 1) - *(pIm + w - 1);
-		//val3 = mt - mb;
+
 		val3 = *(pIm - w) - *(pIm + w);
-		//val4 = lm - rm;
+
 		val4 = *(pIm - 1) - *(pIm + 1);
 
-		//val = lt + rt - lb - rb + 2*(mt-mb);
 		val = 3*(val1 + val2) + 10*val3;
 		if (val < 0) max = -val;
 		else max = val;
 
-		//val = lt - rt + lb - rb + 2*(lm-rm);
 		val = 3*(val1 - val2) + 10*val4;
 		if (val < 0) val = -val;
 		if (max < val) max = val;
 
-		//val = mt + lm - rm - mb + 2*(lt-rb);
 		val = 3*(val3 + val4) + 10*val1;
 		if (val < 0) val = -val;
 		if (max < val) max = val;
 
-		//val = mt + rm - lm - mb + 2*(rt-lb);
 		val = 3*(val3 - val4) + 10*val2;
 		if (val < 0) val = -val;
 		if (max < val) max = val;
@@ -1396,7 +1312,7 @@ void ImprovedSobelMEdge(int *ImIn, int *ImMOE, int w, int h)
 	}
 }
 
-void ImprovedSobelAllEdge_MMX_SSE(s64 *ImYIQ, int *ImMOE1, int *ImMOE2, int *ImVOE, int *ImNOE, int *ImHOE, double vthr, double nthr, double hthr, int w, int h)
+void ImprovedSobelAllEdge_MMX_SSE(qint64 *ImYIQ, int *ImMOE1, int *ImMOE2, int *ImVOE, int *ImNOE, int *ImHOE, double vthr, double nthr, double hthr, int w, int h)
 {
 	int x, y, mx, my;
 	int vth1, vth2, nth1, nth2, hth1, hth2;
@@ -1405,9 +1321,9 @@ void ImprovedSobelAllEdge_MMX_SSE(s64 *ImYIQ, int *ImMOE1, int *ImMOE2, int *ImV
 	__m64 mmx_0, mmx_3, mmx_10, mmx_255;
 	__m64 thr1, thr2;
 	__m64 max1, max2; 
-	s64* pImYIQ;
-	s64* pImRES1;
-	s64* pImRES2;
+	qint64* pImYIQ;
+	qint64* pImRES1;
+	qint64* pImRES2;
 	int* pImMOE1;
 	int* pImMOE2;
 	int* pImVOE;
@@ -1580,30 +1496,6 @@ void ImprovedSobelAllEdge_MMX_SSE(s64 *ImYIQ, int *ImMOE1, int *ImMOE2, int *ImV
 	_mm_empty();
 }
 
-void SobelHEdge(int *ImIn, int *ImHOE, int w, int h)
-{
-	int i, ii, x, y, mx, my, val;
-
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{
-		ii = i - (w+1);
-		val = ImIn[ii] + 2*ImIn[ii+1] + ImIn[ii+2];
-
-		ii += w;
-		//val += 0*ImIn[ii] + 0*ImIn[ii+1] + 0*ImIn[ii+2];
-
-		ii += w;
-		val -= ImIn[ii] + 2*ImIn[ii+1] + ImIn[ii+2];
-
-		if (val<0) ImHOE[i] = -val;
-		else ImHOE[i] = val;
-	}
-}
-
 void FastImprovedSobelHEdge(int *ImIn, int *ImHOE, int w, int h)
 {
 	int x, y, mx, my, val, val1, val2;
@@ -1627,30 +1519,6 @@ void FastImprovedSobelHEdge(int *ImIn, int *ImHOE, int w, int h)
 
 		if (val < 0) val = -val;
 		*pImHOE = val;
-	}
-}
-
-void FastSobelVEdge(int *ImIn, int *ImVOE, int w, int h)
-{
-	int i, ii, x, y, mx, my, val;
-
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{
-		ii = i - (w+1);
-		val = ImIn[ii] - ImIn[ii+2];
-
-		ii += w;
-		val += 2*(ImIn[ii] - ImIn[ii+2]);
-
-		ii += w;
-		val += ImIn[ii] - ImIn[ii+2];
-
-		if (val<0) val = -val;
-		ImVOE[i] = val;
 	}
 }
 
@@ -1685,141 +1553,6 @@ void FastImprovedSobelVEdge(int *ImIn, int *ImVOE, int w, int h)
 	}
 }
 
-void FullSobelVEdge(int *ImIn, int *ImVOE1, int *ImVOE2, int w, int h)
-{
-	int i, ii, x, y, mx, my, val, size, hvt, rhvt, MX;
-
-	MX = 0;
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{
-		ii = i - (w+1);
-		val = ImIn[ii] - ImIn[ii+2];
-
-		ii += w;
-		val += 2*(ImIn[ii] - ImIn[ii+2]);
-
-		ii += w;
-		val += ImIn[ii] - ImIn[ii+2];
-
-		if (val<0) val = -val;
-		if (val>MX) MX = val;
-
-		ImVOE1[i] = val;
-	}
-
-	hvt = g_hvt;
-	rhvt = (hvt*MX)/255;
-	size = w*h;
-
-	for(i=0; i<size; i++)
-	{			
-			val = ImVOE1[i];
-			
-			if (val >= rhvt) ImVOE2[i] = 255;
-			else ImVOE2[i] = 0;
-
-			if (val >= hvt) ImVOE1[i] = 255;
-			else ImVOE1[i] = 0;
-	}
-}
-
-void SobelVEdge(int *ImIn, int *ImVOE, int w, int h)
-{
-	int i, ii, x, y, mx, my, val, size, hvt, rhvt, MX;
-
-	MX = 0;
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{
-		ii = i - (w+1);
-		val = 3*(ImIn[ii] - ImIn[ii+2]);
-
-		ii += w;
-		val += 10*(ImIn[ii] - ImIn[ii+2]);
-
-		ii += w;
-		val += 3*(ImIn[ii] - ImIn[ii+2]);
-
-		if (val<0) val = -val;
-		if (val>MX) MX = val;
-
-		ImVOE[i] = val;
-	}
-
-	hvt = g_hvt;
-	rhvt = (hvt*MX)/255;
-	size = w*h;
-
-	for(i=0; i<size; i++)
-	{			
-			if (ImVOE[i] >= rhvt) ImVOE[i] = 255;
-			else ImVOE[i] = 0;
-	}
-}
-
-void SobelNEdge(int *ImIn, int *ImNOE, int w, int h)
-{
-	int i, j, k;
-	int	mx, val;
-	int lt,mt,rt, lm,mm,rm, lb,mb,rb;
-	int blt,bmt,brt, blm,bmm,brm, blb,bmb,brb;
-
-	mx = 0;
-
-	k = w + 1;
-
-	// специально несоответствие затем все сдвинется
-	blm = ImIn[k - w - 1];
-	bmm = ImIn[k - w];
-	brm = ImIn[k - w + 1];
-
-	blb = ImIn[k - 1];
-	bmb = ImIn[k];
-	brb = ImIn[k + 1];
-
-	for(i=1; i<h-1; i++)
-	{
-		lt = blt = blm;
-		mt = bmt = bmm;
-		rt = brt = brm;
-
-		lm = blm = blb;
-		mm = bmm = bmb;
-		rm = brm = brb;
-
-		lb = blb = ImIn[k + w - 1];
-		mb = bmb = ImIn[k + w];
-		rb = brb = ImIn[k + w + 1];
-		
-		for (j=1; j<w-1; j++, k++)
-		{
-			val = mt + lm - rm - mb + 2*(lt-rb);
-			if (val<0) ImNOE[k] = -val;
-			else ImNOE[k] = val;
-
-			lb = mb;
-			lm = mm;
-			lt = mt;
-
-			mb = rb;
-			mm = rm;
-			mt = rt;
-			
-			rt = ImIn[k - w + 1];
-			rm = ImIn[k + 1];
-			rb = ImIn[k + w + 1];
-		}
-		k++;
-	}
-}
-
 void FastImprovedSobelNEdge(int *ImIn, int *ImNOE, int w, int h)
 {
 	int x, y, mx, my, val, val1, val2;
@@ -1845,118 +1578,6 @@ void FastImprovedSobelNEdge(int *ImIn, int *ImNOE, int w, int h)
 
 		if (val<0) val = -val;
 		*pImNOE = val;
-	}
-}
-
-void SobelSEdge(int *ImIn, int *ImSOE, int w, int h)
-{
-	int i, j, k;
-	int	mx, val;
-	int lt,mt,rt, lm,mm,rm, lb,mb,rb;
-	int blt,bmt,brt, blm,bmm,brm, blb,bmb,brb;
-
-	mx = 0;
-
-	k = w + 1;
-
-	// специально несоответствие затем все сдвинется
-	blm = ImIn[k - w - 1];
-	bmm = ImIn[k - w];
-	brm = ImIn[k - w + 1];
-
-	blb = ImIn[k - 1];
-	bmb = ImIn[k];
-	brb = ImIn[k + 1];
-
-	for(i=1; i<h-1; i++)
-	{
-		lt = blt = blm;
-		mt = bmt = bmm;
-		rt = brt = brm;
-
-		lm = blm = blb;
-		mm = bmm = bmb;
-		rm = brm = brb;
-
-		lb = blb = ImIn[k + w - 1];
-		mb = bmb = ImIn[k + w];
-		rb = brb = ImIn[k + w + 1];
-		
-		for (j=1; j<w-1; j++, k++)
-		{
-			val = mt + rm - lm - mb + 2*(rt-lb);
-			if (val<0) ImSOE[k] = -val;
-			else ImSOE[k] = val;
-
-			lb = mb;
-			lm = mm;
-			lt = mt;
-
-			mb = rb;
-			mm = rm;
-			mt = rt;
-			
-			rt = ImIn[k - w + 1];
-			rm = ImIn[k + 1];
-			rb = ImIn[k + w + 1];
-		}
-		k++;
-	}
-}
-
-void IncreaseContrastOperator(int *ImIn, int *ImRES, int w, int h)
-{
-	int i, ii, x, y, mx, my, val;
-
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{
-		ii = i - (w+1);
-		val = -ImIn[ii+1];
-
-		ii += w;
-		val += 9*ImIn[ii+1] - ImIn[ii] - ImIn[ii+2];
-
-		ii += w;
-		val -= ImIn[ii+1];
-
-		val = val/5;
-		if (val<0) val = 0;
-		if (val>255) val = 255;
-
-		ImRES[i] = val;
-	}
-}
-
-void CEDOperator(int *ImY, int *ImI, int *ImQ, int *ImCED, int w, int h)
-{
-	int i, x, y, mx, my, l1, l2, l3;
-	int val, dy1, dy2, di1, di2, dq1, dq2; 
-
-	l1 = 1; //?
-	l2 = 1; //?
-	l3 = 1; //?
-
-	mx = w-1;
-	my = h-1;
-	i = w+1;
-	for(y=1; y<my; y++, i+=2)
-	for(x=1; x<mx; x++, i++)
-	{
-		dy1 = ImY[i]-ImY[i+w+1];
-		dy2 = ImY[i+1]-ImY[i+w];
-
-		di1 = ImI[i]-ImI[i+w+1];
-		di2 = ImI[i+1]-ImI[i+w];
-
-		dq1 = ImQ[i]-ImQ[i+w+1];
-		dq2 = ImQ[i+1]-ImQ[i+w];
-
-		val = l1*(dy1*dy1 + dy2*dy2) + l2*(di1*di1 + di2*di2) + l3*(dq1*dq1 + dq2*dq2);
-		ImCED[i] = (int)sqrt((float)val);
 	}
 }
 
@@ -2279,15 +1900,8 @@ void AplyECP(int *ImIn, int* ImOut, int w, int h)
 			ImOut[i] = 0;
 			continue;
 		}
-
-		/*val = 8*(ImIn[i - w*2 - 2] + ImIn[i - w*2 + 2] + ImIn[i + w*2 - 2] + ImIn[i + w*2 + 2]) +
-			+ 5*(ImIn[i - w*2 - 1] + ImIn[i - w*2 + 1] + ImIn[i - w - 2] + ImIn[i - w + 2] + ImIn[i + w - 2] + ImIn[i + w + 2] + ImIn[i + w*2 - 1] + ImIn[i + w*2 + 1]) +
-			+ 4*(ImIn[i - w*2] + ImIn[i - 2] + ImIn[i + 2] + ImIn[i + w*2]) +
-			+ 2*(ImIn[i - w - 1] + ImIn[i - w + 1] + ImIn[i + w - 1] + ImIn[i + w + 1]) +
-			+ 1*(ImIn[i - w] + ImIn[i - 1] + ImIn[i + 1] + ImIn[i + w]) +
-			+ 0*ImIn[i];*/
-
-		ii = i - ((w+1)<<1);
+        
+        ii = i - ((w+1)<<1);
 		val = 8*ImIn[ii] + 5*ImIn[ii+1] + 4*ImIn[ii+2] + 5*ImIn[ii+3] + 8*ImIn[ii+4];
 
 		ii += w;
@@ -2314,7 +1928,7 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
 	int dif, rdif, gdif, bdif;
 	int y, nx, mx, val;
 	int sbegin, n, k;
-	u8 *color;
+	quint8 *color;
 
 	memset(line, 0, h*sizeof(int));
 
@@ -2330,7 +1944,7 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
 
 		for(nx=0, ia=ib; nx<mx; nx++, ia+=segw)
 		{
-			color = (u8*)(&Im[ia]);
+			color = (quint8*)(&Im[ia]);
 			r0 = color[2];
 			g0 = color[1];
 			b0 = color[0];	
@@ -2340,7 +1954,7 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
 			
 			for(i=ia+1; i<=mi; i++)
 			{
-				color = (u8*)(&Im[i]);
+				color = (quint8*)(&Im[i]);
 				r1 = color[2];
 				g1 = color[1];
 				b1 = color[0];	
@@ -2443,66 +2057,6 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
 	}
 
 	N = k;
-}
-
-void ColorFiltration2(int *Im, int *ImRES, int w, int h, int scd)
-{
-	int r0, g0, b0, r1, g1, b1;
-	int segw, i, ib, ia, mi;
-	int dif, rdif, gdif, bdif;
-	int y, x, mx;
-	u8 *color;
-
-	memset(ImRES, 0, (w*h)*sizeof(int));
-
-	segw = g_segw;
-
-	mx = w-segw;
-
-	for(y=0, ib=0; y<h; y++, ib+=w)
-	{
-		for(x=0, ia=ib; x<mx; x++, ia++)
-		{
-			color = (u8*)(&Im[ia]);
-			r0 = color[2];
-			g0 = color[1];
-			b0 = color[0];	
-
-			mi = ia+segw;
-			dif = 0;
-			
-			for(i=ia+1; i<=mi; i++)
-			{
-				color = (u8*)(&Im[i]);
-				r1 = color[2];
-				g1 = color[1];
-				b1 = color[0];	
-				
-				rdif = r1-r0;
-				if (rdif<0) rdif = -rdif;
-
-				gdif = g1-g0;
-				if (gdif<0) gdif = -gdif;
-
-				bdif = b1-b0;
-				if (bdif<0) bdif = -bdif;
-
-				dif += rdif+gdif+bdif;
-
-				r0 = r1;
-				g0 = g1;
-				b0 = b1;
-			}
-
-			if (dif>=scd) 
-			{	
-				for(i=ia+1; i<=mi; i++)
-				{
-					ImRES[i] = 255;
-				}
-			}
-		}
-	}
 }
 
 void BorderClear(int *Im, int dd, int w, int h)
@@ -2631,7 +2185,6 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
 		g_ImRES3[i] = (g_ImRES2[i] + g_ImRES3[i])/2; 
 	}
 	ResizeGrayscaleImage4x(g_ImRES3, g_ImRES4, w, h);
-	//ApplyModerateThreshold(g_ImRES4, mthr, w*4, h*4);
 
 	mx = w-1;
 	my = h-1;
@@ -2657,7 +2210,6 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
 		g_ImRES3[i] = (g_ImRES2[i] + g_ImRES3[i])/2; 
 	}
 	ResizeGrayscaleImage4x(g_ImRES3, ImRES, w, h);
-	//ApplyModerateThreshold(ImRES, mthr, w*4, h*4);
 	
 	w *= 4;
 	h *= 4;
@@ -2712,12 +2264,8 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	int w, h;
 	int res;
 	clock_t t1, t2;
-
-	//ColorFiltration2(ImRGB, g_ImRES1, W, H, 600);
-	//g_pMF->m_pImageBox->g_pViewImage(g_ImRES1, W, H);
-	//return;
-
-	t1 = clock();
+    
+    t1 = clock();
 
 	res = 0;
 
@@ -2735,16 +2283,16 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 		return res;
 	}
 
-	memset(ImFF, 0, W*H*sizeof(int));	
+	memset(ImFF, 0, W * H * sizeof(int));	
 
 	w = W;
 	i = 0;
 	h = 0;
-	for(k=0; k<N; k++)
+	for(k = 0; k < N; ++k)
 	{
-		h += g_pLE[k]-g_pLB[k]+1;
-		cnt = W*(g_pLE[k]-g_pLB[k]+1);
-		memcpy(&g_Im[i], &ImRGB[W*g_pLB[k]], cnt*sizeof(int));
+		h += g_pLE[k] - g_pLB[k] + 1;
+		cnt = W * (g_pLE[k] - g_pLB[k] + 1);
+		memcpy(&g_Im[i], &ImRGB[W * g_pLB[k]], cnt * sizeof(int));
 		i += cnt;
 	}
 
@@ -2771,7 +2319,6 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	
 	FindAndApplyGlobalThreshold(g_ImCMOE, w, h);	
 	FindAndApplyLocalThresholding(g_ImCMOE, w, 32, w, h);
-	//FindAndApplyLocalThresholding(g_ImCMOE, 32, h, w, h);
 
 	AplyESS(g_ImCMOE, g_ImRES2, w, h);
 	AplyECP(g_ImRES2, g_ImRES3, w, h);
@@ -2792,7 +2339,6 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 		ApplyModerateThreshold(&g_ImRES4[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
 		i += cnt;
 	}
-	//ApplyModerateThreshold(g_ImRES4, g_mthr, w, h);
 
 	mx = w-1;
 	my = h-1;
@@ -2805,7 +2351,6 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	
 	FindAndApplyGlobalThreshold(g_ImCMOE, w, h);	
 	FindAndApplyLocalThresholding(g_ImCMOE, w, 32, w, h);
-	//FindAndApplyLocalThresholding(g_ImCMOE, 32, h, w, h);
 
 	AplyESS(g_ImCMOE, g_ImRES2, w, h);
 	AplyECP(g_ImRES2, g_ImRES3, w, h);
@@ -2843,7 +2388,6 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	memcpy(ImSF, ImFF, W*H*sizeof(int));
 
 	RGB_to_YIQ(ImRGB, g_ImY, g_ImU, g_ImV, W, H);
-	//RGB_to_YUV(ImRGB, g_ImY, g_ImU, g_ImV, W, H);	
 
 	EasyBorderClear(g_ImRES1, W, H);
 	EasyBorderClear(ImVE, W, H);
@@ -2896,7 +2440,6 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 	ApplyModerateThreshold(ImNE, g_mnthr, W, H);
 	CombineTwoImages(ImNE, g_ImRES1, W, H);
 
-	//RGB_to_YIQ(ImRGB, g_ImY, g_ImU, g_ImV, W, H);
 	FastImprovedSobelHEdge(g_ImY, g_ImYMOE, W, H);
 	FastImprovedSobelHEdge(g_ImU, g_ImUMOE, W, H);
 	FastImprovedSobelHEdge(g_ImV, g_ImVMOE, W, H);
@@ -3018,12 +2561,8 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	int *LB=g_pLB3, *LE=g_pLE3; 
 	int w, h, dh;
 	int res;
-
-	/*g_pLB[0] = 0;
-	g_pLE[0] = H-1;
-	N = 1;*/
-
-	res = 0;
+    
+    res = 0;
 	g_blnVNE = 0;
 	g_blnHE = 0;
 
@@ -3208,10 +2747,8 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	}
 	ApplyModerateThreshold(g_ImRES3, g_mnthr, w, h);
 	CombineTwoImages(g_ImRES2, g_ImRES3, w, h);
-
-	//return 1;
-
-	/////////////////
+    
+    /////////////////
 	for(k=0; k<N; k++)
 	{
 		memset(&g_ImRES5[W*LB[k]], 0, w*sizeof(int));
@@ -3289,12 +2826,8 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	int *LB=g_pLB4, *LE=g_pLE4; 
 	int w, h, dh;
 	int res;
-
-	/*g_pLB[0] = 0;
-	g_pLE[0] = H-1;
-	N = 1;*/
-	
-	res = 0;
+    
+    res = 0;
 	g_blnVNE = 0;
 	g_blnHE = 0;
 
@@ -3362,28 +2895,8 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 	BorderClear(g_ImRES6, 2, w, h);
 	BorderClear(g_ImRES7, 2, w, h);
 	BorderClear(g_ImRES8, 2, w, h);
-
-	/*memset(g_ImRES1, 0, (w*h)*sizeof(int));
-	memset(g_ImRES2, 0, (w*h)*sizeof(int));
-	memset(g_ImRES3, 0, (w*h)*sizeof(int));
-	memset(g_ImRES4, 0, (w*h)*sizeof(int));
-	memset(g_ImRES5, 0, (w*h)*sizeof(int));
-	memset(g_ImRES6, 0, (w*h)*sizeof(int));
-	memset(g_ImRES7, 0, (w*h)*sizeof(int));*/
-
-	ImprovedSobelAllEdge_MMX_SSE(g_ImYIQ, g_ImRES4, g_ImRES5, g_ImRES1, g_ImRES2, g_ImRES3, g_mvthr, g_mnthr, g_mhthr, w, h);
-
-	//return 1;
-	/*ApplyModerateThreshold(g_ImRES5, g_mthr, w, h);
-	FreeImage(ImF, g_pLB, g_pLE, N, W, H);
-	i = 0;
-	for(k=0; k<N; k++)
-	{
-		cnt = W*(g_pLE[k]-g_pLB[k]+1);		
-		memcpy(&ImF[W*g_pLB[k]], &g_ImRES5[i], cnt*sizeof(int));
-		i += cnt;
-	}
-	return 1;*/
+    
+    ImprovedSobelAllEdge_MMX_SSE(g_ImYIQ, g_ImRES4, g_ImRES5, g_ImRES1, g_ImRES2, g_ImRES3, g_mvthr, g_mnthr, g_mhthr, w, h);
 
 	FindAndApplyGlobalThreshold(g_ImRES4, w, h);	
 	FindAndApplyLocalThresholding(g_ImRES4, w, 32, w, h);
@@ -3502,7 +3015,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 	int segw, msegc, smcd, sb, ns, ngs;
 	int r0, g0, b0, r1, g1, b1;
 	int mi, dif, rdif, gdif, bdif;
-	u8 *color;
+	quint8 *color;
 	int nVE = 0;
 	int nNE = 0;
 	int S = 0;
@@ -3972,22 +3485,6 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 				continue;
 			}
 
-			// цветовая фильтрация		
-
-			/*val = msegc*segw - (le[ln-1]-lb[0]+1);
-
-			if (val > 0)
-			{
-				sb = lb[0] - val/2;
-				if (sb < 0) sb = 0;
-				ns = msegc;
-			}
-			else
-			{
-				sb = lb[0];
-				ns = (le[ln-1]-lb[0]+1)/segw;
-			}*/
-
 			ns = (le[ln-1]-lb[0]+1)/segw;
 			sb = lb[0];
 
@@ -4009,7 +3506,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 				bln = 1;
 				for(y=0, ic=ib; y<segh; y++, ic+=w)
 				{
-					color = (u8*)(&ImRGB[ic]);
+					color = (quint8*)(&ImRGB[ic]);
 					r0 = color[2];
 					g0 = color[1];
 					b0 = color[0];	
@@ -4019,7 +3516,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 					
 					for(i=ic+1; i<mi; i++)
 					{
-						color = (u8*)(&ImRGB[i]);
+						color = (quint8*)(&ImRGB[i]);
 						r1 = color[2];
 						g1 = color[1];
 						b1 = color[0];	
@@ -4130,15 +3627,7 @@ int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, 
 			N++;
 			LLB[N] = -1;
 			LLE[N] = -1;
-			/*LL[N] = 0;
-			LR[N] = 0;*/
 		}
-
-		/*if (bln == 1)
-		{
-			LL[N] += l;
-			LR[N] += r;
-		}*/
 	}
 	if (LLE[N] == h-1) N++;
 
@@ -5274,7 +4763,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 	return res;
 }
 
-int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, int W, int H)
+int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &SavedFiles, int W, int H)
 {
 	int *LL = g_pLL3, *LR = g_pLR3, *LLB = g_pLLB3, *LLE = g_pLLE3, *LW = g_pLW3;
 	int **LN = g_ppLN3, *LNN = g_pLNN3;
@@ -5287,7 +4776,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 	int mY, dY, mI, mQ, dI, dQ, jY_min, jY_max, mmY, ddY1, ddY2, mmI, mmQ, ddI, ddQ;
 	int LH, LMAXY;
 	double mthr;
-	string SaveName, FullName, Str;
+	std::string SaveName, FullName, Str;
 	char str[30];
 	int res;
 
@@ -5370,9 +4859,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 		}
 	}
 
-	//g_pMF->m_pImageBox->g_pViewImage(ImNF, W, H);
-	//return;
-
 	CreateIndexedImage(ImNF, g_ImRES1, W, H, 255, val);
 
 	for (k=0; k<N; k++)
@@ -5412,7 +4898,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 					if (bln == 0)
 					{
 						LN[k][LNN[k]] = val1;
-						//if (LNN[k]+1 < 1024) LNN[k]++;
 					}
 				}
 			}
@@ -5570,22 +5055,16 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 		}
 		SimpleResizeImage4x(g_ImRES2, g_ImSF, w, h);
 		if (g_show_results == 1) SaveImage(g_ImSF, "\\TestImages\\Image2_SF.jpeg", w*4, h*4);
-		//g_pMF->m_pImageBox->g_pViewImage(ImSF, w*4, h*4);
-		//break;
-
-		GetFirstFilteredImage(g_ImRES1, g_ImSF, g_ImFF, w, h, (LL[k]-XB)*4, (LR[k]-XB)*4, (LLB[k]-YB)*4, (LLE[k]-YB)*4);
+        
+        GetFirstFilteredImage(g_ImRES1, g_ImSF, g_ImFF, w, h, (LL[k]-XB)*4, (LR[k]-XB)*4, (LLB[k]-YB)*4, (LLE[k]-YB)*4);
 		if (g_show_results == 1) SaveImage(g_ImFF, "\\TestImages\\Image3_FF.jpeg", w*4, h*4);
-		//g_pMF->m_pImageBox->g_pViewImage(ImFF, w*4, h*4);
-		//break;
-			
-		w *= 4;
+        
+        w *= 4;
 		h *= 4;
 		
 		memcpy(g_ImRES1, g_ImFF, (w*h)*sizeof(int));
 		IntersectTwoImages(g_ImRES1, g_ImSF, w, h);
 		if (g_show_results == 1) SaveImage(g_ImRES1, "\\TestImages\\Image4_IF.jpeg", w, h);
-		//g_pMF->m_pImageBox->g_pViewImage(g_ImRES1, w, h);
-		//break;
 
 		RGB_to_YUV(g_Im, g_ImY, g_ImU, g_ImV, w, h);
 		RGB_to_YIQ(g_Im, g_ImY, g_ImI, g_ImQ, w, h);
@@ -5642,9 +5121,9 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 		j3_max = j3+delta-1;
 
 		int color, r, g, b, c;
-		u8 *pClr;
+		quint8 *pClr;
 
-		pClr = (u8*)(&color);
+		pClr = (quint8*)(&color);
 
 		color = 0;
 		pClr[2] = 255;
@@ -5700,8 +5179,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 		val += ClearImage(g_ImRES2, w, h, yb, ye, c);
 
 		if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image6_SE2.jpeg", w, h);
-		//g_pMF->m_pImageBox->g_pViewRGBImage(g_ImRES2, w, h);
-		//break;
 
 		if (val == 0) continue;
 
@@ -5714,8 +5191,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 			}
 		}
 		if (g_show_results == 1) SaveImage(g_ImRES3, "\\TestImages\\Image7_IF.jpeg", w, h);
-		//g_pMF->m_pImageBox->g_pViewImage(g_ImRES3, w, h);
-		//break;
 
 		yb = (LLB[k]-YB)*4;
 		ye = (LLE[k]-YB)*4;
@@ -5918,17 +5393,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 
 		if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFF.jpeg", w, h);
 
-		/*if ((recn < 2) && (delta > 60))
-		{
-			delta = j1_max-j1_min+1;
-
-			if ( (j1_min < 100) && (j1_max < 255) && (delta > 40) )
-			{
-				val = (delta-40)/2;
-				if (val > 20) val = 20;
-				j1_min += val;
-			}
-		}*/
 		j1 = j1_min;
 
 		delta = 20;
@@ -6624,11 +6088,9 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 			N3 = ClearImageOptimal(g_ImRES3, w, h, yb, ye, r);
 			if (g_show_results == 1) SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE2_032.jpeg", w, h);
 
-			//ClearImage4x4(g_ImRES4, w, h, r);
 			N4 = ClearImageOptimal(g_ImRES4, w, h, yb, ye, r);
 			if (g_show_results == 1) SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE2_042.jpeg", w, h);
 
-			//ClearImage4x4(g_ImRES4, w, h, r);
 			N5 = ClearImageOptimal(g_ImRES5, w, h, yb, ye, r);
 			if (g_show_results == 1) SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE2_052.jpeg", w, h);
 			
@@ -6743,34 +6205,6 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 			}
 			if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES13.jpeg", w, h);
 
-			/*ClearImageOpt5(g_ImFF, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-			if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES08.jpeg", w, h);
-			ClearImage4x4(g_ImFF, w, h, r);
-
-			val = ClearImageLogical(g_ImFF, w, h, LH, LMAXY, xb, xe, r);
-			if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES09!.jpeg", w, h);
-
-			if (val == 0)
-			{
-				memset(g_ImFF, 0, (w*h)*sizeof(int));
-				break;
-			}
-
-			ClearImageOpt5(g_ImRES1, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-			if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE2_RES10.jpeg", w, h);
-
-			ClearImageLogical(g_ImRES1, w, h, LH, LMAXY, xb, xe, r);
-			if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE2_RES11!.jpeg", w, h);
-			
-			for (i=0; i<w*h; i++)
-			{
-				if (g_ImRES1[i] != 0)
-				{
-					g_ImFF[i] = r;
-				}
-			}
-			if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES12.jpeg", w, h);*/
-
 			break;
 		}
 		///////////////////////////////////////////////////////////////////////
@@ -6843,14 +6277,14 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, vector<string> &SavedFiles, i
 
 		GetTextLineParameters(g_ImFF, w, h, LH, LMAXY, DXB, DXE, DYB, DYE, mY, mI, mQ, r);
 
-        FullName = string("/TXTImages/");
+        FullName = std::string("/TXTImages/");
 		FullName += SaveName;
 
 		sprintf(str, "%.2d", (int)SavedFiles.size() + 1);
-		FullName += string("_");
-        FullName += string(str);
+		FullName += std::string("_");
+        FullName += std::string(str);
 
-		FullName += string(".jpeg");
+		FullName += std::string(".jpeg");
 
 		SaveTextLineParameters(	FullName, YB, 
 								LH/4, YB + LMAXY/4, 
@@ -6987,10 +6421,10 @@ void ClearImage4x4(int *Im, int w, int h, int white)
 
 int ClearImage(int *Im, int w, int h, int yb, int ye, int white)
 {
-	CMyClosedFigure *pFigures, *pFigure;
+	MyClosedFigure *pFigures, *pFigure;
 	int i, l, ii, val, N;
 	int res;
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 
 	t = SearchClosedFigures(Im, w, h, white, pFigures, N);
@@ -6998,32 +6432,30 @@ int ClearImage(int *Im, int w, int h, int yb, int ye, int white)
 	if (N == 0)	return 0;
 
 	res = N;
-	val = yb+ye;
+	val = yb + ye;
 	
-	for(i=0; i<N; i++)
+	for(i = 0; i < N; ++i)
 	{
 		pFigure = &(pFigures[i]);
 
-		if	(	(pFigure->m_minX <= 2) ||
-				(pFigure->m_maxX >= (w-1)-2) ||
-				(pFigure->m_minY <= 2) ||
-				(pFigure->m_maxY >= (h-1)-2) || 
-				(pFigure->m_w >= h) ||
-				(
-					( (pFigure->m_h >= h/5) || (pFigure->m_w >= 25*4) ) &&
-					( ((val-(pFigure->m_minY+pFigure->m_maxY)) >= h/3) || (((pFigure->m_minY+pFigure->m_maxY)-val) >= h/3) )
-				)
-			)
+		if ((pFigure->minX() <= 2) ||
+			(pFigure->maxX() >= (w - 1) - 2) ||
+			(pFigure->minY() <= 2) ||
+			(pFigure->maxY() >= (h-1)-2) || 
+			(pFigure->width() >= h) ||
+			(((pFigure->height() >= h / 5) || (pFigure->width() >= 25 * 4)) &&
+            (((val-(pFigure->minY() + pFigure->maxY())) >= h/3) ||
+            (((pFigure->minY() + pFigure->maxY())-val) >= h / 3))))
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l = 0; l < pFigure->square(); ++l)
 			{
-				ii = (PA[l].m_y*w)+PA[l].m_x;
+				ii = (PA[l].y() * w) + PA[l].x();
 				Im[ii] = 0;
 			}
 
-			res--;
+			--res;
 		}
 	}
 	
@@ -7034,51 +6466,44 @@ int ClearImage(int *Im, int w, int h, int yb, int ye, int white)
 
 int ClearImageDetailed(int *Im, int w, int h, int yb, int ye, int white)
 {
-	CMyClosedFigure *pFigures, *pFigure, **ppFigures;
+	MyClosedFigure *pFigures, *pFigure, **ppFigures;
 	int i, l, ii, val, N;
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 
 	t = SearchClosedFigures(Im, w, h, white, pFigures, N);
 	val = yb+ye;
 	
-	ppFigures = new CMyClosedFigure*[N];
-	for(i=0; i<N; i++)
+	ppFigures = new MyClosedFigure*[N];
+	for(i = 0; i < N; ++i)
 	{
 		ppFigures[i] = &(pFigures[i]);
 	}
 
-	i=0;
+	i = 0;
 	while(i < N)
 	{
 		pFigure = ppFigures[i];
 
-		if	(	(pFigure->m_minX <= 2) ||
-				(pFigure->m_maxX >= (w-1)-2) ||
-				(pFigure->m_minY <= 2) ||
-				(pFigure->m_maxY >= (h-1)-2) ||
-				(pFigure->m_w >= h) ||
-				(pFigure->m_w > 30*4) ||
-				(
-					( (pFigure->m_h >= h/5) || (pFigure->m_w >= 25*4) ) &&
-					( ((val-(pFigure->m_minY+pFigure->m_maxY)) >= h/3) || (((pFigure->m_minY+pFigure->m_maxY)-val) >= h/3) )
-				) ||
-				//( (double)pFigure->m_Square/(pFigure->m_w*pFigure->m_h) > 0.75 ) ||
-				( (pFigure->m_minY <= 0.1*h) && (pFigure->m_maxY >= 0.75*h) ) ||
-				(pFigure->m_maxY < val/2) ||
-				(pFigure->m_minY > val/2)
-			)
+		if	((pFigure->minX() <= 2) ||
+			 (pFigure->maxX() >= (w - 1) - 2) ||
+			 (pFigure->minY() <= 2) ||
+			 (pFigure->maxY() >= (h - 1) - 2) ||
+			 (pFigure->width() >= h) ||
+			 (pFigure->width() > 30 * 4) ||
+            (((pFigure->height() >= h / 5) || (pFigure->width() >= 25 * 4) ) && (((val - (pFigure->minY() + pFigure->maxY())) >= h / 3) || (((pFigure->minY() + pFigure->maxY()) - val) >= h / 3))) ||
+            ((pFigure->minY() <= 0.1 * h) && (pFigure->maxY() >= 0.75 * h) ) || (pFigure->maxY() < val / 2) || (pFigure->minY() > val / 2))
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l = 0; l < pFigure->square(); ++l)
 			{
-				ii = (PA[l].m_y*w)+PA[l].m_x;
+				ii = (PA[l].y() * w) + PA[l].x();
 				Im[ii] = 0;
 			}
 
-			ppFigures[i] = ppFigures[N-1];
-			N--;
+			ppFigures[i] = ppFigures[N - 1];
+			--N;
 
 			continue;
 		}
@@ -7093,7 +6518,7 @@ int ClearImageDetailed(int *Im, int w, int h, int yb, int ye, int white)
 	{
 		pFigure = ppFigures[i];
 
-		if (pFigure->m_h >= min_h) l++;
+		if (pFigure->height() >= min_h) l++;
 	}
 
 	delete[] pFigures;
@@ -7104,11 +6529,11 @@ int ClearImageDetailed(int *Im, int w, int h, int yb, int ye, int white)
 
 int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white)
 {
-	CMyClosedFigure *pFigures=NULL, *pFigure, **ppFigures=NULL;
+	MyClosedFigure *pFigures=NULL, *pFigure, **ppFigures=NULL;
 	int i, j, k, l, ii, val, N, NNY, min_h;
 	int val1, val2;
 	int *maxY = NULL, *NN = NULL, *NY = NULL; 
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 
 	t = SearchClosedFigures(Im, w, h, white, pFigures, N);
@@ -7116,45 +6541,45 @@ int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white)
 
 	if (N == 0)	return 0;
 
-	ppFigures = new CMyClosedFigure*[N];
-	for(i=0; i<N; i++)
+	ppFigures = new MyClosedFigure*[N];
+	for(i = 0; i < N; ++i)
 	{
 		ppFigures[i] = &(pFigures[i]);
 	}
 	
-	min_h = (int)((double)(ye-yb+1)*0.4);
+	min_h = (int)((double)(ye - yb + 1) * 0.4);
 	
-	i=0;
+	i = 0;
 	while(i < N)
 	{
 		pFigure = ppFigures[i];
 
-		if	(	(pFigure->m_minX <= 2) ||
-				(pFigure->m_maxX >= (w-1)-2) ||
-				(pFigure->m_minY <= 2) ||
-				(pFigure->m_maxY >= (h-1)-2) ||
-				(pFigure->m_w >= h) ||
-				(pFigure->m_w > 40*4) ||
-				(
-					( (pFigure->m_h >= h/5) || (pFigure->m_w >= 25*4) ) &&
-					( ((val-(pFigure->m_minY+pFigure->m_maxY)) >= h/3) || (((pFigure->m_minY+pFigure->m_maxY)-val) >= h/3) )
-				) ||
-				( (pFigure->m_minY <= 0.1*h) && (pFigure->m_maxY >= 0.75*h) ) ||
-				(pFigure->m_maxY < val/2) ||
-				(pFigure->m_minY > val/2) ||
-				(pFigure->m_h < min_h)
-			)
+		if ((pFigure->minX() <= 2) ||
+            (pFigure->maxX() >= (w - 1) - 2) ||
+			(pFigure->minY() <= 2) ||
+			(pFigure->maxY() >= (h - 1) - 2) ||
+			(pFigure->width() >= h) ||
+			(pFigure->width() > 40 * 4) ||
+			(((pFigure->height() >= h / 5) ||
+            (pFigure->width() >= 25 * 4)) &&
+            (((val-(pFigure->minY() + pFigure->maxY())) >= h / 3) ||
+            (((pFigure->minY() + pFigure->maxY()) - val) >= h / 3))) ||
+			((pFigure->minY() <= 0.1 * h) &&
+            (pFigure->maxY() >= 0.75 * h)) ||
+            (pFigure->maxY() < val/2) ||
+            (pFigure->minY() > val/2) ||
+            (pFigure->height() < min_h))
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l = 0; l < pFigure->square(); ++l)
 			{
-				ii = (PA[l].m_y*w)+PA[l].m_x;
+				ii = (PA[l].y() * w) + PA[l].x();
 				Im[ii] = 0;
 			}
 
-			ppFigures[i] = ppFigures[N-1];
-			N--;
+			ppFigures[i] = ppFigures[N - 1];
+			--N;
 
 			continue;
 		}
@@ -7182,11 +6607,11 @@ int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white)
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_h >= min_h) &&
-			 (pFigure->m_minY < val1) &&
-			 (pFigure->m_maxY > val2) )
+		if ((pFigure->height() >= min_h) &&
+			 (pFigure->minY() < val1) &&
+			 (pFigure->maxY() > val2))
 		{
-			maxY[j] = pFigure->m_maxY;
+			maxY[j] = pFigure->maxY();
 			j++;
 		}
 	}
@@ -7254,7 +6679,7 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 					int &mY, int &dY, int &mI, int &dI, int &mQ, int &dQ,
 					int &mmY, int &ddY1, int &ddY2, int &mmI, int &ddI, int &mmQ, int &ddQ)
 {
-	CMyClosedFigure *pFigures, **ppFigures, *pFigure;
+	MyClosedFigure *pFigures, **ppFigures, *pFigure;
 	int i, j, k, l, ii, val, N, minN, H;
 	int GRStr[256*2], delta, smax[256*2], smaxi[256*2], NNN, jY, jI, jQ;
 	int val1, val2, val3;
@@ -7264,7 +6689,7 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	int *maxY;
 	int *NN, *NY, NNY;
 
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 	int dmaxy = g_dmaxy;
 
@@ -7280,7 +6705,7 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 		return res;
 	}
 
-	ppFigures = new CMyClosedFigure*[N];
+	ppFigures = new MyClosedFigure*[N];
 	for(i=0; i<N; i++)
 	{
 		ppFigures[i] = &(pFigures[i]);
@@ -7294,9 +6719,9 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 
 	for(i=0, j=0; i < N; i++)
 	{
-		if (ppFigures[i]->m_h >= min_h)
+		if (ppFigures[i]->height() >= min_h)
 		{
-			maxY[j] = ppFigures[i]->m_maxY;
+			maxY[j] = ppFigures[i]->maxY();
 			j++;
 		}
 	}
@@ -7370,14 +6795,14 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		if	( (pFigure->m_maxY < LMAXY-dmaxy)
+		if	( (pFigure->maxY() < LMAXY - dmaxy)
 			)
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				ii = PA[l].m_i;
+				ii = PA[l].pointNumber();
 				Im[ii] = 0;
 			}
 			ppFigures[i] = ppFigures[N-1];
@@ -7386,9 +6811,9 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 		}
 		else
 		{
-			if ( (pFigure->m_maxY <= LMAXY) && (pFigure->m_h >= 0.6*LH) )
+			if ( (pFigure->maxY() <= LMAXY) && (pFigure->height() >= 0.6 * LH) )
 			{
-				H += pFigure->m_h;
+				H += pFigure->height();
 				k++;
 			}
 		}
@@ -7412,13 +6837,13 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) && (pFigure->m_h >= 0.6*LH) ) 
+		if ( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY - dmaxy) && (pFigure->height() >= 0.6 * LH) ) 
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				g_ImRR[PA[l].m_i] = 255;
+				g_ImRR[PA[l].pointNumber()] = 255;
 			}
 				
 			ppFigures[k] = pFigure;
@@ -7435,21 +6860,21 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 		StrAnalyseImage(pFigure, g_ImY, GRStr, 0);
 		FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 0);
 		FindMaxStr(smax, smaxi, jY, val, NNN);
-		pFigure->m_mmY = jY;
+		pFigure->setMMY(jY);
 
 		delta = 5;
 		StrAnalyseImage(pFigure, g_ImI, GRStr, 256);
 		FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
 		FindMaxStr(smax, smaxi, jI, val, NNN);
 		jI -= 256;
-		pFigure->m_mmI = jI;
+		pFigure->setMMI(jI);
 		
 		delta = 5;
 		StrAnalyseImage(pFigure, g_ImQ, GRStr, 256);
 		FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
 		FindMaxStr(smax, smaxi, jQ, val, NNN);
 		jQ -= 256;
-		pFigure->m_mmQ = jQ;
+		pFigure->setMMQ(jQ);
 	}
 
 	minN = (4*N)/5;
@@ -7458,7 +6883,10 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 
 	delta = 4;
 	memset(GRStr, 0, 512*sizeof(int));
-	for(i=0; i<k; i++) GRStr[ppFigures[i]->m_mmI+256]++;
+	for(i = 0; i < k; ++i)
+    {
+        GRStr[ppFigures[i]->mmI() + 256]++;
+    }
 	do
 	{
 		delta += 2;
@@ -7473,13 +6901,13 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_mmI < jI) || (pFigure->m_mmI >= jI+delta) )
+		if ( (pFigure->mmI() < jI) || (pFigure->mmI() >= jI + delta) )
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				g_ImRR[PA[l].m_i] = 0;
+				g_ImRR[PA[l].pointNumber()] = 0;
 			}
 				
 			ppFigures[i] = ppFigures[k-1];
@@ -7493,8 +6921,11 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 
 	delta = 4;
 	memset(GRStr, 0, 512*sizeof(int));
-	for(i=0; i<k; i++) GRStr[ppFigures[i]->m_mmQ+256]++;
-	do
+	for(i = 0; i < k; ++i)
+    {
+        GRStr[ppFigures[i]->mmQ() + 256]++;
+    }
+    do
 	{
 		delta += 2;
 		FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
@@ -7508,13 +6939,13 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_mmQ < jQ) || (pFigure->m_mmQ >= jQ+delta) )
+		if ( (pFigure->mmQ() < jQ) || (pFigure->mmQ() >= jQ+delta) )
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				g_ImRR[PA[l].m_i] = 0;
+				g_ImRR[PA[l].pointNumber()] = 0;
 			}
 				
 			ppFigures[i] = ppFigures[k-1];
@@ -7525,17 +6956,6 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 		
 		i++;
 	}
-
-	/*delta = 60;
-	memset(GRStr, 0, 256*sizeof(int));
-	for(i=0; i<k; i++) GRStr[ppFigures[i]->m_mmY]++;
-	do
-	{
-		delta += 2;
-		FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 0);
-		FindMaxStr(smax, smaxi, jY, val, NNN);
-	} 
-	while(val < ((4*N)/5));*/
 	
 	mmI = 0;
 	mmQ = 0;
@@ -7546,26 +6966,11 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		/*if ( (pFigure->m_mmY < jY) || (pFigure->m_mmY >= jY+delta) )
 		{
-			PA = pFigure->m_PointsArray;
-			
-			for(l=0; l < pFigure->m_Square; l++)
-			{
-				g_ImR[PA[l].m_i] = 0;
-			}
-				
-			ppFigures[i] = ppFigures[k-1];
-			k--;
-
-			continue;
-		}
-		else*/
-		{
-			mmI += pFigure->m_mmI;
-			mmQ += pFigure->m_mmQ;
-			mmY += pFigure->m_mmY;
-			H += pFigure->m_h;
+			mmI += pFigure->mmI();
+			mmQ += pFigure->mmQ();
+			mmY += pFigure->mmY();
+			H += pFigure->height();
 		}
 
 		i++;
@@ -7583,15 +6988,15 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 			
-		val = pFigure->m_mmY - mmY;
+		val = pFigure->mmY() - mmY;
 		if (val < ddY1) ddY1 = val;
 		if (val > ddY2) ddY2 = val;
 
-		val = pFigure->m_mmI - mmI;
+		val = pFigure->mmI() - mmI;
 		if (val < 0) val = -val;
 		if (val > ddI) ddI = val;
 
-		val = pFigure->m_mmQ - mmQ;
+		val = pFigure->mmQ() - mmQ;
 		if (val < 0) val = -val;
 		if (val > ddQ) ddQ = val;
 	}
@@ -7636,25 +7041,25 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 		
-		PA = pFigure->m_PointsArray;
+		PA = pFigure->pointsArray();
 		
 		val1 = 0;
 		val2 = 0;
 		val3 = 0;
-		for(l=0; l < pFigure->m_Square; l++)
+		for(l=0; l < pFigure->square(); l++)
 		{
-			ii = PA[l].m_i;
+			ii = PA[l].pointNumber();
 			val1 += g_ImI[ii];
 			val2 += g_ImQ[ii];
 			val3 += g_ImY[ii];
 		}
 			
-		pFigure->m_mI = val1/pFigure->m_Square;
-		pFigure->m_mQ = val2/pFigure->m_Square;
-		pFigure->m_mY = val3/pFigure->m_Square;
-		mI += pFigure->m_mI;
-		mQ += pFigure->m_mQ;
-		mY += pFigure->m_mY;
+		pFigure->setMI(val1 / pFigure->square());
+		pFigure->setMQ(val2 / pFigure->square());
+		pFigure->setMY(val3 / pFigure->square());
+		mI += pFigure->mI();
+		mQ += pFigure->mQ();
+		mY += pFigure->mY();
 	}
 	mI = mI/k;
 	mQ = mQ/k;
@@ -7667,15 +7072,15 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 	{
 		pFigure = ppFigures[i];
 			
-		val = pFigure->m_mI - mI;
+		val = pFigure->mI() - mI;
 		if (val < 0) val = -val;
 		if (val > dI) dI = val;
 
-		val = pFigure->m_mQ - mQ;
+		val = pFigure->mQ() - mQ;
 		if (val < 0) val = -val;
 		if (val > dQ) dQ = val;
 
-		val = pFigure->m_mY - mY;
+		val = pFigure->mY() - mY;
 		if (val < 0) val = -val;
 		if (val > dY) dY = val;
 	}
@@ -7702,8 +7107,8 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
 
 void ClearImageSpecific1(int *Im, int w, int h, int yb, int ye, int xb, int xe, int white)
 {
-	CMyClosedFigure *pFigures, *pFigure;
-	CMyPoint *PA;
+	MyClosedFigure *pFigures, *pFigure;
+	MyPoint *PA;
 	clock_t t;
 	int bln, dh, i, l, N;
 
@@ -7718,7 +7123,7 @@ void ClearImageSpecific1(int *Im, int w, int h, int yb, int ye, int xb, int xe, 
 	{
 		pFigure = &(pFigures[i]);
 
-		if (pFigure->m_h >= dh)
+		if (pFigure->height() >= dh)
 		{
 			bln = 1;
 			break;
@@ -7731,13 +7136,13 @@ void ClearImageSpecific1(int *Im, int w, int h, int yb, int ye, int xb, int xe, 
 		{
 			pFigure = &(pFigures[i]);
 
-			if (pFigure->m_h < dh)
+			if (pFigure->height() < dh)
 			{
-				PA = pFigure->m_PointsArray;
+				PA = pFigure->pointsArray();
 				
-				for(l=0; l < pFigure->m_Square; l++)
+				for(l=0; l < pFigure->square(); l++)
 				{
-					Im[PA[l].m_i] = 0;
+					Im[PA[l].pointNumber()] = 0;
 				}
 			}
 		}
@@ -7748,9 +7153,9 @@ void ClearImageSpecific1(int *Im, int w, int h, int yb, int ye, int xb, int xe, 
 
 void ClearImageSpecific2(int *Im, int w, int h, int LMAXY, int LH, int white)
 {
-	CMyClosedFigure *pFigures, **ppFigures, *pFigure;
+	MyClosedFigure *pFigures, **ppFigures, *pFigure;
 	int i, l, N;
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 	int dmaxy = g_dmaxy;
 	int min_h = (int)((double)LH*0.6);
@@ -7762,7 +7167,7 @@ void ClearImageSpecific2(int *Im, int w, int h, int LMAXY, int LH, int white)
 		return;
 	}
 
-	ppFigures = new CMyClosedFigure*[N];
+	ppFigures = new MyClosedFigure*[N];
 	for(i=0; i<N; i++)
 	{
 		ppFigures[i] = &(pFigures[i]);
@@ -7773,16 +7178,16 @@ void ClearImageSpecific2(int *Im, int w, int h, int LMAXY, int LH, int white)
 	{
 		pFigure = ppFigures[i];
 
-		if	( !( (pFigure->m_maxY <= LMAXY) && 
-				 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-				 (pFigure->m_h >= min_h) )
+		if	( !( (pFigure->maxY() <= LMAXY) && 
+				 (pFigure->maxY() >= LMAXY-dmaxy) &&
+				 (pFigure->height() >= min_h) )
 		    )
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA[l].m_i] = 0;
+				Im[PA[l].pointNumber()] = 0;
 			}
 			ppFigures[i] = ppFigures[N-1];
 			N--;
@@ -7798,11 +7203,11 @@ void ClearImageSpecific2(int *Im, int w, int h, int LMAXY, int LH, int white)
 
 void ClearImageSpecific(int *Im, int w, int h, int white)
 {
-	CMyClosedFigure *pFigures, **ppFigures, *pFigure;
+	MyClosedFigure *pFigures, **ppFigures, *pFigure;
 	int i, j, k, l, ii, val, N, H, LMAXY;
 	int *maxY;
 	int *NN, *NY;
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 	int dmaxy = g_dmaxy;
 
@@ -7816,7 +7221,7 @@ void ClearImageSpecific(int *Im, int w, int h, int white)
 		return;
 	}
 
-	ppFigures = new CMyClosedFigure*[N];
+	ppFigures = new MyClosedFigure*[N];
 	for(i=0; i<N; i++)
 	{
 		ppFigures[i] = &(pFigures[i]);
@@ -7828,7 +7233,7 @@ void ClearImageSpecific(int *Im, int w, int h, int white)
 
 	for(i=0; i<N; i++)
 	{
-		maxY[i] = ppFigures[i]->m_maxY;
+		maxY[i] = ppFigures[i]->maxY();
 	}
 
 	for(i=0; i<N-1; i++)
@@ -7886,15 +7291,15 @@ void ClearImageSpecific(int *Im, int w, int h, int white)
 	{
 		pFigure = ppFigures[i];
 
-		if	( (pFigure->m_maxY < LMAXY-dmaxy) ||
-			  (pFigure->m_maxY > LMAXY)
+		if	( (pFigure->maxY() < LMAXY-dmaxy) ||
+			  (pFigure->maxY() > LMAXY)
 			)
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				ii = PA[l].m_i;
+				ii = PA[l].pointNumber();
 				Im[ii] = 0;
 			}
 			ppFigures[i] = ppFigures[N-1];
@@ -7903,9 +7308,9 @@ void ClearImageSpecific(int *Im, int w, int h, int white)
 		}
 		else
 		{
-			if (pFigure->m_maxY <= LMAXY)
+			if (pFigure->maxY() <= LMAXY)
 			{
-				H += pFigure->m_h;
+				H += pFigure->height();
 				k++;
 			}
 		}
@@ -7920,96 +7325,24 @@ void ClearImageSpecific(int *Im, int w, int h, int white)
 	delete[] NY;
 }
 
-void ClearImageOpt3(int *Im, int w, int h, int LH, int LMAXY, int jI_min, int jI_max, int jQ_min, int jQ_max, int white)
-{
-	CMyClosedFigure *pFigures, *pFigure;
-	int i, l, ii, val, valI, valQ, N, bln;
-	CMyPoint *PA;
-	clock_t t;
-	int dmaxy = g_dmaxy;
-
-	t = SearchClosedFigures(Im, w, h, white, pFigures, N);
-
-	if (N == 0)	return;
-
-	val = 2*LMAXY - LH;
-	
-	for(i=0; i<N; i++)
-	{
-		pFigure = &(pFigures[i]);
-
-		if	(	(pFigure->m_minX <= 2) ||
-				(pFigure->m_maxX >= (w-1)-2) ||
-				(pFigure->m_minY <= 2) ||
-				(pFigure->m_maxY >= (h-1)-2) || 
-				( (pFigure->m_w >= LH*3) && 
-				  ( (pFigure->m_maxY > LMAXY) || (pFigure->m_maxY < LMAXY-dmaxy) ) 
-				) ||
-				(
-					( ((val-(pFigure->m_minY+pFigure->m_maxY)) > LH*2) || (((pFigure->m_minY+pFigure->m_maxY)-val) > LH*2) )
-				)
-			)
-		{
-			PA = pFigure->m_PointsArray;
-			
-			for(l=0; l < pFigure->m_Square; l++)
-			{
-				ii = (PA[l].m_y*w)+PA[l].m_x;
-				Im[ii] = 0;
-			}
-		}
-		else
-		{
-			PA = pFigure->m_PointsArray;
-			
-			bln = 0;
-			for(l=0; l < pFigure->m_Square; l++)
-			{
-				ii = (PA[l].m_y*w)+PA[l].m_x;
-				valI = g_ImI[ii];
-				valQ = g_ImQ[ii];
-
-				if ( (valI>=jI_min) && (valI<=jI_max) &&
-					 (valQ>=jQ_min) && (valQ<=jQ_max)
-					)
-				{
-					bln = 1;
-					break;
-				}
-			}
-
-			if (bln == 0)
-			{
-				for(l=0; l < pFigure->m_Square; l++)
-				{
-					ii = (PA[l].m_y*w)+PA[l].m_x;
-					Im[ii] = 0;
-				}
-			}
-		}
-	}
-	
-	delete[] pFigures;
-}
-
-int IsPoint(CMyClosedFigure *pFigure, int LMAXY, int LLH)
+int IsPoint(MyClosedFigure *pFigure, int LMAXY, int LLH)
 {
 	int ret;
 	double dval;
 	
 	ret = 0;
 
-	if (pFigure->m_h < pFigure->m_w) dval = (double)pFigure->m_h/pFigure->m_w;
-	else dval = (double)pFigure->m_w/pFigure->m_h;
+	if (pFigure->height() < pFigure->width()) dval = (double)pFigure->height() / pFigure->width();
+	else dval = (double)pFigure->width() / pFigure->height();
 
-	if ( (pFigure->m_w >= g_minpw) && (pFigure->m_w <= g_maxpw) &&
-	     (pFigure->m_h >= g_minph) && (pFigure->m_h <= g_maxph) && 
+	if ( (pFigure->width() >= g_minpw) && (pFigure->width() <= g_maxpw) &&
+	     (pFigure->height() >= g_minph) && (pFigure->height() <= g_maxph) && 
 	     (dval >= g_minpwh) ) 
 	{
-		if ( ( (pFigure->m_maxY <= LMAXY) && 
-			   (pFigure->m_maxY >= LMAXY-g_dmaxy) ) ||
-			 ( (pFigure->m_maxY <= LMAXY-LLH) && 
-			   (pFigure->m_maxY >= LMAXY-LLH*1.25) )
+		if ( ( (pFigure->maxY() <= LMAXY) && 
+			   (pFigure->maxY() >= LMAXY-g_dmaxy) ) ||
+			 ( (pFigure->maxY() <= LMAXY-LLH) && 
+			   (pFigure->maxY() >= LMAXY-LLH*1.25) )
 			)
 		{
 			ret = 1;
@@ -8019,23 +7352,23 @@ int IsPoint(CMyClosedFigure *pFigure, int LMAXY, int LLH)
 	return ret;
 }
 
-int IsComma(CMyClosedFigure *pFigure, int LMAXY, int LLH)
+int IsComma(MyClosedFigure *pFigure, int LMAXY, int LLH)
 {
 	int ret;
 	double dval;
 	
 	ret = 0;
 
-	if (pFigure->m_h < pFigure->m_w) dval = (double)pFigure->m_h/pFigure->m_w;
-	else dval = (double)pFigure->m_w/pFigure->m_h;
+	if (pFigure->height() < pFigure->width()) dval = (double)pFigure->height() / pFigure->width();
+	else dval = (double)pFigure->width() / pFigure->height();
 
-	if ( (pFigure->m_w >= g_minpw) && (pFigure->m_w <= g_maxpw+4) &&
-	     (dval <= (2.0/3.0)) && (pFigure->m_h <= (int)((double)LLH*0.8)) )
+	if ( (pFigure-> width() >= g_minpw) && (pFigure->width() <= g_maxpw+4) &&
+	     (dval <= (2.0/3.0)) && (pFigure->height() <= (int)((double)LLH*0.8)) )
 	{
-		if ( ( (pFigure->m_minY <= LMAXY-LLH) &&
-		       (pFigure->m_maxY >= LMAXY-LLH-8) ) || 
-	         ( (pFigure->m_maxY > LMAXY) && 
-		       (pFigure->m_minY < LMAXY) )
+		if ( ( (pFigure->minY() <= LMAXY-LLH) &&
+		       (pFigure->maxY() >= LMAXY-LLH-8) ) || 
+	         ( (pFigure->maxY() > LMAXY) && 
+		       (pFigure->minY() < LMAXY) )
 		   )
 		{
 			ret = 1;
@@ -8045,64 +7378,64 @@ int IsComma(CMyClosedFigure *pFigure, int LMAXY, int LLH)
 	return ret;
 }
 
-void SaveTextLineParameters(string ImageName, int YB, int LH, int LY, int LXB, int LXE, int LYB, int LYE, int mY, int mI, int mQ)
+void SaveTextLineParameters(std::string ImageName, int YB, int LH, int LY, int LXB, int LXE, int LYB, int LYE, int mY, int mI, int mQ)
 {
 	char str[100];
-	string PropString, fname;
-	ofstream fout;
+	std::string PropString, fname;
+    std::ofstream fout;
 
 	sprintf(str, "%.4d", YB);
-	PropString = string("YB ");
-    PropString += string(str);
+	PropString = std::string("YB ");
+    PropString += std::string(str);
 	
 	sprintf(str, "%.4d", LH);
-	PropString += string(" LH ");
-    PropString += string(str);
+	PropString += std::string(" LH ");
+    PropString += std::string(str);
 
 	sprintf(str, "%.4d", LY);
-	PropString += string(" LY ");
-    PropString += string(str);
+	PropString += std::string(" LY ");
+    PropString += std::string(str);
 	
 	sprintf(str, "%.4d", LXB);
-	PropString += string(" LXB ");
-    PropString += string(str);
+	PropString += std::string(" LXB ");
+    PropString += std::string(str);
 
 	sprintf(str, "%.4d", LXE);
-	PropString += string(" LXE ");
-    PropString += string(str);
+	PropString += std::string(" LXE ");
+    PropString += std::string(str);
 
 	sprintf(str, "%.4d", LYB);
-	PropString += string(" LYB ");
-    PropString += string(str);
+	PropString += std::string(" LYB ");
+    PropString += std::string(str);
 
 	sprintf(str, "%.4d", LYE);
-	PropString += string(" LYE ");
-    PropString += string(str);
+	PropString += std::string(" LYE ");
+    PropString += std::string(str);
 
 	sprintf(str, "%.3d %.3d %.3d", mY, mI, mQ);
-	PropString += string(" YIQ ");
-    PropString += string(str);		
+	PropString += std::string(" YIQ ");
+    PropString += std::string(str);		
 	
-	fname = g_dir + string("\\text_lines.info");
-	fout.open(fname.c_str(), ios::out | ios::app);
+	fname = g_dir + std::string("\\text_lines.info");
+    fout.open(fname.c_str(), std::ios::out | std::ios::app);
 
 	fout << ImageName << " = " << PropString << '\n';
 
 	fout.close();
 }
 
-void GetSymbolAvgColor(CMyClosedFigure *pFigure)
+void GetSymbolAvgColor(MyClosedFigure *pFigure)
 {
 	int *pImage;
 	int *pImageY;
 	int *pImageI;
 	int *pImageQ;
-	CMyPoint *PA;
+	MyPoint *PA;
 	int i, ii, j, w, h, x, y, xx, yy, val;
 	int r, min_x, max_x, min_y, max_y, mY, mI, mQ, weight;
 
-	w = pFigure->m_maxX - pFigure->m_minX + 1;
-	h = pFigure->m_maxY - pFigure->m_minY + 1;
+	w = pFigure->maxX() - pFigure->minX() + 1;
+	h = pFigure->maxY() - pFigure->minY() + 1;
 
 	r = max(8, h/6);
 
@@ -8113,12 +7446,12 @@ void GetSymbolAvgColor(CMyClosedFigure *pFigure)
 
 	memset(pImage, 0, w*h*sizeof(int));
 
-	PA = pFigure->m_PointsArray;
+	PA = pFigure->pointsArray();
 
-	for(i=0; i < pFigure->m_Square; i++)
+	for(i=0; i < pFigure->square(); i++)
 	{
-		ii = PA[i].m_i;
-		j = (PA[i].m_y - pFigure->m_minY)*w + (PA[i].m_x - pFigure->m_minX);
+		ii = PA[i].pointNumber();
+		j = (PA[i].y() - pFigure->minY()) * w + (PA[i].x() - pFigure->minX());
 
 		pImage[j] = 1;
 		pImageY[j] = g_ImY[ii];
@@ -8208,7 +7541,7 @@ void GetSymbolAvgColor(CMyClosedFigure *pFigure)
 			}
 		}
 
-		if (weight < pFigure->m_Square/5)
+		if (weight < pFigure->square() / 5)
 		{
 			if (r == 0)
 			{
@@ -8244,16 +7577,16 @@ void GetSymbolAvgColor(CMyClosedFigure *pFigure)
 			}
 			r = (r*3)/4;
 		}
-	} while (weight < pFigure->m_Square/5);
+	} while (weight < pFigure->square() / 5);
 
 	mY = mY/weight;
 	mI = mI/weight;
 	mQ = mQ/weight;
 
-	pFigure->m_mY = mY;
-	pFigure->m_mI = mI;
-	pFigure->m_mQ = mQ;
-	pFigure->m_Weight = weight;
+	pFigure->setMY(mY);
+	pFigure->setMI(mI);
+	pFigure->setMQ(mQ);
+	pFigure->setWeight(weight);
 
 	delete[] pImage;
 	delete[] pImageY;
@@ -8263,8 +7596,8 @@ void GetSymbolAvgColor(CMyClosedFigure *pFigure)
 
 void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, int &XE, int &YB, int &YE, int &mY, int &mI, int &mQ, int white)
 {
-	CMyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL;
-	CMyPoint *PA = NULL;
+	MyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL;
+	MyPoint *PA = NULL;
 	int i, j, k, l, N, val, val1, val2, val3, val4;
 	int *maxY = NULL, *NN = NULL, *NY = NULL, *NH = NULL, NNY, min_h, min_w, prev_min_w;
 	int dmaxy = g_dmaxy;
@@ -8290,7 +7623,7 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 		return;
 	}
 
-	ppFigures = new CMyClosedFigure*[N];
+	ppFigures = new MyClosedFigure*[N];
 	for(i=0; i<N; i++)
 	{
 		ppFigures[i] = &(pFigures[i]);
@@ -8307,7 +7640,7 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 		{
 			pFigure = ppFigures[i];
 
-			if ( (pFigure->m_h >= min_h) && (pFigure->m_w >= min_w) )
+			if ( (pFigure->height() >= min_h) && (pFigure->width() >= min_w) )
 			{				
 				k++;
 			}
@@ -8333,14 +7666,14 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 	{
 		pFigure = ppFigures[i];
 		
-		if ( (pFigure->m_h >= min_h) && (pFigure->m_w >= min_w) )
+		if ( (pFigure->height() >= min_h) && (pFigure->width() >= min_w) )
 		{		
 			GetSymbolAvgColor(pFigure);
 
-			val += pFigure->m_Weight;
-			val1 += pFigure->m_mY*pFigure->m_Weight;
-			val2 += pFigure->m_mI*pFigure->m_Weight;
-			val3 += pFigure->m_mQ*pFigure->m_Weight;
+			val += pFigure->weight();
+			val1 += pFigure->mY() * pFigure->weight();
+			val2 += pFigure->mI() * pFigure->weight();
+			val3 += pFigure->mQ() * pFigure->weight();
 		}
 	}
 
@@ -8356,9 +7689,9 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 
 	for(i=0, j=0; i < N; i++)
 	{
-		if (ppFigures[i]->m_h >= min_h)
+		if (ppFigures[i]->height() >= min_h)
 		{
-			maxY[j] = ppFigures[i]->m_maxY;
+			maxY[j] = ppFigures[i]->maxY();
 			j++;
 		}
 	}
@@ -8450,38 +7783,38 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 	{
 		pFigure = ppFigures[i];
 
-		if (pFigure->m_minX < XB)
+		if (pFigure->minX() < XB)
 		{
-			XB = pFigure->m_minX;
+			XB = pFigure->minX();
 		}
 
-		if (pFigure->m_maxX > XE)
+		if (pFigure->maxX() > XE)
 		{
-			XE = pFigure->m_maxX;
+			XE = pFigure->maxX();
 		}
 
-		if (pFigure->m_minY < YB)
+		if (pFigure->minY() < YB)
 		{
-			YB = pFigure->m_minY;
+			YB = pFigure->minY();
 		}
 
-		if (pFigure->m_maxY > YE)
+		if (pFigure->maxY() > YE)
 		{
-			YE = pFigure->m_maxY;
+			YE = pFigure->maxY();
 		}
 
-		if ( (pFigure->m_maxY <= LMAXY) && 
-			 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-             (pFigure->m_h >= min_h) )
+		if ( (pFigure->maxY() <= LMAXY) && 
+			 (pFigure->maxY() >= LMAXY-dmaxy) &&
+             (pFigure->height() >= min_h) )
 		{
-			if (pFigure->m_minY > val1)
+			if (pFigure->minY() > val1)
 			{
-				val1 = pFigure->m_minY;
+				val1 = pFigure->minY();
 			}
 
-			if (pFigure->m_minY < val2)
+			if (pFigure->minY() < val2)
 			{
-				val2 = pFigure->m_minY;
+				val2 = pFigure->minY();
 			}
 		}
 	}
@@ -8497,18 +7830,18 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_maxY <= LMAXY) && 
-			(pFigure->m_maxY >= LMAXY-dmaxy) &&
-			(pFigure->m_h >= min_h) )
+		if ( (pFigure->maxY() <= LMAXY) && 
+			(pFigure->maxY() >= LMAXY-dmaxy) &&
+			(pFigure->height() >= min_h) )
 		{
-			if (pFigure->m_minY >= val3)
+			if (pFigure->minY() >= val3)
 			{
-				val1 += pFigure->m_minY;
+				val1 += pFigure->minY();
 				j++;
 			}
-			if (pFigure->m_minY >= val4)
+			if (pFigure->minY() >= val4)
 			{
-				val2 += pFigure->m_minY;
+				val2 += pFigure->minY();
 				k++;
 			}
 		}
@@ -8545,10 +7878,10 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 
 int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe, int white)
 {
-	CMyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL, *pFigure2 = NULL, **ppFgs = NULL;
+	MyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL, *pFigure2 = NULL, **ppFgs = NULL;
 	int i, ib, i1, i2, i3, j, k, l, x, y, val, val1, N, bln, bln1, bln2, bln3, LMINY, LM1, LM2;
 	int res, is_point, is_comma, LLH;
-	CMyPoint *PA = NULL, *PA1 = NULL, *PA2 = NULL;
+	MyPoint *PA = NULL, *PA1 = NULL, *PA2 = NULL;
 	clock_t t;
 	int dmaxy = g_dmaxy;
 	int dminy = g_dminy;
@@ -8651,8 +7984,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 	if (N == 0)	return res;
 
-	ppFigures = new CMyClosedFigure*[N];
-	ppFgs = new CMyClosedFigure*[N];
+	ppFigures = new MyClosedFigure*[N];
+	ppFgs = new MyClosedFigure*[N];
 	for(i=0; i<N; i++)
 	{
 		ppFigures[i] = &(pFigures[i]);
@@ -8662,7 +7995,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		for (j=i+1; j<N; j++)
 		{
-			if (ppFigures[j]->m_minX < ppFigures[i]->m_minX)
+			if (ppFigures[j]->minX() < ppFigures[i]->minX())
 			{
 				pFigure = ppFigures[i];
 				ppFigures[i] = ppFigures[j];
@@ -8680,13 +8013,13 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 	for(i=0, j=0; i < N; i++)
 	{
-		val = (ppFigures[i]->m_minX+ppFigures[i]->m_maxX)/2;
+		val = (ppFigures[i]->minX() + ppFigures[i]->maxX()) / 2;
 
-		if ( (ppFigures[i]->m_h >= min_h) && 
+		if ( (ppFigures[i]->height() >= min_h) && 
 			 (val > xb) &&
 			 (val < xe) )
 		{
-			maxY[j] = ppFigures[i]->m_maxY;
+			maxY[j] = ppFigures[i]->maxY();
 			j++;
 		}
 	}
@@ -8749,13 +8082,13 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		for(i=0, j=0; i < N; i++)
 		{
-			val1 = (ppFigures[i]->m_minX+ppFigures[i]->m_maxX)/2;
+			val1 = (ppFigures[i]->minX() + ppFigures[i]->maxX()) / 2;
 
-			if ( (ppFigures[i]->m_h >= min_h) && 
+			if ( (ppFigures[i]->height() >= min_h) && 
 				(val1 > xb) &&
 				(val1 < xe) )
 			{
-				LMAXY = ppFigures[i]->m_maxY;
+				LMAXY = ppFigures[i]->maxY();
 				break;
 			}
 		}
@@ -8782,11 +8115,11 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_maxY <= LMAXY) && 
-			 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-             (pFigure->m_h >= 0.6*LH) )
+		if ( (pFigure->maxY() <= LMAXY) && 
+			 (pFigure->maxY() >= LMAXY-dmaxy) &&
+             (pFigure->height() >= 0.6*LH) )
 		{
-			H += pFigure->m_h;
+			H += pFigure->height();
 			j++;
 		}
 	}
@@ -8808,18 +8141,18 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		is_point = IsPoint(pFigure, LMAXY, LH);
 		is_comma = IsComma(pFigure, LMAXY, LH);
 
-		if (pFigure->m_h < pFigure->m_w) dval = (double)pFigure->m_h/pFigure->m_w;
-		else dval = (double)pFigure->m_w/pFigure->m_h;
+		if (pFigure->height() < pFigure->width()) dval = (double)pFigure->height() / pFigure->width();
+		else dval = (double)pFigure->width() / pFigure->height();
 
-		if ( ( (pFigure->m_maxY < LMAXY-LH) && 
+		if ( ( (pFigure->maxY() < LMAXY-LH) && 
 			   (is_point == 0) && (is_comma == 0) ) ||
-			 ( pFigure->m_maxY >= LMAXY+((3*LH)/4) ) )
+			 ( pFigure->maxY() >= LMAXY+((3*LH)/4) ) )
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA[l].m_i] = 0;
+				Im[PA[l].pointNumber()] = 0;
 			}
 
 			for(j=i; j<N-1; j++) ppFigures[j] = ppFigures[j+1];
@@ -8839,9 +8172,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		is_point = IsPoint(pFigure, LMAXY, LH);
 		is_comma = IsComma(pFigure, LMAXY, LH);
 
-		if (pFigure->m_h < pFigure->m_w) dval = (double)pFigure->m_h/pFigure->m_w;
-		else dval = (double)pFigure->m_w/pFigure->m_h;
-		
+		if (pFigure->height() < pFigure->width()) dval = (double)pFigure->height() / pFigure->width();
+		else dval = (double)pFigure->width() / pFigure->height();
+ 		
 		bln = 0;
 		k = 0;
 
@@ -8851,15 +8184,15 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 			pFigure2 = ppFigures[j];
 			
-			if ( (  ( (pFigure2->m_maxY <= LMAXY) && (pFigure2->m_maxY >= LMAXY-dmaxy) ) ||
-					( (pFigure2->m_minY*2 < 2*LMAXY-LH) && (pFigure2->m_maxY > LMAXY) )
+			if ( (  ( (pFigure2->maxY() <= LMAXY) && (pFigure2->maxY() >= LMAXY-dmaxy) ) ||
+					( (pFigure2->minY() * 2 < 2*LMAXY-LH) && (pFigure2->maxY() > LMAXY) )
 				 ) &&
-				 (pFigure2->m_h >= 0.6*LH)
+				 (pFigure2->height() >= 0.6*LH)
 				)
 			{
-				val = (pFigure->m_maxX+pFigure->m_minX)-(pFigure2->m_maxX+pFigure2->m_minX);
+				val = (pFigure->maxX() + pFigure->minX())-(pFigure2->maxX() + pFigure2->minX());
 				if (val < 0) val = -val;
-				val = (pFigure->m_maxX-pFigure->m_minX)+(pFigure2->m_maxX-pFigure2->m_minX)+2 - val;
+				val = (pFigure->maxX() - pFigure->minX()) + (pFigure2->maxX() - pFigure2->minX()) + 2 - val;
 
 				if (val >= 2)//наезжают друг на друга минимум на 2 пиксела
 				{
@@ -8871,10 +8204,10 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		
 		if (k >= 2) 
 		{
-			if ( (  ( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) ) ||
-					( (pFigure->m_minY*2 < 2*LMAXY-LH) && (pFigure->m_maxY > LMAXY) )
+			if ( (  ( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY-dmaxy) ) ||
+					( (pFigure->minY() * 2 < 2*LMAXY-LH) && (pFigure->maxY() > LMAXY) )
 				 ) &&
-				 (pFigure->m_h >= 0.6*LH)
+				 (pFigure->height() >= 0.6*LH)
 				)
 			{
 				if (k == 4)
@@ -8883,15 +8216,15 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 				}
 
 				if ( (bln == 0) &&
-					 (ppFgs[0]->m_minY <= LMAXY-0.9*LH) && 
-					 (ppFgs[1]->m_minY <= LMAXY-0.9*LH) && 
-					 (pFigure->m_minY < ppFgs[0]->m_minY) &&
-					 (pFigure->m_minY < ppFgs[1]->m_minY)
+					 (ppFgs[0]->minY() <= LMAXY-0.9*LH) && 
+					 (ppFgs[1]->minY() <= LMAXY-0.9*LH) && 
+					 (pFigure->minY() < ppFgs[0]->minY()) &&
+					 (pFigure->minY() < ppFgs[1]->minY())
 					)
 				{
-					PA = pFigure->m_PointsArray;
+					PA = pFigure->pointsArray();
 			
-					if (ppFgs[1]->m_minX < ppFgs[0]->m_minX)
+					if (ppFgs[1]->minX() < ppFgs[0]->minX())
 					{
 						pFigure2 = ppFgs[0];
 						ppFgs[0] = ppFgs[1];
@@ -8899,10 +8232,10 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 					}
 
 					bln1 = 0;
-					for(l=0; l < pFigure->m_Square; l++)
+					for(l=0; l < pFigure->square(); l++)
 					{
-						if ( (PA[l].m_x < ppFgs[0]->m_maxX) &&
-							 (PA[l].m_y < ppFgs[0]->m_minY) )
+						if ( (PA[l].x() < ppFgs[0]->maxX()) &&
+							 (PA[l].y() < ppFgs[0]->minY()) )
 						{
 							bln1 = 1;
 							break;
@@ -8913,10 +8246,10 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 					{
 						bln1 = 0;
 
-						for(l=0; l < pFigure->m_Square; l++)
+						for(l=0; l < pFigure->square(); l++)
 						{
-							if ( (PA[l].m_x > ppFgs[1]->m_minX) &&
-								(PA[l].m_y < ppFgs[1]->m_minY) )
+							if ( (PA[l].x() > ppFgs[1]->minX()) &&
+								(PA[l].y() < ppFgs[1]->minY()) )
 							{
 								bln1 = 1;
 								break;
@@ -8932,7 +8265,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 			}
 			else
 			{
-				if ( !( (pFigure->m_minY >= LM1) && (pFigure->m_maxY <= LM2) && (k==2) && (pFigure->m_w <= maxpw) ) )
+				if ( !( (pFigure->minY() >= LM1) && (pFigure->maxY() <= LM2) && (k==2) && (pFigure->width() <= maxpw) ) )
 				{
 					bln = 1;
 				}
@@ -8940,26 +8273,26 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		}
 		else if(k == 1)
 		{						
-			if ( (  ( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) ) ||
-					( (pFigure->m_minY*2 < 2*LMAXY-LH) && (pFigure->m_maxY > LMAXY) )
+			if ( (  ( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY-dmaxy) ) ||
+					( (pFigure->minY() * 2 < 2*LMAXY-LH) && (pFigure->maxY() > LMAXY) )
 				 ) &&
-				 (pFigure->m_h >= 0.6*LH)
+				 (pFigure->height() >= 0.6*LH)
 				)
 			{
-				if ( !( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) ) &&
-					 (pFigure->m_minY < ppFgs[0]->m_minY) && (pFigure->m_maxY > ppFgs[0]->m_maxY) &&
-					 (pFigure->m_minX <= ppFgs[0]->m_minX) && (pFigure->m_maxX >= ppFgs[0]->m_maxX) )
+				if ( !( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY-dmaxy) ) &&
+					 (pFigure->minY() < ppFgs[0]->minY()) && (pFigure->maxY() > ppFgs[0]->maxY()) &&
+					 (pFigure->minX() <= ppFgs[0]->minX()) && (pFigure->maxX() >= ppFgs[0]->maxX()) )
 				{
-					PA = pFigure->m_PointsArray;
+					PA = pFigure->pointsArray();
 
-					y = ppFgs[0]->m_maxY;
-					for (x = ppFgs[0]->m_minX; x<=ppFgs[0]->m_maxX; x++)
+					y = ppFgs[0]->maxY();
+					for (x = ppFgs[0]->minX(); x<=ppFgs[0]->maxX(); x++)
 					{
 						bln1 = 0;
 
-						for(j=0; j < pFigure->m_Square; j++)
+						for(j=0; j < pFigure->square(); j++)
 						{
-							if ( (PA[j].m_x == x) && (PA[j].m_y >= y) )
+							if ( (PA[j].x() == x) && (PA[j].y() >= y) )
 							{
 								bln1 = 1;
 								break;
@@ -8977,25 +8310,25 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 			}
 			else
 			{
-				val = (pFigure->m_maxX+pFigure->m_minX)-(ppFgs[0]->m_maxX+ppFgs[0]->m_minX);
+				val = (pFigure->maxX()+pFigure->minX())-(ppFgs[0]->maxX()+ppFgs[0]->minX());
 				if (val < 0) val = -val;				
-				val = (pFigure->m_maxX-pFigure->m_minX)+(ppFgs[0]->m_maxX-ppFgs[0]->m_minX)+2 - val;
+				val = (pFigure->maxX()-pFigure->minX())+(ppFgs[0]->maxX()-ppFgs[0]->minX())+2 - val;
 
-				bln1 = ( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) &&
-						 (pFigure->m_w >= minpw) && (pFigure->m_w <= maxpw) && 
-					     (pFigure->m_h >= minph) && (pFigure->m_h <= maxph) && 
+				bln1 = ( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY-dmaxy) &&
+						 (pFigure->width() >= minpw) && (pFigure->width() <= maxpw) && 
+					     (pFigure->height() >= minph) && (pFigure->height() <= maxph) && 
 				         (dval >= minpwh) );
 
-				if ( ( (pFigure->m_minY >= ppFgs[0]->m_minY) && (pFigure->m_maxY <= ppFgs[0]->m_maxY) && (bln1 == 0) ) ||
-					 ( (pFigure->m_minY < ppFgs[0]->m_minY) && (pFigure->m_maxY > ppFgs[0]->m_maxY) ) ||
-					 (pFigure->m_minY > LMAXY) ||
-					 (pFigure->m_maxY < LMINY) ||
-					 ( (pFigure->m_h >= 0.6*LH) && !( (pFigure->m_maxY < LMAXY) && (pFigure->m_minY <= LMAXY-LH) && (pFigure->m_h <= LH*1.5) && (pFigure->m_maxX > ppFgs[0]->m_maxX) ) ) ||
-					 ( (pFigure->m_h < pFigure->m_w) && 
-					   ( (pFigure->m_maxY > LMAXY) || (pFigure->m_minY > LMAXY-0.25*LH) ) &&
-					   !( (pFigure->m_w >= minpw) && (pFigure->m_w <= maxpw) &&
-					      (pFigure->m_h >= minph) && (pFigure->m_h <= maxph) && 
-				          (dval >= minpwh) && ((double)val/ppFgs[0]->m_w < 0.25)
+				if ( ( (pFigure->minY() >= ppFgs[0]->minY()) && (pFigure->maxY() <= ppFgs[0]->maxY()) && (bln1 == 0) ) ||
+					 ( (pFigure->minY() < ppFgs[0]->minY()) && (pFigure->maxY() > ppFgs[0]->maxY()) ) ||
+					 (pFigure->minY() > LMAXY) ||
+					 (pFigure->maxY() < LMINY) ||
+					 ( (pFigure->height() >= 0.6*LH) && !( (pFigure->maxY() < LMAXY) && (pFigure->minY() <= LMAXY-LH) && (pFigure->height() <= LH*1.5) && (pFigure->maxX() > ppFgs[0]->maxX()) ) ) ||
+					 ( (pFigure->height() < pFigure->width()) && 
+					   ( (pFigure->maxY() > LMAXY) || (pFigure->minY() > LMAXY-0.25*LH) ) &&
+					   !( (pFigure->width() >= minpw) && (pFigure->width() <= maxpw) &&
+					      (pFigure->height() >= minph) && (pFigure->height() <= maxph) && 
+				          (dval >= minpwh) && ((double)val/ppFgs[0]->width() < 0.25)
 						)
 					 )
 					)
@@ -9006,23 +8339,23 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		}
 		else
 		{
-			if ( (  ( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) ) ||
-					( (pFigure->m_minY*2 < 2*LMAXY-LH) && (pFigure->m_maxY > LMAXY) )
+			if ( (  ( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY-dmaxy) ) ||
+					( (pFigure->minY()*2 < 2*LMAXY-LH) && (pFigure->maxY() > LMAXY) )
 				 ) &&
-				 (pFigure->m_h >= 0.6*LH)
+				 (pFigure->height() >= 0.6*LH)
 				)
 			{
 			}
 			else
 			{
-				if ( (pFigure->m_minY > LMAXY) || 
-					 (pFigure->m_maxY < LMINY) ||
-					 ( (pFigure->m_h >= 0.6*LH) && (pFigure->m_maxY > LMAXY) && 
-					   !( (pFigure->m_h < 0.8*LH) && (is_comma == 1) ) ) ||
-					 ( (pFigure->m_h < pFigure->m_w) && 
-					   ( (pFigure->m_maxY > LMAXY) || (pFigure->m_minY > LMAXY-0.2*LH) ) &&
-					   !( (pFigure->m_w >= minpw) && (pFigure->m_w <= maxpw) &&
-				          (pFigure->m_h >= minph) && (pFigure->m_h <= maxph) && 
+				if ( (pFigure->minY() > LMAXY) || 
+					 (pFigure->maxY() < LMINY) ||
+					 ( (pFigure->height() >= 0.6*LH) && (pFigure->maxY() > LMAXY) && 
+					   !( (pFigure->height() < 0.8*LH) && (is_comma == 1) ) ) ||
+					 ( (pFigure->height() < pFigure->width()) && 
+					   ( (pFigure->maxY() > LMAXY) || (pFigure->minY() > LMAXY-0.2*LH) ) &&
+					   !( (pFigure->width() >= minpw) && (pFigure->width() <= maxpw) &&
+				          (pFigure->height() >= minph) && (pFigure->height() <= maxph) && 
 				          (dval >= minpwh) 
 						)
 					 )
@@ -9033,10 +8366,10 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 			}
 		}
 
-		if ( (pFigure->m_h < minph) || ( (pFigure->m_w < minpw) && ( pFigure->m_h < 2*pFigure->m_w) ) ||
-			 ( (pFigure->m_w < minpw) && 
-			   ( !( (pFigure->m_maxY < LMAXY-0.2*LH) && ((pFigure->m_minY + pFigure->m_maxY)/2 >= LMINY) ) && 
-			     !( (pFigure->m_maxY > LMAXY) && (pFigure->m_minY < LMAXY) ) 
+		if ( (pFigure->height() < minph) || ( (pFigure->width() < minpw) && ( pFigure->height() < 2*pFigure->width()) ) ||
+			 ( (pFigure->width() < minpw) && 
+			   ( !( (pFigure->maxY() < LMAXY-0.2*LH) && ((pFigure->minY() + pFigure->maxY())/2 >= LMINY) ) && 
+			     !( (pFigure->maxY() > LMAXY) && (pFigure->minY() < LMAXY) ) 
 			   ) 
 			 )
 		   )
@@ -9046,11 +8379,11 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 		if (bln == 1)
 		{		
-			PA1 = pFigure->m_PointsArray;
+			PA1 = pFigure->pointsArray();
 
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA1[l].m_i] = 0;
+				Im[PA1[l].pointNumber()] = 0;
 			}
 
 			for(j=i; j<N-1; j++) ppFigures[j] = ppFigures[j+1];
@@ -9062,74 +8395,6 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		i++;
 	}
 
-	/*j = 0;
-	val1 = 0;
-	int val2 = 0;
-	for(i=0; i<N; i++)
-	{
-		pFigure = ppFigures[i];
-
-		val = (pFigure->m_minX+pFigure->m_maxX)/2;
-
-		if ( (pFigure->m_maxY <= LMAXY) && 
-			 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-             (pFigure->m_h >= 0.6*LH) &&
-			 (val > xb) &&
-			 (val < xe) )
-		{
-			val1 += pFigure->m_maxY;
-			if (pFigure->m_maxY > val2) val2 = pFigure->m_maxY;
-			j++;
-		}
-	}
-	val1 = val1/j;
-			
-	int val3 = 0;
-	for(i=0; i<N; i++)
-	{
-		pFigure = ppFigures[i];
-
-		val = (pFigure->m_minX+pFigure->m_maxX)/2;
-
-		if ( (pFigure->m_maxY <= LMAXY) && 
-			 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-             (pFigure->m_h >= 0.6*LH) &&
-			 (val > xb) &&
-			 (val < xe) )
-		{
-			val = pFigure->m_maxY-val1;
-			val3 += val*val;
-		}
-	}
-	val = ceil(2.0*sqrt((double)val3/(double)j));
-	if (val < 1) val = 1;
-
-	LMAXY = min((val1+val), val2);
-	dmaxy = min((LMAXY-(val1-val)), dmaxy);
-
-	val3 = 0;
-	for(i=0; i<N; i++)
-	{
-		pFigure = ppFigures[i];
-
-		val = (pFigure->m_minX+pFigure->m_maxX)/2;
-
-		if ( (pFigure->m_maxY <= LMAXY) && 
-			 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-             (pFigure->m_h >= 0.6*LH) &&
-			 (val > xb) &&
-			 (val < xe) )
-		{
-			val = pFigure->m_maxY-val1;
-			val3 += val*val;
-		}
-	}
-	val = ceil(2.0*sqrt((double)val3/(double)j));
-	if (val < 1) val = 1;
-
-	LMAXY = min((val1+val), val2);
-	dmaxy = min((LMAXY-(val1-val)), dmaxy);*/
-
 	min_h = (int)((double)LH*0.6);
 
 	//-----очищаем с левого края-----//
@@ -9138,16 +8403,16 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_maxY < LMAXY-dmaxy*1.5) ||
-			 (pFigure->m_h < min_h) ||
-			 (pFigure->m_h > LH*2)
+		if ( (pFigure->maxY() < LMAXY-dmaxy*1.5) ||
+			 (pFigure->height() < min_h) ||
+			 (pFigure->height() > LH*2)
 		   )
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 					
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA[l].m_i] = 0;
+				Im[PA[l].pointNumber()] = 0;
 			}
 
 			for(j=i; j<N-1; j++) ppFigures[j] = ppFigures[j+1];
@@ -9155,9 +8420,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		}
 		else
 		{
-			if ( (pFigure->m_maxY <= LMAXY) && 
-				 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-				 (pFigure->m_h >= min_h) )
+			if ( (pFigure->maxY() <= LMAXY) && 
+				 (pFigure->maxY() >= LMAXY-dmaxy) &&
+				 (pFigure->height() >= min_h) )
 			{
 				break;
 			}
@@ -9175,25 +8440,25 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		pFigure = ppFigures[i];
 		is_comma = IsComma(pFigure, LMAXY, LH);
 
-		if (pFigure->m_h < pFigure->m_w) dval = (double)pFigure->m_h/pFigure->m_w;
-		else dval = (double)pFigure->m_w/pFigure->m_h;
+		if (pFigure->height() < pFigure->width()) dval = (double)pFigure->height()/pFigure->width();
+		else dval = (double)pFigure->width()/pFigure->height();
 
-		if ( (pFigure->m_minY < LMAXY - 2*LH) ||
-		     ( (pFigure->m_h < min_h) && 
-			   !( (pFigure->m_maxY <= LMAXY) && (pFigure->m_maxY >= LMAXY-dmaxy) &&
-				  (pFigure->m_w >= minpw) && (pFigure->m_w <= maxpw) &&
-				  (pFigure->m_h >= minph) && (pFigure->m_h <= maxph) && 
+		if ( (pFigure->minY() < LMAXY - 2*LH) ||
+		     ( (pFigure->height() < min_h) && 
+			   !( (pFigure->maxY() <= LMAXY) && (pFigure->maxY() >= LMAXY-dmaxy) &&
+				  (pFigure->width() >= minpw) && (pFigure->width() <= maxpw) &&
+				  (pFigure->height() >= minph) && (pFigure->height() <= maxph) && 
 				  (dval >= minpwh) 
 				 ) &&
 			   (is_comma == 0)
 			 )
 		   )
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 					
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA[l].m_i] = 0;
+				Im[PA[l].pointNumber()] = 0;
 			}
 
 			for(j=i; j<N-1; j++) ppFigures[j] = ppFigures[j+1];
@@ -9203,9 +8468,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		}
 		else
 		{
-			if ( (pFigure->m_maxY <= LMAXY) && 
-				 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-				 (pFigure->m_h >= min_h) )
+			if ( (pFigure->maxY() <= LMAXY) && 
+				 (pFigure->maxY() >= LMAXY-dmaxy) &&
+				 (pFigure->height() >= min_h) )
 			{
 				break;
 			}
@@ -9224,11 +8489,11 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_maxY <= LMAXY) && 
-				 (pFigure->m_maxY >= LMAXY-dmaxy) &&
-				 (pFigure->m_h >= min_h) )
+		if ( (pFigure->maxY() <= LMAXY) && 
+				 (pFigure->maxY() >= LMAXY-dmaxy) &&
+				 (pFigure->height() >= min_h) )
 		{
-			NH[k] = LMAXY - pFigure->m_minY;
+			NH[k] = LMAXY - pFigure->minY();
 			k++;
 		}
 	}
@@ -9256,7 +8521,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	while(i < N) 
 	{
 		pFigure = ppFigures[i];
-		PA1 = pFigure->m_PointsArray;
+		PA1 = pFigure->pointsArray();
 
 		is_point = IsPoint(pFigure, LMAXY, LLH);
 		is_comma = IsComma(pFigure, LMAXY, LLH);
@@ -9269,14 +8534,14 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 			pFigure2 = ppFigures[j];
 			
-			if ( (pFigure2->m_maxY <= LMAXY) && 
-				 (pFigure2->m_maxY >= LMAXY-dmaxy) &&
-				 (pFigure2->m_h >= min_h)
+			if ( (pFigure2->maxY() <= LMAXY) && 
+				 (pFigure2->maxY() >= LMAXY-dmaxy) &&
+				 (pFigure2->height() >= min_h)
 			   )
 			{
-				val = (pFigure->m_maxX+pFigure->m_minX)-(pFigure2->m_maxX+pFigure2->m_minX);
+				val = (pFigure->maxX()+pFigure->minX())-(pFigure2->maxX()+pFigure2->minX());
 				if (val < 0) val = -val;
-				val = (pFigure->m_maxX-pFigure->m_minX)+(pFigure2->m_maxX-pFigure2->m_minX)+1 - val;
+				val = (pFigure->maxX()-pFigure->minX())+(pFigure2->maxX()-pFigure2->minX())+1 - val;
 
 				if (val >= 1)//наезжают друг на друга минимум на 1 пиксела
 				{
@@ -9292,30 +8557,30 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 			{
 				for(i1=0; i1<k; i1++)
 				{
-					PA2 = ppFgs[i1]->m_PointsArray;
+					PA2 = ppFgs[i1]->pointsArray();
 
-					for (i2=0; i2<pFigure->m_Square; i2++)
+					for (i2=0; i2<pFigure->square(); i2++)
 					{
 						bln1 = 0;
 						bln2 = 0;
 						bln3 = 0;
 
-						for (i3=0; i3<ppFgs[i1]->m_Square; i3++)
+						for (i3=0; i3<ppFgs[i1]->square(); i3++)
 						{
-							if ( (PA1[i2].m_x == PA2[i3].m_x) &&
-								(PA1[i2].m_y > PA2[i3].m_y) )
+							if ( (PA1[i2].x() == PA2[i3].x()) &&
+								(PA1[i2].y() > PA2[i3].y()) )
 							{
 								bln1 = 1;
 							}
 							
-							if ( (PA1[i2].m_x > PA2[i3].m_x) &&
-								(PA1[i2].m_y == PA2[i3].m_y) )
+							if ( (PA1[i2].x() > PA2[i3].x()) &&
+								(PA1[i2].y() == PA2[i3].y()) )
 							{
 								bln2 = 1;
 							}
 
-							if ( (PA1[i2].m_x < PA2[i3].m_x) &&
-								(PA1[i2].m_y == PA2[i3].m_y) )
+							if ( (PA1[i2].x() < PA2[i3].x()) &&
+								(PA1[i2].y() == PA2[i3].y()) )
 							{
 								bln3 = 1;
 							}
@@ -9332,9 +8597,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 		if (bln == 1)
 		{					
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA1[l].m_i] = 0;
+				Im[PA1[l].pointNumber()] = 0;
 			}
 
 			for(j=i; j<N-1; j++) ppFigures[j] = ppFigures[j+1];
@@ -9350,7 +8615,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	while(i < N) 
 	{
 		pFigure = ppFigures[i];
-		PA1 = pFigure->m_PointsArray;
+		PA1 = pFigure->pointsArray();
 
 		is_point = IsPoint(pFigure, LMAXY, LLH);
 		is_comma = IsComma(pFigure, LMAXY, LLH);
@@ -9363,17 +8628,17 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 			pFigure2 = ppFigures[j];
 			
-			if ( (pFigure2->m_maxY <= LMAXY) && 
-				 (pFigure2->m_maxY >= LMAXY-dmaxy) &&
-				 (pFigure2->m_h >= min_h)
+			if ( (pFigure2->maxY() <= LMAXY) && 
+				 (pFigure2->maxY() >= LMAXY-dmaxy) &&
+				 (pFigure2->height() >= min_h)
 			   )
 			{
-				val = (pFigure->m_maxX+pFigure->m_minX)-(pFigure2->m_maxX+pFigure2->m_minX);
+				val = (pFigure->maxX()+pFigure->minX())-(pFigure2->maxX()+pFigure2->minX());
 				if (val < 0) val = -val;
-				val = (pFigure->m_maxX-pFigure->m_minX)+(pFigure2->m_maxX-pFigure2->m_minX)+1 - val;
+				val = (pFigure->maxX()-pFigure->minX())+(pFigure2->maxX()-pFigure2->minX())+1 - val;
 
-				if ( (pFigure->m_minY <= LMAXY-LLH) &&
-					 (pFigure->m_maxY >= LMAXY) )
+				if ( (pFigure->minY() <= LMAXY-LLH) &&
+					 (pFigure->maxY() >= LMAXY) )
 				{
 					if (val >= 5)//наезжают друг на друга минимум на 2 пиксела
 					{
@@ -9381,9 +8646,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 						k++;
 					}
 				}
-				else if ( (pFigure->m_minY <= LMAXY-LLH) &&
-						  (pFigure->m_maxY <= LMAXY) &&
-						  (pFigure->m_maxY >= LMAXY-dmaxy) )
+				else if ( (pFigure->minY() <= LMAXY-LLH) &&
+						  (pFigure->maxY() <= LMAXY) &&
+						  (pFigure->maxY() >= LMAXY-dmaxy) )
 				{
 					if (val >= 3)//наезжают друг на друга минимум на 3 пиксела
 					{
@@ -9406,16 +8671,16 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 			{
 				for(i1=0; i1<k; i1++)
 				{
-					if (ppFgs[i1]->m_minX > pFigure->m_minX)
+					if (ppFgs[i1]->minX() > pFigure->minX())
 					{
-						PA2 = ppFgs[i1]->m_PointsArray;
+						PA2 = ppFgs[i1]->pointsArray();
 
-						for (i2=0; i2<pFigure->m_Square; i2++)
+						for (i2=0; i2<pFigure->square(); i2++)
 						{
-							for (i3=0; i3<ppFgs[i1]->m_Square; i3++)
+							for (i3=0; i3<ppFgs[i1]->square(); i3++)
 							{
-								if ( (PA1[i2].m_x == PA2[i3].m_x) &&
-									(PA1[i2].m_y > PA2[i3].m_y) )
+								if ( (PA1[i2].x() == PA2[i3].x()) &&
+									(PA1[i2].y() > PA2[i3].y()) )
 								{
 									bln = 1;
 									break;
@@ -9433,16 +8698,16 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 				{
 					for(i1=0; i1<k; i1++)
 					{
-						if (ppFgs[i1]->m_maxX < pFigure->m_maxX)
+						if (ppFgs[i1]->maxX() < pFigure->maxX())
 						{
-							PA2 = ppFgs[i1]->m_PointsArray;
+							PA2 = ppFgs[i1]->pointsArray();
 
-							for (i2=0; i2<pFigure->m_Square; i2++)
+							for (i2=0; i2<pFigure->square(); i2++)
 							{
-								for (i3=0; i3<ppFgs[i1]->m_Square; i3++)
+								for (i3=0; i3<ppFgs[i1]->square(); i3++)
 								{
-									if ( (PA1[i2].m_x == PA2[i3].m_x) &&
-										(PA1[i2].m_y < PA2[i3].m_y) )
+									if ( (PA1[i2].x() == PA2[i3].x()) &&
+										(PA1[i2].y() < PA2[i3].y()) )
 									{
 										bln = 1;
 										break;
@@ -9461,9 +8726,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
 		if (bln == 1)
 		{					
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				Im[PA1[l].m_i] = 0;
+				Im[PA1[l].pointNumber()] = 0;
 			}
 
 			for(j=i; j<N-1; j++) ppFigures[j] = ppFigures[j+1];
@@ -9483,9 +8748,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		pFigure = ppFigures[i];
 
-		if ( !( (pFigure->m_maxY <= LMAXY) && 
-			    (pFigure->m_maxY >= LMAXY-dmaxy) &&
-			    (pFigure->m_h >= 0.6*LH) ) )
+		if ( !( (pFigure->maxY() <= LMAXY) && 
+			    (pFigure->maxY() >= LMAXY-dmaxy) &&
+			    (pFigure->height() >= 0.6*LH) ) )
 		{
 			ppFigures[i] = ppFigures[N-1];
 			N--;
@@ -9503,7 +8768,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 		{
 			for(j=i+1; j<N; j++)
 			{
-				val1 = ((ppFigures[j]->m_maxX + ppFigures[j]->m_minX) - (ppFigures[i]->m_maxX + ppFigures[i]->m_minX))/2;
+				val1 = ((ppFigures[j]->maxX() + ppFigures[j]->minX()) - (ppFigures[i]->maxX() + ppFigures[i]->minX()))/2;
 				if (val1 < 0) val1 = -val1;
 				
 				if (val1 < val) val = val1;				
@@ -9516,8 +8781,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 	{
 		pFigure = ppFigures[0];
 
-		if ( (w/2 - pFigure->m_minX <= (120*4)/2) &&
-			 (pFigure->m_maxX - w/2 <= (120*4)/2) )
+		if ( (w/2 - pFigure->minX() <= (120*4)/2) &&
+			 (pFigure->maxX() - w/2 <= (120*4)/2) )
 		{
 			res = 1;
 		}
@@ -9537,11 +8802,11 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 					int mY, int dY, int mI, int dI, int mQ, int dQ, 
 					int mmY, int ddY1, int ddY2, int mmI, int ddI, int mmQ, int ddQ, int white)
 {
-	CMyClosedFigure *pFigures, **ppFigures, *pFigure;
+	MyClosedFigure *pFigures, **ppFigures, *pFigure;
 	int i, l, ii, val, valY, valI, valQ, max_val, N;
 	int val1, val2, val3, val4, val5, val6, ddy1, ddy2;
 	int GRStr[256*2], delta, smax[256*2], smaxi[256*2], NNN;
-	CMyPoint *PA;
+	MyPoint *PA;
 	clock_t t;
 	int dmaxy = g_dmaxy;
 
@@ -9549,7 +8814,7 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 
 	if (N == 0)	return 0;
 
-	ppFigures = new CMyClosedFigure*[N];
+	ppFigures = new MyClosedFigure*[N];
 	for(i=0; i<N; i++)
 	{
 		ppFigures[i] = &(pFigures[i]);
@@ -9569,26 +8834,26 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		if	(	(pFigure->m_minX <= 2) ||
-				(pFigure->m_maxX >= (w-1)-2) ||
-				(pFigure->m_minY <= ddy1) ||
-				(pFigure->m_maxY >= ddy2) || 
-				(pFigure->m_w == 1) ||
-				(pFigure->m_h == 1) ||
-				( (pFigure->m_w >= LH*3) && 
-				  ( (pFigure->m_maxY > LMAXY) || (pFigure->m_maxY < LMAXY-dmaxy) ) 
+		if	(	(pFigure->minX() <= 2) ||
+				(pFigure->maxX() >= (w-1)-2) ||
+				(pFigure->minY() <= ddy1) ||
+				(pFigure->maxY() >= ddy2) || 
+				(pFigure->width() == 1) ||
+				(pFigure->height() == 1) ||
+				( (pFigure->width() >= LH*3) && 
+				  ( (pFigure->maxY() > LMAXY) || (pFigure->maxY() < LMAXY-dmaxy) ) 
 				) ||
 				(
-					( ((val-(pFigure->m_minY+pFigure->m_maxY)) > LH*2) || (((pFigure->m_minY+pFigure->m_maxY)-val) > LH*2) )
+					( ((val-(pFigure->minY()+pFigure->maxY())) > LH*2) || (((pFigure->minY()+pFigure->maxY())-val) > LH*2) )
 				) ||
-				( (pFigure->m_w<=3)&& (pFigure->m_h<=3)	&& (pFigure->m_minY > LMAXY) )
+				( (pFigure->width()<=3)&& (pFigure->height()<=3)	&& (pFigure->minY() > LMAXY) )
 			)
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				ii = PA[l].m_i;
+				ii = PA[l].pointNumber();
 				Im[ii] = 0;
 			}
 
@@ -9598,15 +8863,15 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 		}
 		else
 		{
-			PA = pFigure->m_PointsArray;
+			PA = pFigure->pointsArray();
 			
 			//bln = 0;
 			val1 = 0;
 			val2 = 0;
 			val3 = 0;
-			for(l=0; l < pFigure->m_Square; l++)
+			for(l=0; l < pFigure->square(); l++)
 			{
-				ii = PA[l].m_i;
+				ii = PA[l].pointNumber();
 				valI = g_ImI[ii];
 				valQ = g_ImQ[ii];
 				valY = g_ImY[ii];
@@ -9625,9 +8890,9 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 					}
 				}*/
 			}
-			pFigure->m_mI = val1/pFigure->m_Square;
-			pFigure->m_mQ = val2/pFigure->m_Square;
-			pFigure->m_mY = val3/pFigure->m_Square;
+			pFigure->setMI(val1/pFigure->square());
+			pFigure->setMQ(val2/pFigure->square());
+			pFigure->setMY(val3/pFigure->square());
 			
 			StrAnalyseImage(pFigure, g_ImY, GRStr, 0);			
 			delta = 80;
@@ -9642,8 +8907,8 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 			val2 -= (80-delta)/2;
 			val4 = val2 - mmY;
 			if (val4 < 0) val4 = -val4;
-			if (val3 < val4) pFigure->m_mmY = val1;
-			else pFigure->m_mmY = val2;
+			if (val3 < val4) pFigure->setMMY(val1);
+			else pFigure->setMMY(val2);
 
 			StrAnalyseImage(pFigure, g_ImI, GRStr, 256);
 			delta = 5;
@@ -9658,8 +8923,8 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 			val2 -= 256 + (5-delta)/2;
 			val4 = val2 - mmI;
 			if (val4 < 0) val4 = -val4;
-			if (val3 < val4) pFigure->m_mmI = val1;
-			else pFigure->m_mmI = val2;
+			if (val3 < val4) pFigure->setMMI(val1);
+			else pFigure->setMMI(val2);
 			
 			StrAnalyseImage(pFigure, g_ImQ, GRStr, 256);
 			delta = 5;
@@ -9674,45 +8939,32 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 			val2 -= 256 + (5-delta)/2;
 			val4 = val2 - mmQ;
 			if (val4 < 0) val4 = -val4;
-			if (val3 < val4) pFigure->m_mmQ = val1;
-			else pFigure->m_mmQ = val2;
+			if (val3 < val4) pFigure->setMMQ(val1);
+			else pFigure->setMMQ(val2);
 
-			/*if (bln == 0)
 			{
-				for(l=0; l < pFigure->m_Square; l++)
-				{
-					ii = (PA[l].m_y*w)+PA[l].m_x;
-					Im[ii] = 0;
-				}
-
-				ppFigures[i] = ppFigures[N-1];
-				N--;
-				continue;
-			}
-			else*/
-			{
-				val1 = pFigure->m_mI - mI;
+				val1 = pFigure->mI() - mI;
 				if (val1 < 0) val1 = -val1;
 				
-				val2 = pFigure->m_mQ - mQ;
+				val2 = pFigure->mQ() - mQ;
 				if (val2 < 0) val2 = -val2;
 
-				val3 = pFigure->m_mY - mY;
+				val3 = pFigure->mY() - mY;
 				if (val3 < 0) val3 = -val3;
 
-				val4 = pFigure->m_mmI - mmI;
+				val4 = pFigure->mmI() - mmI;
 				if (val4 < 0) val4 = -val4;
 				
-				val5 = pFigure->m_mmQ - mmQ;
+				val5 = pFigure->mmQ() - mmQ;
 				if (val5 < 0) val5 = -val5;
 
-				val6 = pFigure->m_mmY - mmY;
+				val6 = pFigure->mmY() - mmY;
 
 				if ( (val1 > dI) || (val2 > dQ) || (val3 > dY) || (val4 > ddI) || (val5 > ddQ) || (val6 < ddY1) || (val6 > ddY2) )
 				{
-					for(l=0; l < pFigure->m_Square; l++)
+					for(l=0; l < pFigure->square(); l++)
 					{
-						ii = (PA[l].m_y*w)+PA[l].m_x;
+						ii = (PA[l].y() * w) + PA[l].x();
 						Im[ii] = 0;
 					}
 
@@ -9737,9 +8989,9 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
 	{
 		pFigure = ppFigures[i];
 
-		if ( (pFigure->m_h >= min_h) &&
-			 (pFigure->m_minY < val1) &&
-			 (pFigure->m_maxY > val2) )
+		if ( (pFigure->height() >= min_h) &&
+			 (pFigure->minY() < val1) &&
+			 (pFigure->maxY() > val2) )
 		{
 			l++;
 		}
@@ -9782,18 +9034,18 @@ void StrAnalyseImage(int *Im, int *ImGR, int *GRStr, int w, int h, int xb, int x
 	}
 }
 
-void StrAnalyseImage(CMyClosedFigure *pFigure, int *ImGR, int *GRStr, int offset)
+void StrAnalyseImage(MyClosedFigure *pFigure, int *ImGR, int *GRStr, int offset)
 {
 	int l, val;
-	CMyPoint *PA;
+	MyPoint *PA;
 
 	memset(GRStr, 0, g_str_size*sizeof(int));
 
-	PA = pFigure->m_PointsArray;
+	PA = pFigure->pointsArray();
 		
-	for(l=0; l < pFigure->m_Square; l++)
+	for(l=0; l < pFigure->square(); l++)
 	{
-		val = ImGR[PA[l].m_i]+offset; 
+		val = ImGR[PA[l].pointNumber()]+offset; 
 		GRStr[val]++;
 	}
 }
@@ -9925,15 +9177,15 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
 {
 	int i, j, x, y;
 	int r0, g0, b0, r1, g1, b1;
-	u8 *color, *clr;
+	quint8 *color, *clr;
 	int clr_res;
 
 	clr_res = 0;
-	clr = (u8*)(&clr_res);
+	clr = (quint8*)(&clr_res);
 
 	for(y=0, i=0, j=0; y<h; y++)
 	{
-		color = (u8*)(&Im[i]);
+		color = (quint8*)(&Im[i]);
 		r0 = color[2];
 		g0 = color[1];
 		b0 = color[0];	
@@ -9949,7 +9201,7 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
 			}
 			else
 			{
-				color = (u8*)(&Im[i+1]);
+				color = (quint8*)(&Im[i+1]);
 				r1 = color[2];
 				g1 = color[1];
 				b1 = color[0];	
@@ -9984,7 +9236,7 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
 	for(x=0; x<4*w; x++)
 	{
 		i = y*4*w+x;
-		color = (u8*)(&g_ImRES2[i]);
+		color = (quint8*)(&g_ImRES2[i]);
 		r0 = color[2];
 		g0 = color[1];
 		b0 = color[0];	
@@ -10003,7 +9255,7 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
 			}
 			else
 			{
-				color = (u8*)(&g_ImRES2[i+4*w]);
+				color = (quint8*)(&g_ImRES2[i+4*w]);
 				r1 = color[2];
 				g1 = color[1];
 				b1 = color[0];	
@@ -10129,7 +9381,7 @@ int CompareTXTImages(int *Im1, int *Im2, int w1, int h1, int w2, int h2, int YB1
 	return 0;
 }
 
-void GetImageSize(string name, int &w, int &h)
+void GetImageSize(std::string name, int &w, int &h)
 {
 	if (!g_wxImageHandlersInitialized)
 	{
@@ -10143,12 +9395,12 @@ void GetImageSize(string name, int &w, int &h)
 	h = wxIm.GetHeight();
 }
 
-void SaveRGBImage(int *Im, string name, int w, int h)
+void SaveRGBImage(int *Im, std::string name, int w, int h)
 {	
 	wxImage wxIm(w, h, true);
 	int i, x, y;
-	u8 *color;
-	string full_name;
+	quint8 *color;
+	std::string full_name;
 
 	if (!g_wxImageHandlersInitialized)
 	{
@@ -10162,7 +9414,7 @@ void SaveRGBImage(int *Im, string name, int w, int h)
 	for (y=0, i=0; y<h; y++)
 	for (x=0; x<w; x++, i++)
 	{
-		color = (u8*)(&Im[i]);
+		color = (quint8*)(&Im[i]);
 		wxIm.SetRGB(x, y, color[2], color[1], color[0]);		
 	}
 
@@ -10170,7 +9422,7 @@ void SaveRGBImage(int *Im, string name, int w, int h)
 	wxIm.SaveFile(full_name, wxBITMAP_TYPE_JPEG);
 }
 
-void LoadRGBImage(int *Im, string name, int &w, int &h)
+void LoadRGBImage(int *Im, std::string name, int &w, int &h)
 {
 	if (!g_wxImageHandlersInitialized)
 	{
@@ -10180,28 +9432,30 @@ void LoadRGBImage(int *Im, string name, int &w, int &h)
 
 	wxImage wxIm(name);
 	int i, x, y;
-	u8 *color;
+	quint8 *color;
 
 	w = wxIm.GetWidth();
 	h = wxIm.GetHeight();
 
-	for (y=0, i=0; y<h; y++)
-	for (x=0; x<w; x++, i++)
-	{		
-		Im[i] = 0;
-		color = (u8*)(&Im[i]);
-		color[2] = wxIm.GetRed(x, y);
-		color[1] = wxIm.GetGreen(x, y);
-		color[0] = wxIm.GetBlue(x, y);
-	}
+	for (y = 0, i = 0; y < h; ++y)
+    {
+	    for (x = 0; x < w; x++, ++i)
+	    {		
+		    Im[i] = 0;
+		    color = (quint8*)(&Im[i]);
+		    color[2] = wxIm.GetRed(x, y);
+		    color[1] = wxIm.GetGreen(x, y);
+		    color[0] = wxIm.GetBlue(x, y);
+	    }
+    }
 }
 
-void SaveImage(int *Im, string name, int w, int h, int quality, int dpi)
+void SaveImage(int *Im, std::string name, int w, int h, int quality, int dpi)
 {
 	wxImage wxIm(w, h, true);
 	int i, x, y;
-	u8 *color;
-	string full_name;
+	quint8 *color;
+	std::string full_name;
 
 	if (!g_wxImageHandlersInitialized)
 	{
@@ -10209,15 +9463,16 @@ void SaveImage(int *Im, string name, int w, int h, int quality, int dpi)
 		g_wxImageHandlersInitialized = true;
 	}
 
-    full_name = g_dir;
-    full_name += name; 	
+    full_name = std::string(g_dir + name);
 
-	for (y=0, i=0; y<h; y++)
-	for (x=0; x<w; x++, i++)
-	{
-		color = (u8*)(&Im[i]);
-		wxIm.SetRGB(x, y, color[0], color[0], color[0]);		
-	}
+	for (y = 0, i = 0; y < h; ++y)
+    {
+	    for (x = 0; x < w; ++x, ++i)
+	    {
+		    color = (quint8*)(&Im[i]);
+		    wxIm.SetRGB(x, y, color[0], color[0], color[0]);		
+	    }
+    }
 
 	if (dpi != -1)
 	{
@@ -10233,7 +9488,7 @@ void SaveImage(int *Im, string name, int w, int h, int quality, int dpi)
 	wxIm.SaveFile(full_name, wxBITMAP_TYPE_JPEG);
 }
 
-void LoadImage(int *Im, string name, int &w, int &h)
+void LoadImage(int *Im, std::string name, int &w, int &h)
 {
 	if (!g_wxImageHandlersInitialized)
 	{
@@ -10247,16 +9502,18 @@ void LoadImage(int *Im, string name, int &w, int &h)
 	w = wxIm.GetWidth();
 	h = wxIm.GetHeight();
 
-	for (y=0, i=0; y<h; y++)
-	for (x=0; x<w; x++, i++)
-	{		
-		if (wxIm.GetRed(x, y) != 0)
-		{
-			Im[i] = 255;
-		}
-		else
-		{
-			Im[i] = 0;
-		}
-	}
+	for (y = 0, i = 0; y < h; ++y)
+    {
+	    for (x = 0; x < w; ++x, ++i)
+	    {		
+		    if (wxIm.GetRed(x, y) != 0)
+		    {
+			    Im[i] = 255;
+		    }
+		    else
+		    {
+			    Im[i] = 0;
+		    }
+	    }
+    }
 }

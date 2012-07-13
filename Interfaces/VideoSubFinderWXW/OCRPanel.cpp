@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #include "OCRPanel.h"
+#include <QtCore/QtGlobal>
 
 bool g_use_FRD_images = false;
 
@@ -31,7 +32,7 @@ bool g_CLEAN_RGB_IMAGES = false;
 
 AssTXTLine::AssTXTLine()
 {
-	m_TXTStr = string("");
+	m_TXTStr = std::string("");
 	m_LH = 0;
 	m_LY = 0;
 	m_LXB = 0;
@@ -105,7 +106,7 @@ AssTXTStyle::AssTXTStyle()
 	m_MarginR = 10;
 	m_MarginV = 10;
 
-	m_Name = string("");
+	m_Name = std::string("");
 }
 
 void AssTXTStyle::Compute()
@@ -280,44 +281,44 @@ void COCRPanel::OnBnClickedCreateEmptySub(wxCommandEvent& event)
 {
 	wxString Str, SubStr, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
 	int i, j, k, sec, msec;
-	fstream fout;
-	u64 bt, et, dt, mdt;
+	std::fstream fout;
+	quint64 bt, et, dt, mdt;
 	char str[30];
 
-	wxString dir_path = wxString(m_pMF->m_Dir + string("/RGBImages/"));
+	wxString dir_path = wxString(m_pMF->m_Dir + std::string("/RGBImages/"));
 	wxDir dir(dir_path);
-	vector<wxString> FileNamesVector;
-	vector<u64> BT, ET;
+	std::vector<wxString> FileNameVector;
+	std::vector<quint64> BT, ET;
 	wxString filename;
 	bool res;
 
 	res = dir.GetFirst(&filename, "*.jpeg");
     while ( res )
     {
-		FileNamesVector.push_back(filename);
+		FileNameVector.push_back(filename);
 
         res = dir.GetNext(&filename);
     }
 	
-	for (i=0; i<(int)FileNamesVector.size()-1; i++)
-	for (j=i+1; j<(int)FileNamesVector.size(); j++)
+	for (i=0; i<(int)FileNameVector.size()-1; i++)
+	for (j=i+1; j<(int)FileNameVector.size(); j++)
 	{
-		if (FileNamesVector[i] > FileNamesVector[j])
+		if (FileNameVector[i] > FileNameVector[j])
 		{
-			Str = FileNamesVector[i];
-			FileNamesVector[i] = FileNamesVector[j];
-			FileNamesVector[j] = Str;
+			Str = FileNameVector[i];
+			FileNameVector[i] = FileNameVector[j];
+			FileNameVector[j] = Str;
 		}
 	}
 
-	fout.open(string(m_pMF->m_Dir+string("/sub.srt")).c_str(), ios::out);
+	fout.open(std::string(m_pMF->m_Dir+std::string("/sub.srt")).c_str(), std::ios::out);
 
 	Str = m_pMSD->GetValue();
-	mdt = (s64)atof(Str)*1000;
+	mdt = (qint64)atof(Str)*1000;
 
-	for(k=0; k<(int)FileNamesVector.size(); k++)
+	for(k=0; k<(int)FileNameVector.size(); k++)
 	{
-		Str = FileNamesVector[k];
+		Str = FileNameVector[k];
 
 		hour1 = Str.Mid(0,1);
 		min1 = Str.Mid(2,2);
@@ -336,7 +337,7 @@ void COCRPanel::OnBnClickedCreateEmptySub(wxCommandEvent& event)
 		ET.push_back(et);
 	}
 
-	for(k=0; k<(int)FileNamesVector.size()-1; k++)
+	for(k=0; k<(int)FileNameVector.size()-1; k++)
 	{
 		if (ET[k]-BT[k] < mdt)
 		{
@@ -351,23 +352,23 @@ void COCRPanel::OnBnClickedCreateEmptySub(wxCommandEvent& event)
 		}
 	}
 
-	for(k=0; k<(int)FileNamesVector.size(); k++)
+	for(k=0; k<(int)FileNameVector.size(); k++)
 	{
 		bt = BT[k];
 		et = ET[k];
 
-		Str = VideoTimeToStr2(bt*(u64)10000)+
+		Str = VideoTimeToStr2(bt*(quint64)10000)+
 			  " --> "+
-			  VideoTimeToStr2(et*(u64)10000);
+			  VideoTimeToStr2(et*(quint64)10000);
 
 		dt = et - bt;
 		sec = (int)(dt/1000);
 		msec = (int)(dt%1000);
 		
-		_itoa(sec, str, 10);
+		itoa(sec, str, 10);
 		sec1 = str;
 
-		_itoa(msec, str, 10);
+		itoa(msec, str, 10);
 		if (msec < 10) msec1 = wxString("00")+str; 
 		else
 		{
@@ -397,52 +398,52 @@ void COCRPanel::OnBnClickedCreateSubFromClearedTXTImages(wxCommandEvent& event)
 {
 	wxString Str, SubStr, Name, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
 	int i, j, k, kb, sec, msec;
-	fstream fout;
+	std::fstream fout;
 	char str[30];
-	u64 bt, et, dt, mdt;
+	quint64 bt, et, dt, mdt;
 
-	wxString dir_path = wxString(m_pMF->m_Dir + string("/TXTImages/"));
+	wxString dir_path = wxString(m_pMF->m_Dir + std::string("/TXTImages/"));
 	wxDir dir(dir_path);
-	vector<wxString> FileNamesVector;
-	vector<u64> BT, ET;
+	std::vector<wxString> FileNameVector;
+	std::vector<quint64> BT, ET;
 	wxString filename;
 	bool res;
 
 	res = dir.GetFirst(&filename, "*.jpeg");
     while ( res )
     {
-		FileNamesVector.push_back(filename);
+		FileNameVector.push_back(filename);
 
         res = dir.GetNext(&filename);
     }
 
-	for (i=0; i<(int)FileNamesVector.size()-1; i++)
-	for (j=i+1; j<(int)FileNamesVector.size(); j++)
+	for (i=0; i<(int)FileNameVector.size()-1; i++)
+	for (j=i+1; j<(int)FileNameVector.size(); j++)
 	{
-		if (FileNamesVector[i] > FileNamesVector[j])
+		if (FileNameVector[i] > FileNameVector[j])
 		{
-			Str = FileNamesVector[i];
-			FileNamesVector[i] = FileNamesVector[j];
-			FileNamesVector[j] = Str;
+			Str = FileNameVector[i];
+			FileNameVector[i] = FileNameVector[j];
+			FileNameVector[j] = Str;
 		}
 	}
 
 	Str = m_pMSD->GetValue();
-	mdt = (s64)atof(Str)*1000;
+	mdt = (qint64)atof(Str)*1000;
 
 	k = 0;
-	while (k < (int)FileNamesVector.size())
+	while (k < (int)FileNameVector.size())
 	{
 		kb = k;
 		i = 0;
-		while( (k < (int)FileNamesVector.size()) &&
-			   (FileNamesVector[kb].Mid(0, 11) == FileNamesVector[k].Mid(0, 11))
+		while( (k < (int)FileNameVector.size()) &&
+			   (FileNameVector[kb].Mid(0, 11) == FileNameVector[k].Mid(0, 11))
 			 )
 		{
 			k++;
 		}
 
-		Str = FileNamesVector[kb];
+		Str = FileNameVector[kb];
 
 		hour1 = Str.Mid(0,1);
 		min1 = Str.Mid(2,2);
@@ -476,25 +477,25 @@ void COCRPanel::OnBnClickedCreateSubFromClearedTXTImages(wxCommandEvent& event)
 		}
 	}
 
-	fout.open(string(m_pMF->m_Dir+"/sub.srt").c_str(), ios::out);
+	fout.open(std::string(m_pMF->m_Dir+"/sub.srt").c_str(), std::ios::out);
 
 	for(k=0; k<(int)BT.size(); k++)
 	{
 		bt = BT[k];
 		et = ET[k];
 
-		Str = VideoTimeToStr2(bt*(u64)10000)+
+		Str = VideoTimeToStr2(bt*(quint64)10000)+
 			  " --> "+
-			  VideoTimeToStr2(et*(u64)10000);
+			  VideoTimeToStr2(et*(quint64)10000);
 
 		dt = et - bt;
 		sec = (int)(dt/1000);
 		msec = (int)(dt%1000);
 		
-		_itoa(sec, str, 10);
+		itoa(sec, str, 10);
 		sec1 = str;
 
-		_itoa(msec, str, 10);
+		itoa(msec, str, 10);
 		if (msec < 10) msec1 = wxString("00")+str; 
 		else
 		{
@@ -520,32 +521,32 @@ void COCRPanel::CreateSubFromTXTResults()
 	wxString Str, Name, hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
 	int i, j, k, kb, sec, msec, max_mY_dif, max_mI_dif, max_mQ_dif, max_posY_dif;
 	int val1, val2, val3, val4, val5, val6, val7, val8;
-	string fname, image_name;
-	fstream fout, txt_info;
-	u64 bt, et, dt, mdt;
+	std::string fname, image_name;
+	std::fstream fout, txt_info;
+	quint64 bt, et, dt, mdt;
 	char str[1000];
 	double max_LH_dif;
 	int bln;
 
-	vector<wxString> FileNamesVector;
-	vector<wxString> TXTVector;
+	std::vector<wxString> FileNameVector;
+	std::vector<wxString> TXTVector;
 	AssTXTLine *AssTXTVector;
 	AssTXTStyle *AssTXTStyleVector; 
-	vector<u64> BT, ET;
+	std::vector<quint64> BT, ET;
 	AssTXTLine AssLine;
 	AssTXTStyle AssStyle;
 	YIQ_LH_Struct AssStyleDatum;
 	int mR, mG, mB, NT, NS;
-	string BaseStyleName;
+	std::string BaseStyleName;
 	
-	BaseStyleName = string("Base");
+	BaseStyleName = std::string("Base");
 	max_mY_dif = 16;
 	max_mI_dif = 10;
 	max_mQ_dif = 10;
 	max_posY_dif = 5;
 	max_LH_dif = 0.20;
 
-	wxString dir_path = wxString(m_pMF->m_Dir + string("/TXTResults/"));
+	wxString dir_path = wxString(m_pMF->m_Dir + std::string("/TXTResults/"));
 	wxDir dir(dir_path);
 	wxString filename;
 	bool res;
@@ -553,50 +554,50 @@ void COCRPanel::CreateSubFromTXTResults()
 	res = dir.GetFirst(&filename, "*.txt");
     while ( res )
     {
-		FileNamesVector.push_back(filename);
+		FileNameVector.push_back(filename);
 
         res = dir.GetNext(&filename);
     }
 
-	for (i=0; i<(int)FileNamesVector.size()-1; i++)
-	for (j=i+1; j<(int)FileNamesVector.size(); j++)
+	for (i=0; i<(int)FileNameVector.size()-1; i++)
+	for (j=i+1; j<(int)FileNameVector.size(); j++)
 	{
-		if (FileNamesVector[i] > FileNamesVector[j])
+		if (FileNameVector[i] > FileNameVector[j])
 		{
-			Str = FileNamesVector[i];
-			FileNamesVector[i] = FileNamesVector[j];
-			FileNamesVector[j] = Str;
+			Str = FileNameVector[i];
+			FileNameVector[i] = FileNameVector[j];
+			FileNameVector[j] = Str;
 		}
 	}
 
 	Str = m_pMSD->GetValue();
-	mdt = (s64)atof(Str)*1000;
+	mdt = (qint64)atof(Str)*1000;
 
 	str[0] = '\0';
 
-	fname = g_dir + string("/text_lines.info");
-	txt_info.open(fname.c_str(), ios::in);
+	fname = g_dir + std::string("/text_lines.info");
+	txt_info.open(fname.c_str(), std::ios::in);
 
 	NT = 0;
-	AssTXTVector = new AssTXTLine[(int)FileNamesVector.size()];
+	AssTXTVector = new AssTXTLine[(int)FileNameVector.size()];
 
 	NS = 0;
-	AssTXTStyleVector = new AssTXTStyle[(int)FileNamesVector.size()];	
+	AssTXTStyleVector = new AssTXTStyle[(int)FileNameVector.size()];	
 	
     //--------------
 
-    image_name = g_dir+string("/RGBImages/")+string(FileNamesVector[0]).substr(0, 24) + string(".jpeg");
+    image_name = g_dir+std::string("/RGBImages/")+std::string(FileNameVector[0]).substr(0, 24) + std::string(".jpeg");
     GetImageSize(image_name, g_W, g_H);    
 	InitIPData(g_W, g_H, 1);
 
     //--------------
     
 	k = 0;
-	while (k < (int)FileNamesVector.size())
+	while (k < (int)FileNameVector.size())
 	{
 		kb = k;
 
-		Str = FileNamesVector[kb];
+		Str = FileNameVector[kb];
 
 		hour1 = Str.Mid(0,1);
 		min1 = Str.Mid(2,2);
@@ -616,11 +617,11 @@ void COCRPanel::CreateSubFromTXTResults()
 
 		Str = "";
 		i = 0;
-		while( (k < (int)FileNamesVector.size()) &&
-			   (FileNamesVector[kb].Mid(0, 11) == FileNamesVector[k].Mid(0, 11))
+		while( (k < (int)FileNameVector.size()) &&
+			   (FileNameVector[kb].Mid(0, 11) == FileNameVector[k].Mid(0, 11))
 			 )
 		{
-			Name = m_pMF->m_Dir+"/TXTResults/"+FileNamesVector[k];
+			Name = m_pMF->m_Dir+"/TXTResults/"+FileNameVector[k];
 
 			FILE *fin = fopen(Name, "r");
 			
@@ -638,13 +639,13 @@ void COCRPanel::CreateSubFromTXTResults()
 
 			fclose(fin);
 
-			AssLine.m_TXTStr = string(str);
+			AssLine.m_TXTStr = std::string(str);
 			AssLine.m_BT = bt;
 			AssLine.m_ET = et;			
 
-			image_name = string("/TXTImages/") + string(FileNamesVector[k]).substr(0, 27) + string(".jpeg");
+			image_name = std::string("/TXTImages/") + std::string(FileNameVector[k]).substr(0, 27) + std::string(".jpeg");
 			
-            fname = string("");
+            fname = std::string("");
 			do
 			{
                 if ( txt_info.eof() )                
@@ -766,25 +767,25 @@ void COCRPanel::CreateSubFromTXTResults()
 		}
 	}
 
-	fout.open(string(m_pMF->m_Dir+"/sub.srt").c_str(), ios::out);
+	fout.open(std::string(m_pMF->m_Dir+"/sub.srt").c_str(), std::ios::out);
 
 	for(k=0; k<(int)TXTVector.size(); k++)
 	{
 		bt = BT[k];
 		et = ET[k];
 
-		Str = VideoTimeToStr2(bt*(u64)10000)+
+		Str = VideoTimeToStr2(bt*(quint64)10000)+
 			  " --> "+
-			  VideoTimeToStr2(et*(u64)10000);
+			  VideoTimeToStr2(et*(quint64)10000);
 
 		dt = et - bt;
 		sec = (int)(dt/1000);
 		msec = (int)(dt%1000);
 		
-		_itoa(sec, str, 10);
+		itoa(sec, str, 10);
 		sec1 = str;
 
-		_itoa(msec, str, 10);
+		itoa(msec, str, 10);
 		if (msec < 10) msec1 = wxString("00")+str; 
 		else
 		{
@@ -801,11 +802,11 @@ void COCRPanel::CreateSubFromTXTResults()
 
 	for(i=0; i < NT; i++)
 	{
-		if (AssTXTVector[i].m_TXTStr != string(""))
+		if (AssTXTVector[i].m_TXTStr != std::string(""))
 		{
 			if (AssTXTVector[i].m_LYE - AssTXTVector[i].m_LY <= g_dmaxy/4)
 			{
-				AssTXTVector[i].m_LYE = max(AssTXTVector[i].m_LYE, AssTXTVector[i].m_LY + (AssTXTVector[i].m_LH*7)/22);
+                AssTXTVector[i].m_LYE = std::max(AssTXTVector[i].m_LYE, AssTXTVector[i].m_LY + (AssTXTVector[i].m_LH*7)/22);
 			}
 		}
 	}
@@ -830,7 +831,7 @@ void COCRPanel::CreateSubFromTXTResults()
 	k = 0;
 	while(k < NT)
 	{
-		if (AssTXTVector[k].m_TXTStr == string(""))
+		if (AssTXTVector[k].m_TXTStr == std::string(""))
 		{
 			if (g_DontDeleteUnrecognizedImages2 == false)
 			{
@@ -844,7 +845,7 @@ void COCRPanel::CreateSubFromTXTResults()
 			}
 			else
 			{
-				AssTXTVector[k].m_TXTStr = string("#unrecognized text#");
+				AssTXTVector[k].m_TXTStr = std::string("#unrecognized text#");
 				AssTXTVector[k].m_LH = 14;
 				AssTXTVector[k].m_mY = 0;
 				AssTXTVector[k].m_mI = 0;
@@ -889,7 +890,7 @@ void COCRPanel::CreateSubFromTXTResults()
 
 	for(k=0; k<NT; k++)
 	{
-		if (AssTXTVector[k].m_ET-AssTXTVector[k].m_BT < (s64)mdt)
+		if (AssTXTVector[k].m_ET-AssTXTVector[k].m_BT < (qint64)mdt)
 		{
 			AssTXTVector[k].m_ET = AssTXTVector[k].m_BT + mdt;
 		}
@@ -1055,7 +1056,7 @@ void COCRPanel::CreateSubFromTXTResults()
 			}
 
 			sprintf(str, "%.2d", NS+1);
-			AssStyle.m_Name = BaseStyleName + string(str);
+			AssStyle.m_Name = BaseStyleName + std::string(str);
 
 			AssTXTStyleVector[NS] = AssStyle;
 			NS++;
@@ -1218,11 +1219,11 @@ void COCRPanel::CreateSubFromTXTResults()
 			{
 				if (AssTXTVector[i+1].m_LYE > AssTXTVector[i].m_LYE)
 				{
-					AssTXTVector[i].m_TXTStr = AssTXTVector[i].m_TXTStr + string("\\N") + AssTXTVector[i+1].m_TXTStr;
+					AssTXTVector[i].m_TXTStr = AssTXTVector[i].m_TXTStr + std::string("\\N") + AssTXTVector[i+1].m_TXTStr;
 				}
 				else
 				{
-					AssTXTVector[i].m_TXTStr = AssTXTVector[i+1].m_TXTStr + string("\\N") + AssTXTVector[i].m_TXTStr;
+					AssTXTVector[i].m_TXTStr = AssTXTVector[i+1].m_TXTStr + std::string("\\N") + AssTXTVector[i].m_TXTStr;
 				}
 
 				if (AssTXTVector[i].m_dX != -1)
@@ -1249,7 +1250,7 @@ void COCRPanel::CreateSubFromTXTResults()
 		i++;
 	}
 
-	fout.open(string(m_pMF->m_Dir+"/sub.ass").c_str(), ios::out);
+	fout.open(std::string(m_pMF->m_Dir+"/sub.ass").c_str(), std::ios::out);
 
 	fout << "Title: Default Aegisub file\n";
 	fout << "ScriptType: v4.00+\n";
@@ -1298,8 +1299,8 @@ void COCRPanel::CreateSubFromTXTResults()
 		fout << "\n";
 
 		fout << "Dialogue: 0,";
-		fout << VideoTimeToStr3(AssTXTVector[i].m_BT*(u64)10000) << ",";
-		fout << VideoTimeToStr3(AssTXTVector[i].m_ET*(u64)10000) << ",";
+		fout << VideoTimeToStr3(AssTXTVector[i].m_BT*(quint64)10000) << ",";
+		fout << VideoTimeToStr3(AssTXTVector[i].m_ET*(quint64)10000) << ",";
 		fout << AssTXTVector[i].m_pAssStyle->m_Name << ",";
 		fout << ",0000,0000,0000,,";
 
@@ -1333,9 +1334,9 @@ void COCRPanel::CreateSubFromTXTResults()
 void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
 {
 	int w, h, S, i, j;
-	vector<string> SavedFiles;
+	std::vector<std::string> SavedFiles;
 	wxString Str;
-	s64 CurPos;
+	qint64 CurPos;
 
 	if (m_pMF->m_VIsOpen == false) return;
 	
@@ -1367,7 +1368,7 @@ void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
 
 	Str += wxString(" -- ") + VideoTimeToStr(CurPos).c_str();
 
-	SavedFiles.push_back(string(Str));
+	SavedFiles.push_back(std::string(Str));
 
 	g_show_results = 1;
 
@@ -1411,14 +1412,14 @@ void *ThreadCreateClearedTextImages::Entry()
 	else g_show_results = 1;
 
 	wxString Str, dStr;
-	string fname;
-	ofstream fout;
+	std::string fname;
+	std::ofstream fout;
 	char str[30];
 	int i, j, k, w, h, val;
 	
 	int w1, h1, w2, h2, YB1, YB2, bln;
 	wxString hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
-	u64 bt1, et1, bt2, et2;
+	quint64 bt1, et1, bt2, et2;
 
 	int *ImRES1 = NULL;
 	int *ImRES2 = NULL;
@@ -1429,39 +1430,39 @@ void *ThreadCreateClearedTextImages::Entry()
 	m_pMF->ClearDir("TXTResults");
 
 	// очищаем файл text_lines.info
-	fname = g_dir + string("/text_lines.info");
-	fout.open(fname.c_str(), ios::out);
+	fname = g_dir + std::string("/text_lines.info");
+	fout.open(fname.c_str(), std::ios::out);
 	fout << "";
 	fout.close();
 
-	wxString dir_path = wxString(m_pMF->m_Dir + string("/RGBImages/"));
+	wxString dir_path = wxString(m_pMF->m_Dir + std::string("/RGBImages/"));
 	wxDir dir(dir_path);
-	vector<wxString> FileNamesVector;
-	vector<string> SavedFiles, prevSavedFiles;
-	vector<u64> BT, ET;
+	std::vector<wxString> FileNameVector;
+	std::vector<std::string> SavedFiles, prevSavedFiles;
+	std::vector<quint64> BT, ET;
 	wxString filename;
 	bool bres;
 
 	bres = dir.GetFirst(&filename, "*.jpeg");
     while ( bres )
     {
-		FileNamesVector.push_back(filename);
+		FileNameVector.push_back(filename);
 
         bres = dir.GetNext(&filename);
     }
 
-	for (i=0; i<(int)FileNamesVector.size()-1; i++)
-	for (j=i+1; j<(int)FileNamesVector.size(); j++)
+	for (i=0; i<(int)FileNameVector.size()-1; i++)
+	for (j=i+1; j<(int)FileNameVector.size(); j++)
 	{
-		if (FileNamesVector[i] > FileNamesVector[j])
+		if (FileNameVector[i] > FileNameVector[j])
 		{
-			Str = FileNamesVector[i];
-			FileNamesVector[i] = FileNamesVector[j];
-			FileNamesVector[j] = Str;
+			Str = FileNameVector[i];
+			FileNameVector[i] = FileNameVector[j];
+			FileNameVector[j] = Str;
 		}
 	}
 
-	val = (int)FileNamesVector.size();
+	val = (int)FileNameVector.size();
 	sprintf(str, "%.4d", val);
 	dStr = wxString(" : ") + wxString(str);
 
@@ -1470,13 +1471,13 @@ void *ThreadCreateClearedTextImages::Entry()
     w = 0;
     h = 0;
 
-	for (k=0; k<(int)FileNamesVector.size(); k++)
+	for (k=0; k<(int)FileNameVector.size(); k++)
 	{
 		if (g_RunCreateClearedTextImages == 0) break;
 
-		Str = m_pMF->m_Dir+"/RGBImages/"+FileNamesVector[k];
+		Str = m_pMF->m_Dir+"/RGBImages/"+FileNameVector[k];
 		
-        GetImageSize(string(Str), w, h);
+        GetImageSize(std::string(Str), w, h);
         
         if ( (g_W != w) || (g_H != h) )
         {
@@ -1491,24 +1492,22 @@ void *ThreadCreateClearedTextImages::Entry()
 	        InitIPData(w, h, 3);
         }
 
-		LoadRGBImage(g_ImRGB, string(Str), w, h);		
-		//m_pMF->m_pVideoBox->ViewImage(ImRGB, w, h);		
+		LoadRGBImage(g_ImRGB, std::string(Str), w, h);			
 
 		GetTransformedImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], w, h);
 
 		if (g_use_FRD_images == true) 
 		{
-			Str = FileNamesVector[k];
+			Str = FileNameVector[k];
 			Str = Str.Mid(0, Str.length()-5);
 			Str = m_pMF->m_Dir+"/FRDImages/"+Str+"!.jpeg";
-			LoadImage(g_ImF[5], string(Str), w, h);		
-			//m_pMF->m_pImageBox->ViewImage(ImSF, w, h);
+			LoadImage(g_ImF[5], std::string(Str), w, h);
 		}
 		
-		Str = FileNamesVector[k];
+		Str = FileNameVector[k];
 		Str = Str.Mid(0, Str.length()-5);
 		SavedFiles.clear();
-		SavedFiles.push_back(string(Str));
+		SavedFiles.push_back(std::string(Str));
 
 		val = k+1;
 		sprintf(str, "%.4d", val);
@@ -1518,16 +1517,16 @@ void *ThreadCreateClearedTextImages::Entry()
 
 		if ( (res == 0) && (g_DontDeleteUnrecognizedImages1 == true) )
 		{
-			Str = FileNamesVector[k];
+			Str = FileNameVector[k];
 			Str = Str.Mid(0, Str.length()-5);
 			Str = wxString("/TXTImages/") + Str + wxString("_01.jpeg");
 
 			memset(g_ImRES1, 0, ((w*4)*(h/4))*sizeof(int));
 
-			SaveImage(g_ImRES1, string(Str), w*4, h/4);
+			SaveImage(g_ImRES1, std::string(Str), w*4, h/4);
 			
 			val = 14; //LH
-			SaveTextLineParameters(	string(Str), 0, 
+			SaveTextLineParameters(	std::string(Str), 0, 
 								val, (h+val)/2, 
 								w/2, w/2,
 								(h-val)/2 + 1, (h+val)/2,

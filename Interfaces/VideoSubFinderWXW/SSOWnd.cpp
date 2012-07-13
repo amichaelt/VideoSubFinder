@@ -43,7 +43,7 @@ CSSOWnd::~CSSOWnd()
 
 void CSSOWnd::Init()
 {
-	string strPClass;
+	std::string strPClass;
 
 	/*m_pAN = new wxAuiNotebook(this, wxID_ANY, wxDefaultPosition, wxSize(400, 300), 
 		               wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | 

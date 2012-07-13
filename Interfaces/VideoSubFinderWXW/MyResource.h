@@ -15,7 +15,8 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef MYRESOURCE_H
+#define MYRESOURCE_H
 
 #define ID_APP_ABOUT                    0xE140
 
@@ -172,3 +173,4 @@
 #define TIMER_ID						57821
 #define ID_FILE_EXIT					57822
 
+#endif

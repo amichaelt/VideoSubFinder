@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef TEXTBOX_H
+#define TEXTBOX_H
+
 #include <wx/panel.h>
 #include <wx/stattext.h>
 
@@ -46,3 +48,5 @@ public:
 private:
    DECLARE_EVENT_TABLE()
 };
+
+#endif

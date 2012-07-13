@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef SEARCHPANEL_H
+#define SEARCHPANEL_H
+
 #include <wx/panel.h>
 #include <wx/stattext.h>
 #include "SSOWnd.h"
@@ -77,3 +79,5 @@ public:
 private:
    DECLARE_EVENT_TABLE()
 };
+
+#endif

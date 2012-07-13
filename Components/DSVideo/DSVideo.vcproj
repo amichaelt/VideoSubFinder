@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="DSVideo"
 	ProjectGUID="{B3908609-590E-4361-8E90-8EDC3CD2442C}"
 	Keyword="Win32Proj"
@@ -43,14 +43,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\Include;&quot;$(DSHOW_DIR)\Include&quot;;&quot;$(DSHOW_BASE_ClASSES)&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;..\Include;&quot;$(DSHOW_DIR)\Include&quot;;&quot;$(DSHOW_BASE_ClASSES)&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -111,12 +112,13 @@
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\Include;&quot;$(DSHOW_DIR)\Include&quot;;&quot;$(DSHOW_BASE_ClASSES)&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;..\Include;&quot;$(DSHOW_DIR)\Include&quot;;&quot;$(DSHOW_BASE_ClASSES)&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -171,10 +173,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\Include\DataTypes.h"
-				>
-			</File>
 			<File
 				RelativePath=".\DSVideo.h"
 				>

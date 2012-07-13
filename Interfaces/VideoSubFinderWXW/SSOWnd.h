@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef SSOWND_H
+#define SSOWND_H
+
 #include <wx/aui/auibook.h>
 #include <wx/artprov.h>
 #include "MyResource.h"
@@ -54,4 +56,4 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-
+#endif

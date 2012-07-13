@@ -15,7 +15,8 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef SCROLLBAR_H
+#define SCROLLBAR_H
 
 #include <wx/panel.h>
 #include <wx/image.h>
@@ -71,3 +72,5 @@ public:
 private:
    DECLARE_EVENT_TABLE()
 };
+
+#endif

@@ -15,11 +15,11 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef DATAGRID_H
+#define DATAGRID_H
+
 #include <wx/grid.h>
 #include <vector>
-
-using namespace std;
 
 class DataGridGroup
 {
@@ -48,8 +48,8 @@ public:
 public:
 	int m_w;
 	int m_h;
-	vector<DataGridGroup> m_DataGridGroups;
-	vector<DataGridGroup> m_DataGridSubGroup;
+	std::vector<DataGridGroup> m_DataGridGroups;
+	std::vector<DataGridGroup> m_DataGridSubGroup;
 
 	void AddGroup(wxString label, wxColour colour, wxFont font);
 	void AddSubGroup(wxString label, wxColour colour, wxFont font);
@@ -82,3 +82,5 @@ public:
 private:
    DECLARE_EVENT_TABLE()
 };
+
+#endif

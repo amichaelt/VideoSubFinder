@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef SEPARATINGLINE_H
+#define SEPARATINGLINE_H
+
 #include <wx/window.h>
 #include <wx/region.h>
 #include <wx/dcclient.h>
@@ -71,3 +73,5 @@ public:
 private:
    DECLARE_EVENT_TABLE()
 };
+
+#endif

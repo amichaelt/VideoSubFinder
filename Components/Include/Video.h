@@ -15,13 +15,12 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef VIDEO_H
+#define VIDEO_H
 
-#include "DataTypes.h"
+#include <QtCore/QtGlobal>
 #include <Windows.h>
 #include <fstream>
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,30 +43,30 @@ public:
 	}
 	
 public:	
-	string		m_MovieName;
+    std::string		m_MovieName;
 	bool		m_Inited;
 
 	long		m_Width;
 	long		m_Height;
 
-	s64			m_Duration;
+	qint64			m_Duration;
 
-	string		m_log;
-	string		m_Dir;
+	std::string		m_log;
+	std::string		m_Dir;
 
 public:
 
-	virtual bool OpenMovieNormally(string csMovieName, void *pHWnd)
-	{
-		return false;
-
-	}
-	virtual bool OpenMovieAllDefault(string csMovieName, void *pHWnd)
+	virtual bool OpenMovieNormally(std::string csMovieName, void *pHWnd)
 	{
 		return false;
 	}
 
-	virtual bool OpenMovieHard(string csMovieName, void *pHWnd)
+	virtual bool OpenMovieAllDefault(std::string csMovieName, void *pHWnd)
+	{
+		return false;
+	}
+
+	virtual bool OpenMovieHard(std::string csMovieName, void *pHWnd)
 	{
 		return false;
 	}
@@ -87,7 +86,7 @@ public:
 		return false;
 	}
 
-	virtual void SetPos(s64 Pos)
+	virtual void SetPos(qint64 Pos)
 	{
 	}
 
@@ -95,7 +94,7 @@ public:
 	{
 	}
 
-	virtual void SetPosFast(s64 Pos)
+	virtual void SetPosFast(qint64 Pos)
 	{
 	}
 
@@ -111,7 +110,7 @@ public:
 	{
 	}
 
-	virtual void WaitForCompletion(s64 timeout)
+	virtual void WaitForCompletion(qint64 timeout)
 	{		
 	}
 
@@ -119,7 +118,7 @@ public:
 	{
 	}
 
-	virtual void RunWithTimeout(s64 timeout)
+	virtual void RunWithTimeout(qint64 timeout)
 	{
 	}
 
@@ -131,12 +130,12 @@ public:
 	{
 	}
 
-	virtual s64 OneStepWithTimeout()
+	virtual qint64 OneStepWithTimeout()
 	{
 		return 0;
 	}
 
-    virtual s64  GetPos()
+    virtual qint64  GetPos()
 	{
 		return 0;
 	}
@@ -149,3 +148,5 @@ public:
 	{
 	}
 };
+
+#endif

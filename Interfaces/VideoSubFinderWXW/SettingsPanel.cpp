@@ -18,7 +18,7 @@
 #include "MyResource.h"
 #include "SettingsPanel.h"
 
-string	StrFN[6];
+std::string	StrFN[6];
 
 BEGIN_EVENT_TABLE(CSettingsPanel, wxPanel)
 	EVT_BUTTON(ID_TEST, CSettingsPanel::OnBnClickedTest)
@@ -35,12 +35,12 @@ CSettingsPanel::CSettingsPanel(CSSOWnd* pParent)
 	m_pParent = pParent;
 	m_pMF = pParent->m_pMF;
 
-	StrFN[0] = string("VEdges Points Image");
-	StrFN[1] = string("NEdges Points Image");
-	StrFN[2] = string("HEdges Points Image");
-	StrFN[3] = string("After First Filtration");
-	StrFN[4] = string("After Second Filtration");
-	StrFN[5] = string("After Third Filtration");
+	StrFN[0] = std::string("VEdges Points Image");
+	StrFN[1] = std::string("NEdges Points Image");
+	StrFN[2] = std::string("HEdges Points Image");
+	StrFN[3] = std::string("After First Filtration");
+	StrFN[4] = std::string("After Second Filtration");
+	StrFN[5] = std::string("After Third Filtration");
 	m_cn = 5;
 	m_n = 6; 
 	m_w = 10;
@@ -243,7 +243,7 @@ void CSettingsPanel::Init()
 	m_pOIM->AddProperty("Validate And Compare Cleared TXT Images : ", m_CL2, m_CL4, m_LBLFont, &g_ValidateAndCompareTXTImages);
 	m_pOIM->AddProperty("Dont Delete Unrecognized Images (First) : ", m_CL2, m_CL4, m_LBLFont, &g_DontDeleteUnrecognizedImages1);
 	m_pOIM->AddProperty("Dont Delete Unrecognized Images (Second) : ", m_CL2, m_CL4, m_LBLFont, &g_DontDeleteUnrecognizedImages2);
-	m_pOIM->AddProperty("Default string for empty sub : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_DefStringForEmptySub);
+	m_pOIM->AddProperty("Default std::string for empty sub : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_DefStringForEmptySub);
 	
 	m_pOIM->AddGroup("Настройки Мультифреймовой Обработки Изображений", m_CLGG, m_LBLFont);
 	m_pOIM->AddSubGroup("Настройки Для Обнаружения Саба", m_CL1, m_LBLFont);
@@ -334,7 +334,7 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
 		}
 	}
 	
-	_itoa((int)t, str, 10);
+	itoa((int)t, str, 10);
 	//this->MessageBox(str);
 	
 	if (S > 0)
@@ -359,8 +359,8 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
 	
 	for (i=0; i<m_n; i++) 
 	{		
-		_itoa(i, str, 10);
-		SaveImage(g_ImF[i], string("/TSTImages/") + string(str) + string("TSTImage _ ") + string(StrFN[i]) + string(".jpeg"), g_W, g_H);
+		itoa(i, str, 10);
+		SaveImage(g_ImF[i], std::string("/TSTImages/") + std::string(str) + std::string("TSTImage _ ") + std::string(StrFN[i]) + std::string(".jpeg"), g_W, g_H);
 	}
 }
 

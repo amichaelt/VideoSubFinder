@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef VIDEOBOX_H
+#define VIDEOBOX_H
+
 #include <wx/toolbar.h>
 #include <wx/mdi.h>
 #include <wx/image.h>
@@ -118,4 +120,4 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-
+#endif

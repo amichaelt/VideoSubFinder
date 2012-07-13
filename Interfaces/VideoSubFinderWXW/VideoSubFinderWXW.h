@@ -15,10 +15,10 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef VIDEOSUBFINDERWXW_H
+#define VIDEOSUBFINDERWXW_H
 
 #include "wx/wx.h"
-#include "DataTypes.h"
 #include "MainFrm.h"
 
 class CVideoSubFinderApp : public wxApp 
@@ -33,3 +33,5 @@ public:
 };
 
 IMPLEMENT_APP(CVideoSubFinderApp)
+
+#endif

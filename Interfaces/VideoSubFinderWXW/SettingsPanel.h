@@ -15,7 +15,9 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef SETTINGSPANEL_H
+#define SETTINGSPANEL_H
+
 #include "SSOWnd.h"
 #include "TextBox.h"
 #include "DataGrid.h"
@@ -80,4 +82,4 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-
+#endif

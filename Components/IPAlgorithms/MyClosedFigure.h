@@ -15,75 +15,139 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef MYCLOSEDFIGURE_H
+#define MYCLOSEDFIGURE_H
 
-#include "DataTypes.h"
 #include <vector>
+#include <time.h>
 
-using namespace std;
-
-class CMyPoint
+class MyPoint
 {
 public:
-	int m_x;
-	int m_y;
-	int	m_i;
+	MyPoint() {}
+	MyPoint(int x, int y, int pointNumber)
+    {
+        x1 = x;
+        y1 = y;
+        number = pointNumber;
+    }
 
-	CMyPoint() {}
-	CMyPoint(int x, int y, int i) {m_x=x; m_y=y; m_i=i;}
+    inline int x() { return x1; }
+    inline void setX(int x) { x1 = x; }
+    inline int y() { return y1; }
+    inline void setY(int y) { y1 = y; }
+    inline int pointNumber() { return number; }
+    inline void setPointNumber(int pointNumber) { number = pointNumber; }
+
+private:
+    int x1;
+    int y1;
+    int	number;
 }; 
 
 typedef enum {UP, DOWN} POS;
 
-class CMyClosedFigure
+class MyClosedFigure
 {
 public:
-	CMyPoint *m_PointsArray;
-	int m_minX;
-	int m_maxX;
-	int m_minY;
-	int m_maxY;
-	int m_w;
-	int m_h;
-	int m_Square;
-	int m_Count;
-	int m_Weight;
-	int m_DY;
-	string m_SymbolValue;
-	string m_ParentImageName;
+	MyClosedFigure();
+	~MyClosedFigure();
 
-	int m_mY;
-	int m_mI;
-	int m_mQ;
-	int m_mmY;
-	int m_mmI;
-	int m_mmQ;
-
-	char *m_pImage;
-	int m_Imagew;
-	int m_Imageh;
-	char m_White;
-	char m_Black;
-
-	POS m_pos;
-
-	CMyClosedFigure();
-	~CMyClosedFigure();
-
-	bool operator>(CMyClosedFigure& other);
-	void operator=(CMyClosedFigure& other);
-	void operator+=(CMyClosedFigure& other);
+	bool operator>(MyClosedFigure& other);
+	void operator=(MyClosedFigure& other);
+	void operator+=(MyClosedFigure& other);
 
 	void refresh();
-	bool IsNear(CMyClosedFigure &other,int pogreshnost);	
-	void CreateImage(int w,int h,char White,char Black);
-	double CompareWith(CMyClosedFigure &other,double MaxPercentDeviation);
+	bool IsNear(MyClosedFigure &other, int error);	
+	void CreateImage(int w, int h, char White, char Black);
+	double CompareWith(MyClosedFigure &other, double MaxPercentDeviation);
 
-	//bool IsPointIn(CMyPoint *Point);
-	//void AddPoints(CMyClosedFigure *other);	
-	
-	//void AlignPoints();
+    MyPoint *pointsArray() { return m_PointsArray; }
+    void setPointsArray(MyPoint *pointsArray) { m_PointsArray = pointsArray; }
+    int minX() { return m_minX; }
+    void setMinX(int minX) { m_minX = minX; }
+    int maxX() { return m_maxX; }
+    void setMaxX(int maxX) { m_maxX = maxX; }
+    int minY() { return m_minY; }
+    void setMinY(int minY) { m_minY = minY; }
+    int maxY() { return m_maxY; }
+    void setMaxY(int maxY) { m_maxY = maxY; }
+    int width() { return m_w; }
+    void setWidth(int width) { m_w = width; }
+    int height() { return m_h; }
+    void setHeight(int height) { m_h = height; }
+    int square() { return m_Square; }
+    void setSquare(int square) { m_Square = square; }
+    int count() { return m_Count; }
+    void setCount(int count) { m_Count = count; }
+    int weight() { return m_Weight; }
+    void setWeight(int weight) { m_Weight = weight; }
+    int dy() { return m_DY; }
+    void setDY(int dy) { m_DY = dy; }
+    std::string symbolValue() { return m_SymbolValue; }
+    void setSymbolValue(std::string symbolValue) { m_SymbolValue = symbolValue; }
+    std::string parentImageName() { return m_ParentImageName; }
+    void setParentImageName(std::string parentImageName) { m_ParentImageName = parentImageName; }
+
+    int mY() { return m_mY; }
+    void setMY(int mY) { m_mY = mY; }
+    int mI() { return m_mI; }
+    void setMI(int mI) { m_mI = mI; }
+    int mQ() { return m_mQ; }
+    void setMQ(int mQ) { m_mQ = mQ; }
+    int mmY() { return m_mmY; }
+    void setMMY(int mmY) { m_mmY = mmY; }
+    int mmI() { return m_mmI; }
+    void setMMI(int mmI) { m_mmI = mmI; }
+    int mmQ() { return m_mmQ; }
+    void setMMQ(int mmQ) { m_mmQ = mmQ; }
+
+    char *image() { return m_pImage; }
+    void setImage(char *image) { m_pImage = image; }
+    int imageWidth() { return m_Imagew; }
+    void setImageWidth(int width) { m_Imagew = width; }
+    int imageHeight() { return m_Imageh; }
+    void setImageHeight(int height) { m_Imageh = height; }
+    char white() { return m_White; }
+    void setWhite(char white) { m_White = white; }
+    char black() { return m_Black; }
+    void setBlack(char black) { m_Black = black; }
+
+    POS position() { return m_pos; }
+    void setPosition(POS pos) { m_pos = pos; }
+
+private:
+    MyPoint *m_PointsArray;
+    int m_minX;
+    int m_maxX;
+    int m_minY;
+    int m_maxY;
+    int m_w;
+    int m_h;
+    int m_Square;
+    int m_Count;
+    int m_Weight;
+    int m_DY;
+    std::string m_SymbolValue;
+    std::string m_ParentImageName;
+
+    int m_mY;
+    int m_mI;
+    int m_mQ;
+    int m_mmY;
+    int m_mmI;
+    int m_mmQ;
+
+    char *m_pImage;
+    int m_Imagew;
+    int m_Imageh;
+    char m_White;
+    char m_Black;
+
+    POS m_pos;
 };
 
-clock_t SearchClosedFigures(int *Im, int w, int h, int white, CMyClosedFigure* &FiguresArray, int &Number);
+clock_t SearchClosedFigures(int *Im, int w, int h, int white, MyClosedFigure* &FiguresArray, int &Number);
 clock_t CreateIndexedImage(int *Im, int *ImRES, int w, int h, int white, int &Number);
+
+#endif

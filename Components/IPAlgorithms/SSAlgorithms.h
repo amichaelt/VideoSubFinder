@@ -15,14 +15,13 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef SSALGORITHMS_H
+#define SSALGORITHMS_H
 
 #include "IPAlgorithms.h"
-#include "DataTypes.h"
 #include "Video.h"
 #include <string>
-
-using namespace std;
+#include <QtCore/QtGlobal>
 
 extern int		g_RunSubSearch;
 
@@ -36,8 +35,8 @@ extern bool g_fast_search;
 
 void SetVideoWindowSettins(CVideo *pV, double dx_min, double dx_max, double dy_min, double dy_max);
 
-s64 SearchSubtitles(CVideo *pV, s64 Begin, s64 End);
-s64 FastSearchSubtitles(CVideo *pV, s64 Begin, s64 End);
+qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End);
+qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End);
 
 int CompareTwoImages(int *Im1, int *ImNFF1, int *Im2, int *ImNFF2, int size);
 
@@ -54,8 +53,6 @@ int DifficultCompareTwoSubs(int *ImRGB1, int *ImF1, int *ImRGB2, int *ImF2, int 
 
 int SimpleCombineTwoImages(int *Im1, int *Im2, int size);
 
-int GetCombinedSquare(int *Im1, int *Im2, int size);
-
 void AddTwoImages(int *Im1, int *Im2, int *ImRES, int size);
 void AddTwoImages(int *Im1, int *Im2, int size);
 
@@ -65,4 +62,6 @@ int GetAndConvertImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, i
 
 void ImToNativeSize(int *Im, int w, int h);
 
-string VideoTimeToStr(s64 pos);
+std::string VideoTimeToStr(qint64 pos);
+
+#endif

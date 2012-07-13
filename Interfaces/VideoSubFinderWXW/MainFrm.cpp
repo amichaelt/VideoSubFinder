@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #include "MainFrm.h"
+#include <QtCore/QtGlobal>
 
 CMainFrame *g_pMF;
 
@@ -224,7 +225,7 @@ void CMainFrame::Init()
 
 	this->SetMenuBar(pMenuBar);
 
-	m_SettingsFileName = m_Dir+string("/settings.cfg");
+	m_SettingsFileName = m_Dir+std::string("/settings.cfg");
 	LoadSettings(m_SettingsFileName);
 
 	if (IsMMX_and_SSE() == true)
@@ -291,8 +292,8 @@ void CMainFrame::OnFileOpenVideoHard(wxCommandEvent& event)
 
 void CMainFrame::OnFileOpenVideo(int type)
 {
-	string csFileName;
-	s64 Cur;
+	std::string csFileName;
+	qint64 Cur;
 	bool was_open_before = false;
 	int i;
 
@@ -343,9 +344,9 @@ void CMainFrame::OnFileOpenVideo(int type)
 		m_blnOpenVideoResult = m_pVideo->OpenMovieHard(m_FileName, (void*)&hWnd);
 	}
 
-	fstream fout;
-	string rpl_path = m_Dir+string("/report.log");
-	fout.open(rpl_path.c_str(), ios::out);
+	std::fstream fout;
+	std::string rpl_path = m_Dir+std::string("/report.log");
+	fout.open(rpl_path.c_str(), std::ios::out);
 	fout <<	m_pVideo->m_log;
 	fout.close();
 
@@ -364,7 +365,7 @@ void CMainFrame::OnFileOpenVideo(int type)
 	InitIPData((int)m_pVideo->m_Width, (int)m_pVideo->m_Height, 1);
 
 	m_pVideoBox->m_pSB->SetScrollPos(0);
-	m_pVideoBox->m_pSB->SetScrollRange(0, (int)(m_pVideo->m_Duration/(s64)10000));
+	m_pVideoBox->m_pSB->SetScrollRange(0, (int)(m_pVideo->m_Duration/(qint64)10000));
 
 	i=csFileName.size()-1;
 	while (csFileName[i] != '\\') i--;
@@ -486,7 +487,7 @@ void CMainFrame::OnFileOpenVideo(int type)
 
 	//m_pPanel->m_pSSPanel->OnBnClickedTest();
 
-	m_EndTimeStr = string("/") + ConvertVideoTime(m_pVideo->m_Duration);
+	m_EndTimeStr = std::string("/") + ConvertVideoTime(m_pVideo->m_Duration);
 
 	if ( !m_timer.IsRunning() ) 
 	{
@@ -560,11 +561,11 @@ void CMainFrame::PauseVideo()
 	}
 }
 
-void CMainFrame::LoadSettings(string fname)
+void CMainFrame::LoadSettings(std::string fname)
 {
-	ifstream fin;
+	std::ifstream fin;
 
-	fin.open(fname.c_str(), ios::in);
+	fin.open(fname.c_str(), std::ios::in);
 	
 	ReadProperty(fin, g_mthr, "moderate_threshold");
 	ReadProperty(fin, g_mvthr, "moderate_threshold_for_VEdges");
@@ -595,18 +596,18 @@ void CMainFrame::LoadSettings(string fname)
 
 	ReadProperty(fin, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
 
-	ReadProperty(fin, g_DefStringForEmptySub, "def_string_for_empty_sub");
+	ReadProperty(fin, g_DefStringForEmptySub, "def_std::string_for_empty_sub");
 	
 	fin.close();
 
 	//m_pPanel->m_pSSPanel->Refresh();
 }
 
-void CMainFrame::SaveSettings(string fname)
+void CMainFrame::SaveSettings(std::string fname)
 {
-	ofstream fout;
+	std::ofstream fout;
 
-	fout.open(fname.c_str(), ios::out);
+	fout.open(fname.c_str(), std::ios::out);
 
 	WriteProperty(fout, g_mthr, "moderate_threshold");
 	WriteProperty(fout, g_mvthr, "moderate_threshold_for_VEdges");
@@ -637,7 +638,7 @@ void CMainFrame::SaveSettings(string fname)
 
 	WriteProperty(fout, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
 
-	WriteProperty(fout, g_DefStringForEmptySub, "def_string_for_empty_sub");
+	WriteProperty(fout, g_DefStringForEmptySub, "def_std::string_for_empty_sub");
 
 	fout.close();
 }
@@ -646,7 +647,7 @@ void CMainFrame::OnEditSetBeginTime(wxCommandEvent& event)
 {
 	if (m_VIsOpen)
 	{
-		s64 Cur;
+		qint64 Cur;
 	
 		Cur = m_pVideo->GetPos();
 
@@ -660,7 +661,7 @@ void CMainFrame::OnEditSetEndTime(wxCommandEvent& event)
 {
 	if (m_VIsOpen)
 	{
-		s64 Cur;
+		qint64 Cur;
 	
 		Cur = m_pVideo->GetPos();
 
@@ -713,7 +714,7 @@ void CMainFrame::OnFileSaveSettings(wxCommandEvent& event)
 
 void CMainFrame::OnTimer(wxTimerEvent& event)
 {
-	s64 Cur;
+	qint64 Cur;
 	
 	Cur = m_pVideo->GetPos();
 
@@ -723,7 +724,7 @@ void CMainFrame::OnTimer(wxTimerEvent& event)
 		m_ct = Cur;
 	}
 
-	m_pVideoBox->m_pSB->SetScrollPos((int)(Cur/(s64)10000));
+	m_pVideoBox->m_pSB->SetScrollPos((int)(Cur/(qint64)10000));
 
 	//m_pVideoBox->m_pVBox->m_pHSL1->Refresh(true);
 	//m_pVideoBox->m_pVBox->m_pHSL2->Refresh(true);
@@ -731,9 +732,9 @@ void CMainFrame::OnTimer(wxTimerEvent& event)
 	//m_pVideoBox->m_pVBox->m_pVSL2->Refresh(true);
 }
 
-string VideoTimeToStr2(s64 pos)
+std::string VideoTimeToStr2(qint64 pos)
 {
-	string Str;
+	std::string Str;
 	static char str[100];
 	int hour, min, sec, sec_1000, vl;
 	
@@ -744,42 +745,42 @@ string VideoTimeToStr2(s64 pos)
 	vl -= min*60;
 	sec = vl;
 	
-	_itoa(hour,str,10);
-	Str += string("0")+string(str)+string(":");
+	itoa(hour,str,10);
+	Str += std::string("0")+std::string(str)+std::string(":");
 	
-	_itoa(min,str,10);
+	itoa(min,str,10);
 	if (min<=9)
 	{
-		Str += string("0")+string(str)+string(":");
+		Str += std::string("0")+std::string(str)+std::string(":");
 	}
-	else Str += string(str)+string(":");
+	else Str += std::string(str)+std::string(":");
 
-	_itoa(sec,str,10);
+	itoa(sec,str,10);
 	if (sec<=9)
 	{
-		Str += string("0")+string(str)+string(",");
+		Str += std::string("0")+std::string(str)+std::string(",");
 	}
-	else Str += string(str)+string(",");
+	else Str += std::string(str)+std::string(",");
 
 	sec_1000 = (int)((pos%10000000)/10000);
-	_itoa(sec_1000,str,10);
+	itoa(sec_1000,str,10);
 	if (sec_1000<=9)
 	{
-		Str += string("00")+string(str);
+		Str += std::string("00")+std::string(str);
 	}
 	else 
 	{
 		if (sec_1000<=99)
 		{
-			Str += string("0")+string(str);
+			Str += std::string("0")+std::string(str);
 		}
-		else Str += string(str);
+		else Str += std::string(str);
 	}
 
 	return Str;
 }
 
-string VideoTimeToStr3(s64 pos)
+std::string VideoTimeToStr3(qint64 pos)
 {
 	static char str[100];
 	int hour, min, sec, sec_100, vl;
@@ -795,19 +796,19 @@ string VideoTimeToStr3(s64 pos)
 
 	sprintf(str, "%.1d:%.2d:%.2d.%.2d", hour, min, sec, sec_100);
 
-	return string(str);
+	return std::string(str);
 }
 
-s64 GetVideoTime(int minute, int sec, int mili_sec)
+qint64 GetVideoTime(int minute, int sec, int mili_sec)
 {
-	s64 res;
-	res = (s64)((minute*60+sec)*1000+mili_sec)*(s64)10000;
+	qint64 res;
+	res = (qint64)((minute*60+sec)*1000+mili_sec)*(qint64)10000;
 	return res;
 }
 
-string ConvertVideoTime(s64 pos)
+std::string ConvertVideoTime(qint64 pos)
 {
-	string Str;
+	std::string Str;
 	static char str[100];
 	int hour, min, sec, sec_1000, vl;
 	
@@ -818,23 +819,23 @@ string ConvertVideoTime(s64 pos)
 	vl -= min*60;
 	sec = vl;
 	
-	_itoa(hour,str,10);
+	itoa(hour,str,10);
 	if (hour<10) Str = "0";
-	Str += string(str)+":";
+	Str += std::string(str)+":";
 	
-	_itoa(min,str,10);
+	itoa(min,str,10);
 	if (min<10)	Str += "0";
-	Str += string(str)+":";
+	Str += std::string(str)+":";
 
-	_itoa(sec,str,10);
+	itoa(sec,str,10);
 	if (sec<10) Str += "0";
-	Str += string(str)+",";
+	Str += std::string(str)+",";
 
 	sec_1000 = (int)((pos%10000000)/10000);
-	_itoa(sec_1000,str,10);
+	itoa(sec_1000,str,10);
 	if (sec_1000<100) Str += "0";
 	if (sec_1000<10) Str += "0";
-	Str += string(str);
+	Str += std::string(str);
 
 	return Str;
 }
@@ -857,12 +858,12 @@ void CMainFrame::OnClose(wxCloseEvent& WXUNUSED(event))
 		//SetThreadPriority(m_pPanel->m_OCRPanel.m_hSearchThread, THREAD_PRIORITY_HIGHEST);
 	}
 
-	if ( (g_IsSearching == 0) && (m_FileName != string("")) )
+	if ( (g_IsSearching == 0) && (m_FileName != std::string("")) )
 	{
-		fstream fout;
-		string pvi_path = m_Dir+string("/previous_video.inf");
+		std::fstream fout;
+		std::string pvi_path = m_Dir+std::string("/previous_video.inf");
 
-		fout.open(pvi_path.c_str(), ios::out);
+		fout.open(pvi_path.c_str(), std::ios::out);
 
 		fout <<	m_FileName << '\n';
 
@@ -904,19 +905,19 @@ void CMainFrame::OnClose(wxCloseEvent& WXUNUSED(event))
 void CMainFrame::OnFileOpenPreviousVideo(wxCommandEvent& event)
 {
 	char str[300];
-	fstream fin;
-	string pvi_path = m_Dir+string("/previous_video.inf");
+	std::fstream fin;
+	std::string pvi_path = m_Dir+std::string("/previous_video.inf");
 
-	fin.open(pvi_path.c_str(), ios::in);
+	fin.open(pvi_path.c_str(), std::ios::in);
 	
 	fin.getline(str, 300);
-	m_FileName = string(str);
+	m_FileName = std::string(str);
 
 	fin.getline(str, 300);
-	m_BegTime = (s64)strtod(str, NULL);
+	m_BegTime = (qint64)strtod(str, NULL);
 
 	fin.getline(str, 300);
-	m_EndTime = (s64)strtod(str, NULL);
+	m_EndTime = (qint64)strtod(str, NULL);
 
 	fin.getline(str, 300);
 	m_type = (int)strtod(str, NULL);
@@ -928,11 +929,11 @@ void CMainFrame::OnFileOpenPreviousVideo(wxCommandEvent& event)
 	OnFileOpenVideo(m_type);
 }
 
-void CMainFrame::ClearDir(string DirName)
+void CMainFrame::ClearDir(std::string DirName)
 {
-	wxString dir_path = wxString(m_Dir + string("/") + DirName + string("/"));
+	wxString dir_path = wxString(m_Dir + std::string("/") + DirName + std::string("/"));
 	wxDir dir(dir_path);
-	vector<wxString> FileNamesVector;
+	std::vector<wxString> FileNameVector;
 	wxString filename;
 	bool res;
 
@@ -942,18 +943,18 @@ void CMainFrame::ClearDir(string DirName)
         if ( (filename != wxString(".")) && 
 			 (filename != wxString("..")) )
 		{
-			FileNamesVector.push_back(filename);
+			FileNameVector.push_back(filename);
 		}
 
         res = dir.GetNext(&filename);
     }
 
-	for(int i=0; i<(int)FileNamesVector.size(); i++)
+	for(int i=0; i<(int)FileNameVector.size(); i++)
 	{		
-		res = wxRemoveFile(dir_path + FileNamesVector[i]);
+		res = wxRemoveFile(dir_path + FileNameVector[i]);
 	}
 	
-	FileNamesVector.clear();
+	FileNameVector.clear();
 }
 
 void CMainFrame::OnAppAbout(wxCommandEvent& event)
@@ -1069,27 +1070,27 @@ void LoadToolBarImage(wxBitmap& bmp, const wxString& path, const wxColor& BColor
     }
 }
 
-void WriteProperty(ofstream &fout, int val, string Name)
+void WriteProperty(std::ofstream &fout, int val, std::string Name)
 {
 	fout << Name << " = " << val << '\n';
 }
 
-void WriteProperty(ofstream &fout, bool val, string Name)
+void WriteProperty(std::ofstream &fout, bool val, std::string Name)
 {
 	fout << Name << " = " << val << '\n';
 }
 
-void WriteProperty(ofstream &fout, double val, string Name)
+void WriteProperty(std::ofstream &fout, double val, std::string Name)
 {
 	fout << Name << " = " << val << '\n';
 }
 
-void WriteProperty(ofstream &fout, wxString val, string Name)
+void WriteProperty(std::ofstream &fout, wxString val, std::string Name)
 {
 	fout << Name << " = " << val << '\n';
 }
 
-void ReadProperty(ifstream &fin, int &val, string Name)
+void ReadProperty(std::ifstream &fin, int &val, std::string Name)
 {
 	char name[100], str[100];
 
@@ -1105,7 +1106,7 @@ void ReadProperty(ifstream &fin, int &val, string Name)
 		{
 			str[i] = str[i+1];
 		}
-	} while((Name != string(name)) && !fin.eof());
+	} while((Name != std::string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
 	{
@@ -1113,7 +1114,7 @@ void ReadProperty(ifstream &fin, int &val, string Name)
 	}
 }
 
-void ReadProperty(ifstream &fin, bool &val, string Name)
+void ReadProperty(std::ifstream &fin, bool &val, std::string Name)
 {
 	char name[100], str[100];
 
@@ -1129,7 +1130,7 @@ void ReadProperty(ifstream &fin, bool &val, string Name)
 		{
 			str[i] = str[i+1];
 		}
-	} while((Name != string(name)) && !fin.eof());
+	} while((Name != std::string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
 	{
@@ -1146,7 +1147,7 @@ void ReadProperty(ifstream &fin, bool &val, string Name)
 	}
 }
 
-void ReadProperty(ifstream &fin, double &val, string Name)
+void ReadProperty(std::ifstream &fin, double &val, std::string Name)
 {
 	char name[100], str[100];
 
@@ -1162,7 +1163,7 @@ void ReadProperty(ifstream &fin, double &val, string Name)
 		{
 			str[i] = str[i+1];
 		}
-	} while((Name != string(name)) && !fin.eof());
+	} while((Name != std::string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
 	{
@@ -1170,7 +1171,7 @@ void ReadProperty(ifstream &fin, double &val, string Name)
 	}
 }
 
-void ReadProperty(ifstream &fin, wxString &val, string Name)
+void ReadProperty(std::ifstream &fin, wxString &val, std::string Name)
 {
 	char name[100], str[100];
 
@@ -1186,7 +1187,7 @@ void ReadProperty(ifstream &fin, wxString &val, string Name)
 		{
 			str[i] = str[i+1];
 		}
-	} while((Name != string(name)) && !fin.eof());
+	} while((Name != std::string(name)) && !fin.eof());
 	
 	if (!fin.eof()) 
 	{

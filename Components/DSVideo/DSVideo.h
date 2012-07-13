@@ -15,9 +15,10 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef DSVIDEO_H
+#define DSVIDEO_H
 
-#include "DataTypes.h"
+#include <QtCore/QtGlobal>
 #include "Video.h"
 
 #include <streams.h>
@@ -34,27 +35,25 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 class DSVideo;
 
 class CTransNull32 : public CTransInPlaceFilter
 {
 public:
-    int             **m_ppBuffer;
-    bool            *m_pImageGeted;
-    bool            *m_pIsSetNullRender;
-	bool			 m_TriengToGetImage; 
-    s64             *m_pST;
-    IMediaControl	*m_pMC;
-    int             m_ft;
-    int             m_w;
-    int             m_h;
-	int				m_blnReInit;
+    int **videoBuffer;
+    bool *gotImage;
+    bool *isNullRenderSet;
+	bool tryingToGetImage; 
+    qint64 *startTime;
+    IMediaControl	*mediaControl;
+    int videoFormatType;
+    int videoWidth;
+    int videoHeight;
+	int reInitialize;
 
-    CTransNull32( int **ppBuffer, s64 *pST, 
-                  bool *pImageGeted, IMediaControl *pMC,
-                  bool *pIsSetNullRender, LPUNKNOWN punk, HRESULT *phr );
+    CTransNull32(int **inBuffer, qint64 *inStartTime, 
+                 bool *inGotImage, IMediaControl *inMediaControl,
+                 bool *inIsNullRenderSet, LPUNKNOWN punk, HRESULT *phr);
 
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
@@ -68,10 +67,10 @@ public:
 	int             **m_ppBuffer;
     bool            *m_pImageGeted;
     bool            *m_pIsSetNullRender;
-    s64             *m_pST;
+    qint64             *m_pST;
     DSVideo	        *m_pVideo;
 	
-	MySampleGrabberCallback( int **ppBuffer, s64 *pST, 
+	MySampleGrabberCallback( int **ppBuffer, qint64 *pST, 
                              bool *pImageGeted, DSVideo *pVideo,
                              bool *pIsSetNullRender);
 
@@ -121,7 +120,7 @@ public:
     int     *m_pBuffer;
     int     m_BufferSize;
     bool    m_ImageGeted;
-    s64     m_st;
+    qint64     m_st;
 	int		m_type; //video open type
 
 	IGraphBuilder	*m_pGB;
@@ -150,41 +149,41 @@ public:
 	IBaseFilter* GetDecoder();
 	IBaseFilter* GetSourceFilter();
 
-	bool OpenMovieNormally(string csMovieName, void *pHWnd);
-	bool OpenMovieAllDefault(string csMovieName, void *pHWnd);
-	bool OpenMovieHard(string csMovieName, void *pHWnd);
+	bool OpenMovieNormally(std::string csMovieName, void *pHWnd);
+	bool OpenMovieAllDefault(std::string csMovieName, void *pHWnd);
+	bool OpenMovieHard(std::string csMovieName, void *pHWnd);
 
 	bool SetVideoWindowPlacement(void *pHWnd);
 	bool SetNullRender();
 
 	bool CloseMovie();
 	
-	void SetPos(s64 Pos);
+	void SetPos(qint64 Pos);
 	void SetPos(double pos);
-	void SetPosFast(s64 Pos);
+	void SetPosFast(qint64 Pos);
 
 	void SetImageGeted(bool ImageGeted);
 
 	void Run();
 	void Pause();
 
-	void WaitForCompletion(s64 timeout);
+	void WaitForCompletion(qint64 timeout);
 
 	void StopFast();
 
-	void RunWithTimeout(s64 timeout);
+	void RunWithTimeout(qint64 timeout);
 
 	void Stop();
     void OneStep();
-	s64  OneStepWithTimeout();
-	s64  GetPos();
+	qint64  OneStepWithTimeout();
+	qint64  GetPos();
     void GetRGBImage(int *ImRGB, int xmin, int xmax, int ymin, int ymax);
 
-	s64 PosToMilliSeconds(s64 pos);
+	qint64 PosToMilliSeconds(qint64 pos);
 
 	void SetVideoWindowPosition(int left, int top, int width, int height);
 
-	void ErrorMessage(string str);
+	void ErrorMessage(std::string str);
 
 	HRESULT CheckMediaType(IPin *pPinIn, IPin *pPinOut, AM_MEDIA_TYPE *pmtOut);
 
@@ -194,6 +193,8 @@ public:
 	HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin);
 };
 
-LPCWSTR StringToLPCWSTR(string csStr);
-string IntToCStr(int n);
-string WCSToStr(WCHAR *wstr);
+LPCWSTR StringToLPCWSTR(std::string csStr);
+std::string IntToCStr(int n);
+std::string WCSToStr(WCHAR *wstr);
+
+#endif

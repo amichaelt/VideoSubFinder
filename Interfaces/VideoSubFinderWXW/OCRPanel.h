@@ -15,16 +15,16 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef OCRPANEL_H
+#define OCRPANEL_H
+
 #include "SSOWnd.h"
-#include "DataTypes.h"
+#include <QtCore/QtGlobal>
 #include "MyResource.h"
 #include <wx/panel.h>
 #include <wx/textctrl.h>
 #include <vector>
 #include <fstream>
-
-using namespace std;
 
 extern bool g_use_FRD_images;
 
@@ -48,7 +48,7 @@ public:
 
 	AssTXTLine& operator=(const AssTXTLine& other);
 
-	string	m_TXTStr;
+	std::string	m_TXTStr;
 	int		m_LH;
 	int		m_LY;
 	int		m_LXB;
@@ -60,8 +60,8 @@ public:
 	int		m_mI;
 	int		m_mQ;
 
-	s64		m_BT;
-	s64		m_ET;
+	qint64		m_BT;
+	qint64		m_ET;
 
 	int		m_dX; //смещение pos(m_dX, m_dY)
 	int		m_dY;
@@ -86,7 +86,7 @@ class AssTXTStyle
 public:
 	AssTXTStyle();
 
-	vector<YIQ_LH_Struct> m_data;
+	std::vector<YIQ_LH_Struct> m_data;
 	
 	void Compute();
 
@@ -111,7 +111,7 @@ public:
 	int		m_MarginL;
 	int		m_MarginR;
 	int		m_MarginV;
-	string  m_Name;
+	std::string  m_Name;
 };
 
 class ThreadCreateClearedTextImages : public wxThread
@@ -165,3 +165,5 @@ public:
 private:
 	DECLARE_EVENT_TABLE()
 };
+
+#endif

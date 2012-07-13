@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #include "ImageBox.h"
+#include <QtCore/QtGlobal>
 
 BEGIN_EVENT_TABLE(CImageWnd, wxWindow)
 	EVT_PAINT(CImageWnd::OnPaint)
@@ -89,8 +90,8 @@ CImageBox::~CImageBox()
 
 void CImageBox::Init()
 {
-	string strIBClass;
-	string strIBXClass;
+	std::string strIBClass;
+	std::string strIBXClass;
 
 	m_IWColor = wxColour(125, 125, 125);
 
@@ -160,7 +161,7 @@ void CImageBox::ClearScreen()
 void CImageBox::ViewRGBImage(int *Im, int w, int h)
 {
 	int i, x, y;
-	u8 *color;
+	quint8 *color;
 	wxMemoryDC dc;
 
 	if (m_pBmp == NULL) 
@@ -186,7 +187,7 @@ void CImageBox::ViewRGBImage(int *Im, int w, int h)
 	for(y=0, i=0; y<h; y++)
 	for(x=0; x<w; x++, i++)
 	{
-		color = (u8*)(&Im[i]);
+		color = (quint8*)(&Im[i]);
 
 		dc.SetPen(wxPen(wxColor(color[2], color[1], color[0])));
 		dc.DrawPoint(x, y);
@@ -210,7 +211,7 @@ void CImageBox::ViewRGBImage(int *Im, int w, int h)
 void CImageBox::ViewGrayscaleImage(int *Im, int w, int h)
 {
 	int i, x, y;
-	u8 color;
+	quint8 color;
 	wxMemoryDC dc;
 
 	if (m_pBmp == NULL) 
@@ -260,7 +261,7 @@ void CImageBox::ViewGrayscaleImage(int *Im, int w, int h)
 void CImageBox::ViewImage(int *Im, int w, int h)
 {
 	int i, x, y;
-	u8 *color;
+	quint8 *color;
 	wxMemoryDC dc;
 
 	if (m_pBmp == NULL) 
@@ -289,7 +290,7 @@ void CImageBox::ViewImage(int *Im, int w, int h)
 	for(y=0, i=0; y<h; y++)
 	for(x=0; x<w; x++, i++)
 	{
-		color = (u8*)(&Im[i]);
+		color = (quint8*)(&Im[i]);
 
 		if (Im[i] == 0)
 		{

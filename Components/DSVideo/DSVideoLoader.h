@@ -15,8 +15,11 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef DSVIDEOLOADER_H
+#define DSVIDEOLOADER_H
 
 #include "Video.h"
 
 CVideo* GetDSVideoObject();
+
+#endif

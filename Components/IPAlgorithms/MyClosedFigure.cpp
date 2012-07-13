@@ -17,7 +17,7 @@
 
 #include "MyClosedFigure.h"
 
-CMyClosedFigure::CMyClosedFigure()
+MyClosedFigure::MyClosedFigure()
 {
 	m_PointsArray = NULL;
 	m_pImage = NULL;
@@ -25,13 +25,13 @@ CMyClosedFigure::CMyClosedFigure()
 	m_Count=1;
 }
 
-CMyClosedFigure::~CMyClosedFigure()
+MyClosedFigure::~MyClosedFigure()
 {
 	if (m_PointsArray!=NULL) delete[] m_PointsArray; 
 	if (m_pImage!=NULL) delete[] m_pImage;
 }
 
-bool CMyClosedFigure::operator>(CMyClosedFigure& other)
+bool MyClosedFigure::operator>(MyClosedFigure& other)
 {	
 	if((m_minY-other.m_minY) >= 0.7*m_DY) return true;
 	else 
@@ -44,10 +44,10 @@ bool CMyClosedFigure::operator>(CMyClosedFigure& other)
 	}
 }
 
-void CMyClosedFigure::operator=(CMyClosedFigure& other)
+void MyClosedFigure::operator=(MyClosedFigure& other)
 {	
 	if (m_PointsArray!=NULL) delete[] m_PointsArray;
-	m_PointsArray = new CMyPoint[other.m_Square];
+	m_PointsArray = new MyPoint[other.m_Square];
 	memcpy(m_PointsArray,other.m_PointsArray,4*other.m_Square);
 	
 	if (other.m_pImage!=NULL)
@@ -75,15 +75,15 @@ void CMyClosedFigure::operator=(CMyClosedFigure& other)
 	m_ParentImageName = other.m_ParentImageName;
 }
 
-void CMyClosedFigure::operator+=(CMyClosedFigure& other)
+void MyClosedFigure::operator+=(MyClosedFigure& other)
 {	
 	int N1, N2;
-	CMyPoint *m;
+	MyPoint *m;
 
 	N1 = m_Square;
 	N2 = other.m_Square;
 
-	m = new CMyPoint[N1+N2];
+	m = new MyPoint[N1+N2];
 	memcpy(m,m_PointsArray,4*N1);
 	memcpy(m+N1,other.m_PointsArray,4*N2);
 
@@ -100,25 +100,25 @@ void CMyClosedFigure::operator+=(CMyClosedFigure& other)
 	m_h = m_maxY-m_minY+1;
 }
 
-void CMyClosedFigure::refresh()
+void MyClosedFigure::refresh()
 {
 	int i,N;
 	int minX,maxX,minY,maxY;
-	CMyPoint *m;
+	MyPoint *m;
 	
 	N = m_Square;
 	if (N>0)
 	{
-		m=m_PointsArray;
-		minX=maxX=m[0].m_x;
-		minY=maxY=m[0].m_y;
+		m = m_PointsArray;
+		minX = maxX = m[0].x();
+		minY = maxY = m[0].y();
 
 		for (i=0; i<N; i++)
 		{
-			if (m[i].m_x<minX) minX=m[i].m_x;
-			if (m[i].m_x>maxX) maxX=m[i].m_x;
-			if (m[i].m_y<minY) minY=m[i].m_y;
-			if (m[i].m_y>maxY) maxY=m[i].m_y;
+			if (m[i].x() < minX) minX = m[i].x();
+			if (m[i].x() > maxX) maxX = m[i].x();
+			if (m[i].y() < minY) minY = m[i].y();
+			if (m[i].y() > maxY) maxY = m[i].y();
 		}
 		
 		m_minX = minX;
@@ -130,13 +130,13 @@ void CMyClosedFigure::refresh()
 	}
 }
 
-bool CMyClosedFigure::IsNear(CMyClosedFigure &other,int pogreshnost)
+bool MyClosedFigure::IsNear(MyClosedFigure &other, int error)
 {
-	CMyPoint Point,Point2, *m1, *m2;
+	MyPoint Point,Point2, *m1, *m2;
 	int i,j,N1,N2;
 
-	if ( abs((m_maxX+m_minX)-(other.m_maxX+other.m_minX)) < (m_maxX-m_minX)+(other.m_maxX-other.m_minX)+3+2*pogreshnost )
-	if ( abs((m_maxY+m_minY)-(other.m_maxY+other.m_minY)) < (m_maxY-m_minY)+(other.m_maxY-other.m_minY)+3+2*pogreshnost )
+	if ( abs((m_maxX + m_minX) - (other.m_maxX + other.m_minX)) < (m_maxX - m_minX) + (other.m_maxX - other.m_minX) + 3 + 2 * error )
+	if ( abs((m_maxY + m_minY) - (other.m_maxY + other.m_minY)) < (m_maxY - m_minY) + (other.m_maxY - other.m_minY) + 3 + 2 * error )
 	{
 		N1 = m_Square;
 		N2 = other.m_Square;
@@ -151,14 +151,14 @@ bool CMyClosedFigure::IsNear(CMyClosedFigure &other,int pogreshnost)
 			{
 				Point2 = m2[j];
 				
-				if (abs(Point.m_x-Point2.m_x)<2+pogreshnost) 
-				if (Point.m_y==Point2.m_y)
+				if (abs(Point.x() - Point2.x()) < 2 + error) 
+				if (Point.y() == Point2.y())
 				{
 					return true;
 				}
 
-				if (abs(Point.m_y-Point2.m_y)<2+pogreshnost)
-				if (Point.m_x==Point2.m_x)
+				if (abs(Point.y() - Point2.y()) < 2 + error)
+				if (Point.x() == Point2.x())
 				{
 					return true;
 				}
@@ -169,7 +169,7 @@ bool CMyClosedFigure::IsNear(CMyClosedFigure &other,int pogreshnost)
 	return false;
 }
 
-void CMyClosedFigure::CreateImage(int w,int h,char White,char Black)
+void MyClosedFigure::CreateImage(int w,int h,char White,char Black)
 {
 	int i,x0,y0,x,y;
 
@@ -189,20 +189,26 @@ void CMyClosedFigure::CreateImage(int w,int h,char White,char Black)
 	
 	for (i=0; i<m_Square; i++)
 	{ 
-		x=x0+m_PointsArray[i].m_x;
-		y=y0+m_PointsArray[i].m_y;
+		x = x0 + m_PointsArray[i].x();
+		y = y0 + m_PointsArray[i].y();
 		
-		if(y>=0)
-		if(y<h)
-		if(x>=0)
-		if(x<w)
-		{
-			m_pImage[y*w+x]=Black;
-		}
+		if(y >= 0)
+        {
+		    if(y < h)
+            {
+		        if(x >= 0)
+                {
+                    if(x < w)
+		            {
+			            m_pImage[y * w + x] = Black;
+		            }
+                }
+            }
+        }
 	}
 }
 
-double CMyClosedFigure::CompareWith(CMyClosedFigure &other,double MaxPercentDeviation)
+double MyClosedFigure::CompareWith(MyClosedFigure &other,double MaxPercentDeviation)
 {
 	char *m1, *m2;
 	char Black, White;
@@ -243,7 +249,7 @@ double CMyClosedFigure::CompareWith(CMyClosedFigure &other,double MaxPercentDevi
 /* //for algoritm IsNear
 int minX, maxX, minY, maxY, w, h, val, val1, val2, x0, y0, x, y;
 char **m, White, Black;
-vector<int> DXVector,DYVector;
+std::vector<int> DXstd::vector,DYstd::vector;
 int *DX, *DY, DN;
 
 val1 = pogreshnost+1;
@@ -254,22 +260,22 @@ for (j=-val1; j<val2; j++)
 {
 	if (i*i+j*j < val) 
 	{
-		DXVector.push_back(i);
-		DYVector.push_back(j);
+		DXstd::vector.push_back(i);
+		DYstd::vector.push_back(j);
 	}
 }
 
-DN = DXVector.size();
+DN = DXstd::vector.size();
 DX = new int[DN];
 DY = new int[DN];
 for (i=0; i<DN; i++) 
 {
-	DX[i] = DXVector[i];
-	DY[i] = DYVector[i];
+	DX[i] = DXstd::vector[i];
+	DY[i] = DYstd::vector[i];
 }
 
-DXVector.clear();
-DYVector.clear();
+DXstd::vector.clear();
+DYstd::vector.clear();
 
 White = 0;
 Black = 1;
@@ -390,7 +396,7 @@ void CMyClosedFigure::AlignPoints()
 
 /////////////////////////////////////////////////////////////////////////////
 
-clock_t SearchClosedFigures(int *Im, int w, int h, int white, CMyClosedFigure* &FiguresArray, int &Number)
+clock_t SearchClosedFigures(int *Im, int w, int h, int white, MyClosedFigure* &FiguresArray, int &Number)
 {
 	int N;
 	int *m, *key, *key2, *NN, *I, *minX, *maxX, *minY, *maxY;
@@ -533,11 +539,11 @@ clock_t SearchClosedFigures(int *Im, int w, int h, int white, CMyClosedFigure* &
 			if (bln2)
 			if (m[i1]!=m[i2])
 			{
-				jj=max(m[i1],m[i2]);
-				kk=min(m[i1],m[i2]);
+				jj=std::max(m[i1],m[i2]);
+				kk=std::min(m[i1],m[i2]);
 				while (key[jj]!=jj) jj=key[jj];
 				while (key[kk]!=kk) kk=key[kk];
-				key[max(jj,kk)]=min(jj,kk);
+				key[std::max(jj,kk)]=std::min(jj,kk);
 			}
 
 		}
@@ -591,33 +597,35 @@ clock_t SearchClosedFigures(int *Im, int w, int h, int white, CMyClosedFigure* &
 		}
 	}
 
-	FiguresArray = new CMyClosedFigure[N];
+	FiguresArray = new MyClosedFigure[N];
 
-	CMyClosedFigure* pfa = FiguresArray, *pf;
+	MyClosedFigure* pfa = FiguresArray, *pf;
 	
 	for(i=0; i<N; i++)
 	{
 		pf = pfa+i;
-		pf->m_PointsArray = new CMyPoint[NN[i]];
-		pf->m_Square =  NN[i];
-		pf->m_minX = minX[i];
-		pf->m_maxX = maxX[i];
-		pf->m_minY = minY[i];
-		pf->m_maxY = maxY[i];
-		pf->m_w = maxX[i]-minX[i]+1;
-		pf->m_h = maxY[i]-minY[i]+1;
+		pf->setPointsArray(new MyPoint[NN[i]]);
+		pf->setSquare(NN[i]);
+		pf->setMinX(minX[i]);
+		pf->setMaxX(maxX[i]);
+		pf->setMinY(minY[i]);
+		pf->setMaxY(maxY[i]);
+		pf->setWidth(maxX[i] - minX[i] + 1);
+		pf->setHeight(maxY[i] - minY[i] + 1);
 	}
 
-	for(y=0, i=0; y<h; y++)
-	for(x=0; x<w; x++, i++)
-	{
-		if (Im[i]==white)
-		{
-			j = key2[key[m[i]]];
-			pfa[j].m_PointsArray[I[j]]=CMyPoint(x, y, i);
-			I[j]++;
-		}
-	}
+	for(y = 0, i = 0; y < h; ++y)
+    {
+	    for(x = 0; x < w; ++x, ++i)
+	    {
+		    if (Im[i] == white)
+		    {
+			    j = key2[key[m[i]]];
+			    pfa[j].pointsArray()[I[j]] = MyPoint(x, y, i);
+			    I[j]++;
+		    }
+	    }
+    }
 
 	delete[] m;
 	delete[] key;
@@ -775,11 +783,11 @@ clock_t CreateIndexedImage(int *Im, int *ImRES, int w, int h, int white, int &Nu
 			if (bln2)
 			if (m[i1]!=m[i2])
 			{
-				jj=max(m[i1],m[i2]);
-				kk=min(m[i1],m[i2]);
+				jj=std::max(m[i1],m[i2]);
+				kk=std::min(m[i1],m[i2]);
 				while (key[jj]!=jj) jj=key[jj];
 				while (key[kk]!=kk) kk=key[kk];
-				key[max(jj,kk)]=min(jj,kk);
+				key[std::max(jj,kk)]=std::min(jj,kk);
 			}
 
 		}

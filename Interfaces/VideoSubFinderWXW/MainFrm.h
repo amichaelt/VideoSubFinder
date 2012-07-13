@@ -15,14 +15,15 @@
 //																				//
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef MAINFRM_H
+#define MAINFRM_H
 
 #include <wx/wx.h>
 #include <wx/dir.h>
 #include <wx/mdi.h>
 #include <wx/timer.h>
 #include <wx/filename.h>
-#include "DataTypes.h"
+#include <QtCore/QtGlobal>
 #include "MyResource.h"
 #include "SSOWnd.h"
 #include "VideoBox.h"
@@ -32,8 +33,6 @@
 #include "IPAlgorithms.h"
 #include <time.h>
 #include <fstream>
-
-using namespace std;
 
 class CSSOWnd;
 class CVideoBox;
@@ -46,7 +45,7 @@ public:
 	~CMainFrame();
 
 public:
-	string		m_Dir;
+	std::string		m_Dir;
 
 	bool		m_WasInited;
 
@@ -60,9 +59,9 @@ public:
 
 	bool	    m_VIsOpen;
 	//CDocManager m_DocManager;
-	string		m_FileName;
+	std::string		m_FileName;
 
-	string		m_EndTimeStr;
+	std::string		m_EndTimeStr;
 
 	wxTimer		m_timer;
 
@@ -72,13 +71,13 @@ public:
 	int			m_w;
 	int			m_h;
 
-	s64			m_dt;
-	s64         m_ct;
+	qint64			m_dt;
+	qint64         m_ct;
 
-	s64			m_BegTime;
-	s64			m_EndTime;
+	qint64			m_BegTime;
+	qint64			m_EndTime;
 
-	string		m_SettingsFileName;
+	std::string		m_SettingsFileName;
 
 	bool		m_blnReopenVideo;
 
@@ -91,10 +90,10 @@ public:
 	void Init();
 
 	void PauseVideo();
-	void LoadSettings(string fname);
-	void SaveSettings(string fname);
+	void LoadSettings(std::string fname);
+	void SaveSettings(std::string fname);
 	void OnFileOpenVideo(int type);
-	void ClearDir(string DirName);
+	void ClearDir(std::string DirName);
 
 public:
 	void OnSize(wxSizeEvent& event);
@@ -124,21 +123,23 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-s64 GetVideoTime(int minute, int sec, int mili_sec);
-string ConvertVideoTime(s64 pos);
-string VideoTimeToStr2(s64 pos);
-string VideoTimeToStr3(s64 pos);
+qint64 GetVideoTime(int minute, int sec, int mili_sec);
+std::string ConvertVideoTime(qint64 pos);
+std::string VideoTimeToStr2(qint64 pos);
+std::string VideoTimeToStr3(qint64 pos);
 
-void WriteProperty(ofstream &fout, int val, string Name);
-void WriteProperty(ofstream &fout, bool val, string Name);
-void WriteProperty(ofstream &fout, double val, string Name);
-void WriteProperty(ofstream &fout, wxString val, string Name);
-void ReadProperty(ifstream &fin, int &val, string Name);
-void ReadProperty(ifstream &fin, bool &val, string Name);
-void ReadProperty(ifstream &fin, double &val, string Name);
-void ReadProperty(ifstream &fin, wxString &val, string Name);
+void WriteProperty(std::ofstream &fout, int val, std::string Name);
+void WriteProperty(std::ofstream &fout, bool val, std::string Name);
+void WriteProperty(std::ofstream &fout, double val, std::string Name);
+void WriteProperty(std::ofstream &fout, wxString val, std::string Name);
+void ReadProperty(std::ifstream &fin, int &val, std::string Name);
+void ReadProperty(std::ifstream &fin, bool &val, std::string Name);
+void ReadProperty(std::ifstream &fin, double &val, std::string Name);
+void ReadProperty(std::ifstream &fin, wxString &val, std::string Name);
 
 bool IsMMX_and_SSE();
 bool IsSSE2();
 
 void LoadToolBarImage(wxBitmap& bmp, const wxString& path, const wxColor& BColor);
+
+#endif
