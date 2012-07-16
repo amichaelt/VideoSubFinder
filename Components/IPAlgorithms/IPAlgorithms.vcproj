@@ -43,8 +43,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;..\Include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;"
-				PreprocessorDefinitions="WIN32;_WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;..\Include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;"
+				PreprocessorDefinitions="WIN32;_WIN32;_DEBUG;_LIB;QT_CORE_LIB;QT_GUI_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -113,8 +113,8 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;..\Include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;..\Include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;QT_CORE_LIB;QT_GUI_LIB"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -339,6 +339,10 @@
 		<Global
 			Name="MocOptions"
 			Value=""
+		/>
+		<Global
+			Name="QtVersion Win32"
+			Value="msvc2008"
 		/>
 		<Global
 			Name="RccDir"

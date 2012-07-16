@@ -6454,7 +6454,6 @@ int ClearImage(int *Im, int w, int h, int yb, int ye, int white)
 				ii = (PA[l].y() * w) + PA[l].x();
 				Im[ii] = 0;
 			}
-
 			--res;
 		}
 	}

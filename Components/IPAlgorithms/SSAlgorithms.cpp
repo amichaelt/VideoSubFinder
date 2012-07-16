@@ -18,11 +18,13 @@
 #include "SSAlgorithms.h"
 #include <math.h>
 #include <QtCore/QtGlobal>
+#include <QtCore/QVector>
+#include <vector>
 
 int		g_RunSubSearch = 0;
 
 int		g_DL = 6;	 //sub frame length
-double	g_tp = 0.3;	 //text procent
+double	g_tp = 0.3;	 //text percent
 double	g_mtpl = 0.022;  //min text len (in procent)
 double	g_sse = 0.3;   //sub square error
 double	g_veple = 0.35; //vedges points line error
@@ -50,8 +52,10 @@ void SetVideoWindowSettins(CVideo *pV, double dx_min, double dx_max, double dy_m
 }
 
 qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
-{	
-	int *ImRGB;
+{
+    int SIZE = g_W * g_H;
+
+    QVector<int> ImRGB(SIZE);
 	int	*Im;
 	int *ImSF;
 	int	*ImNFF;
@@ -121,9 +125,6 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
 	foundPrevious = false;
 
-	int SIZE = g_W*g_H;
-
-	ImRGB = new int[SIZE];
 	Im = new int[SIZE];
 	ImSF = new int[SIZE];
 	ImNFF = new int[SIZE];
@@ -171,7 +172,7 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 		Str = VideoTimeToStr(CurPos);
 
 		//*******
-		S = GetAndConvertImage(ImRGB, ImNFF, ImSF, Im, ImVE, ImNE, ImHE, pV, w, h);
+		S = GetAndConvertImage(ImRGB.data(), ImNFF, ImSF, Im, ImVE, ImNE, ImHE, pV, w, h);
 
 		if ( (S > 0) && (CurPos != previousPosition) )
 		{	
@@ -185,7 +186,7 @@ L:				beginFrame = frameNumber;
 				memcpy(ImNFFS, ImNFF, BufferSize);
 				memcpy(ImVES, ImVE, BufferSize);
 				memcpy(ImNES, ImNE, BufferSize);
-				memcpy(ImFS, ImRGB, BufferSize);				
+				memcpy(ImFS, ImRGB.data(), BufferSize);				
 				memcpy(ImVESS, ImVE, BufferSize);
 
 				nn = 0;
@@ -228,7 +229,7 @@ L:				beginFrame = frameNumber;
 
 					if (frameNumber-beginFrame == 3)
 					{
-						memcpy(ImFS, ImRGB, BufferSize);
+						memcpy(ImFS, ImRGB.data(), BufferSize);
 						memcpy(ImVESS, ImVE, BufferSize);
 						memcpy(ImNES, ImNE, BufferSize);
 					}
@@ -424,7 +425,6 @@ L2:							if (foundPrevious)
 		frameNumber++;
 	}
 
-	delete[] ImRGB;
 	delete[] Im;
 	delete[] ImSF;
 	delete[] ImNFF;

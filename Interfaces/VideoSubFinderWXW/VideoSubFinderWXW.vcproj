@@ -42,8 +42,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;..\..\Components\Include&quot;;&quot;..\..\Components\IPAlgorithms&quot;;&quot;..\..\Components\DSVideo&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;..\..\Components\Include&quot;;&quot;..\..\Components\IPAlgorithms&quot;;&quot;..\..\Components\DSVideo&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH;QT_CORE_LIB;QT_GUI_LIB"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
@@ -70,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DSHOW_DIR)\Lib\x86\strmiids.lib $(DSHOW_BASE_ClASSES)\Debug\strmbasd.lib wxmsw28d_aui.lib wxmsw28d_media.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib"
+				AdditionalDependencies="$(DSHOW_DIR)\Lib\x86\strmiids.lib $(DSHOW_BASE_ClASSES)\Debug\strmbasd.lib wxmsw28d_aui.lib wxmsw28d_media.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Debug\DSVideo.lib ..\..\Components\IPAlgorithms\Debug\IPAlgorithms.lib QtCored4.lib QtGuid4.lib"
 				OutputFile="$(OutDir)/VideoSubFinderWXW.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -131,8 +131,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHsc"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;..\..\Components\Include&quot;;&quot;..\..\Components\IPAlgorithms&quot;;&quot;..\..\Components\DSVideo&quot;"
-				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;..\..\Components\Include&quot;;&quot;..\..\Components\IPAlgorithms&quot;;&quot;..\..\Components\DSVideo&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;"
+				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH;QT_CORE_LIB;QT_GUI_LIB"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -155,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DSHOW_DIR)\Lib\x86\strmiids.lib $(DSHOW_BASE_ClASSES)\Release\strmbase.lib wxmsw28_aui.lib wxmsw28_media.lib wxmsw28_core.lib wxmsw28_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib"
+				AdditionalDependencies="$(DSHOW_DIR)\Lib\x86\strmiids.lib $(DSHOW_BASE_ClASSES)\Release\strmbase.lib wxmsw28_aui.lib wxmsw28_media.lib wxmsw28_core.lib wxmsw28_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib ..\..\Components\DSVideo\Release\DSVideo.lib ..\..\Components\IPAlgorithms\Release\IPAlgorithms.lib QtCore4.lib QtGui4.lib"
 				OutputFile="$(OutDir)/VideoSubFinderWXW.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -649,6 +649,10 @@
 		<Global
 			Name="MocOptions"
 			Value=""
+		/>
+		<Global
+			Name="QtVersion Win32"
+			Value="msvc2008"
 		/>
 		<Global
 			Name="RccDir"
