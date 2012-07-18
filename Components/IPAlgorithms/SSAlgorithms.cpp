@@ -39,21 +39,21 @@ CVideo *g_pV;
 
 void SetVideoWindowSettins(CVideo *pV, double dx_min, double dx_max, double dy_min, double dy_max)
 {    
-    g_W = pV->m_Width;
-    g_H = pV->m_Height;
+    g_Width = pV->m_Width;
+    g_Height = pV->m_Height;
 
-    g_xmin = (int)(dx_min*(double)g_W);
-    g_xmax = (int)(dx_max*(double)g_W)-1;
-    g_ymin = (int)(dy_min*(double)g_H);
-    g_ymax = (int)(dy_max*(double)g_H)-1;
+    g_xmin = (int)(dx_min*(double)g_Width);
+    g_xmax = (int)(dx_max*(double)g_Width)-1;
+    g_ymin = (int)(dy_min*(double)g_Height);
+    g_ymax = (int)(dy_max*(double)g_Height)-1;
 
-    g_w = g_xmax-g_xmin+1;
-    g_h = g_ymax-g_ymin+1;
+    g_width = g_xmax-g_xmin+1;
+    g_height = g_ymax-g_ymin+1;
 }
 
 qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 {
-    int SIZE = g_W * g_H;
+    int SIZE = g_Width * g_Height;
 
     QVector<int> ImRGB(SIZE);
     int    *Im;
@@ -101,8 +101,8 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     g_pV = pV;
 
-    w = g_w;
-    h = g_h;
+    w = g_width;
+    h = g_height;
 
     size = w*h;
     BufferSize = size*sizeof(int);
@@ -114,8 +114,8 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     mtl = (int)(g_mtpl*(double)w);
     DL = g_DL;
-    segh = g_segh;
-    n = h/g_segh;
+    segh = g_SegmentHeight;
+    n = h/g_SegmentHeight;
     sse = g_sse;
 
     beginFrame = -2;
@@ -285,11 +285,11 @@ L2:                            if (foundPrevious)
                                     ImToNativeSize(ImFSP, w, h);
                                     ImToNativeSize(ImSP, w, h);
                                     ImToNativeSize(ImVESSP, w, h);
-                                    g_pViewImage[0](ImFSP, g_W, g_H);                                    
-                                    g_pViewImage[1](ImSP, g_W, g_H);                                    
-                                    SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                                    SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_W, g_H);
-                                    SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);
+                                    g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
+                                    g_pViewImage[1](ImSP, g_Width, g_Height);                                    
+                                    SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                                    SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
+                                    SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);
                                     
                                     pbf = beginFrame;
                                     pbt = beginTime;
@@ -354,11 +354,11 @@ L2:                            if (foundPrevious)
                         ImToNativeSize(ImFSP, w, h);
                         ImToNativeSize(ImSP, w, h);
                         ImToNativeSize(ImVESSP, w, h);
-                        g_pViewImage[0](ImFSP, g_W, g_H);                                    
-                        g_pViewImage[1](ImSP, g_W, g_H);    
-                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                        SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_W, g_H);
-                        SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                        
+                        g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
+                        g_pViewImage[1](ImSP, g_Width, g_Height);    
+                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                        SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
+                        SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
                         foundPrevious = false;
                         beginFrame = -2;
                     }
@@ -388,11 +388,11 @@ L2:                            if (foundPrevious)
                         ImToNativeSize(ImFSP, w, h);
                         ImToNativeSize(ImSP, w, h);
                         ImToNativeSize(ImVESSP, w, h);
-                        g_pViewImage[0](ImFSP, g_W, g_H);                                    
-                        g_pViewImage[1](ImSP, g_W, g_H);                                    
-                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                        SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_W, g_H);
-                        SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                        
+                        g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
+                        g_pViewImage[1](ImSP, g_Width, g_Height);                                    
+                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                        SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
+                        SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
                     }
                 }
             }
@@ -406,11 +406,11 @@ L2:                            if (foundPrevious)
                     ImToNativeSize(ImFS, w, h);
                     ImToNativeSize(ImS, w, h);
                     ImToNativeSize(ImVESS, w, h);
-                    g_pViewImage[0](ImFS, g_W, g_H);                                    
-                    g_pViewImage[1](ImS, g_W, g_H);                                    
-                    SaveRGBImage(ImFS, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                    SaveImage(ImVESS, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_W, g_H);
-                    SaveImage(ImS, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                        
+                    g_pViewImage[0](ImFS, g_Width, g_Height);                                    
+                    g_pViewImage[1](ImS, g_Width, g_Height);                                    
+                    SaveRGBImage(ImFS, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                    SaveImage(ImVESS, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
+                    SaveImage(ImS, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
                 }
             }
 
@@ -530,8 +530,8 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     g_pV = pV;
 
-    w = g_w;
-    h = g_h;
+    w = g_width;
+    h = g_height;
 
     size = w*h;
     BufferSize = size*sizeof(int);
@@ -544,8 +544,8 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     mtl = (int)(g_mtpl*(double)w);
     DL = g_DL;
-    segh = g_segh;
-    n = h/g_segh;
+    segh = g_SegmentHeight;
+    n = h/g_SegmentHeight;
     sse = g_sse;
 
     bf = -2;
@@ -555,7 +555,7 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     finded_prev = 0;
 
-    int SIZE = g_W*g_H;
+    int SIZE = g_Width*g_Height;
 
     ImRGB = new int[SIZE];
     Im = new int[SIZE];
@@ -801,10 +801,10 @@ L2:                            if (finded_prev == 1)
                                     Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
                                     ImToNativeSize(ImFSP, w, h);
                                     ImToNativeSize(ImSSP, w, h);
-                                    g_pViewImage[0](ImFSP, g_W, g_H);                                    
-                                    g_pViewImage[1](ImSSP, g_W, g_H);                                    
-                                    SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                                    SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                                
+                                    g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
+                                    g_pViewImage[1](ImSSP, g_Width, g_Height);                                    
+                                    SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                                    SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                                
 
                                     pbf = bf;
                                     pbt = bt;
@@ -867,10 +867,10 @@ L2:                            if (finded_prev == 1)
                         Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
                         ImToNativeSize(ImFSP, w, h);
                         ImToNativeSize(ImSSP, w, h);
-                        g_pViewImage[0](ImFSP, g_W, g_H);                                    
-                        g_pViewImage[1](ImSSP, g_W, g_H);                                    
-                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                        SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                                                        
+                        g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
+                        g_pViewImage[1](ImSSP, g_Width, g_Height);                                    
+                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                        SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                                                        
                         finded_prev = 0;
                         bf = -2;
                     }
@@ -899,10 +899,10 @@ L2:                            if (finded_prev == 1)
                         Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
                         ImToNativeSize(ImFSP, w, h);
                         ImToNativeSize(ImSSP, w, h);
-                        g_pViewImage[0](ImFSP, g_W, g_H);                                    
-                        g_pViewImage[1](ImSSP, g_W, g_H);                                    
-                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                        SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                                                        
+                        g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
+                        g_pViewImage[1](ImSSP, g_Width, g_Height);                                    
+                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                        SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                                                        
                     }
                 }
             }
@@ -915,10 +915,10 @@ L2:                            if (finded_prev == 1)
                     Str = VideoTimeToStr(bt)+std::string("__")+VideoTimeToStr(et);
                     ImToNativeSize(ImFS, w, h);
                     ImToNativeSize(ImSS, w, h);
-                    g_pViewImage[0](ImFS, g_W, g_H);                                    
-                    g_pViewImage[1](ImSS, g_W, g_H);                                    
-                    SaveRGBImage(ImFS, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_W, g_H);
-                    SaveImage(ImSS, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_W, g_H);                                                        
+                    g_pViewImage[0](ImFS, g_Width, g_Height);                                    
+                    g_pViewImage[1](ImSS, g_Width, g_Height);                                    
+                    SaveRGBImage(ImFS, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                    SaveImage(ImSS, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                                                        
                 }
             }
 
@@ -1025,7 +1025,7 @@ int AnalyseImage(int *Im, int w, int h)
     int segh, mtl;
     double tp;
     
-    segh = g_segh;
+    segh = g_SegmentHeight;
     tp = g_tp;
     mtl = (int)(g_mtpl*(double)w);
     
@@ -1141,7 +1141,7 @@ int PreCompareTwoSubs(int *Im1, int *Im2, int *ImRES, int *lb, int *le, int w, i
 {
     int i, ib, ie, y, l, ln, bln, val1, val2, segh, dn;
     
-    segh = g_segh;
+    segh = g_SegmentHeight;
 
     AddTwoImages(Im1, Im2, ImRES, w*h);
         
@@ -1358,8 +1358,8 @@ int FinalCompareTwoSubs2(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
         else dif = dif1;
 
         if ( ((double)dif/(double)cmb <= veple) || 
-             ( (ln > 0) && (k < ln-1) && (lb[k]+g_ymin > g_H/4) && 
-               (le[k]+g_ymin < g_H/2) && (lb[ln-1]+g_ymin > g_H/2) ) )
+             ( (ln > 0) && (k < ln-1) && (lb[k]+g_ymin > g_Height/4) && 
+               (le[k]+g_ymin < g_Height/2) && (lb[ln-1]+g_ymin > g_Height/2) ) )
         {
             continue;
         }
@@ -1391,8 +1391,8 @@ int FinalCompareTwoSubs2(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
         else dif = dif1;
 
         if ( ((double)dif/(double)cmb > veple) && 
-            !( (ln > 0) && (k < ln-1) && (lb[k]+g_ymin > g_H/4) && 
-               (le[k]+g_ymin < g_H/2) && (lb[ln-1]+g_ymin > g_H/2) ) )
+            !( (ln > 0) && (k < ln-1) && (lb[k]+g_ymin > g_Height/4) && 
+               (le[k]+g_ymin < g_Height/2) && (lb[ln-1]+g_ymin > g_Height/2) ) )
         {
             bln = 0;
             break;
@@ -1401,11 +1401,11 @@ int FinalCompareTwoSubs2(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
     return bln;
 }
 
-int DifficultCompareTwoSubs(int *ImRGB1, int *ImF1, int *ImRGB2, int *ImF2, int w, int h)
+int DifficultCompareTwoSubs(int *RGBImage1, int *ImF1, int *RGBImage2, int *ImF2, int w, int h)
 {
     int *ImFF1=g_pImFF1, *ImVE1=g_pImVE1, *ImNE1=g_pImNE1;
     int *ImFF2=g_pImFF2, *ImVE2=g_pImVE2, *ImNE2=g_pImNE2;
-    int *ImTEMP1=g_pImTEMP1, *ImTEMP2=g_pImTEMP2, *ImTEMP3=g_pImTEMP3;
+    int *TempImage1 = g_TempImage1, *TempImage2 = g_TempImage2, *TempImage3 = g_TempImage3;
     int *lb=g_pLB6, *le=g_pLE6;
     int res, size, ln, i;
 
@@ -1413,8 +1413,8 @@ int DifficultCompareTwoSubs(int *ImRGB1, int *ImF1, int *ImRGB2, int *ImF2, int 
 
     size = w*h;
 
-    GetTransformedImage(ImRGB1, ImTEMP1, ImTEMP2, ImFF1, ImVE1, ImNE1, ImTEMP3, w, h);
-    GetTransformedImage(ImRGB2, ImTEMP1, ImTEMP2, ImFF2, ImVE2, ImNE2, ImTEMP3, w, h);
+    GetTransformedImage(RGBImage1, TempImage1, TempImage2, ImFF1, ImVE1, ImNE1, TempImage3, w, h);
+    GetTransformedImage(RGBImage2, TempImage1, TempImage2, ImFF2, ImVE2, ImNE2, TempImage3, w, h);
 
     for(i=0; i<size; i++) 
     {
@@ -1429,11 +1429,11 @@ int DifficultCompareTwoSubs(int *ImRGB1, int *ImF1, int *ImRGB2, int *ImF2, int 
         }
     }
     
-    ln = PreCompareTwoSubs(ImF1, ImF2, ImTEMP1, lb, le, w, h);
+    ln = PreCompareTwoSubs(ImF1, ImF2, TempImage1, lb, le, w, h);
     
-    res = FinalCompareTwoSubs2(ImTEMP1, lb, le, ln, ImVE1, ImVE2, w, h);
+    res = FinalCompareTwoSubs2(TempImage1, lb, le, ln, ImVE1, ImVE2, w, h);
 
-    if (res == 0) res = FinalCompareTwoSubs1(ImTEMP1, lb, le, ln, ImNE1, ImNE2, w, h);
+    if (res == 0) res = FinalCompareTwoSubs1(TempImage1, lb, le, ln, ImNE1, ImNE2, w, h);
 
     return res;
 }
@@ -1445,7 +1445,7 @@ int CompareTwoSubs(int *Im1, int *ImVE1, int *Im2, int *ImVE2, int w, int h)
     double veple;
 
     veple = g_veple;
-    segh = g_segh;
+    segh = g_SegmentHeight;
 
     AddTwoImages(Im1, Im2, ImRES, w*h);
     
@@ -1596,8 +1596,8 @@ int CompareTwoSubs(int *Im1, int *ImVE1, int *Im2, int *ImVE2, int w, int h)
         else dif = dif1;
 
         if ( ((double)dif/(double)cmb <= veple) || 
-             ( (ln > 0) && (l < ln-1) && (lb[l]+g_ymin > g_H/4) && 
-               (le[l]+g_ymin < g_H/2) && (lb[ln-1]+g_ymin > g_H/2) ) )
+             ( (ln > 0) && (l < ln-1) && (lb[l]+g_ymin > g_Height/4) && 
+               (le[l]+g_ymin < g_Height/2) && (lb[ln-1]+g_ymin > g_Height/2) ) )
         {
             continue;
         }
@@ -1629,8 +1629,8 @@ int CompareTwoSubs(int *Im1, int *ImVE1, int *Im2, int *ImVE2, int w, int h)
         else dif = dif1;
 
         if ( ((double)dif/(double)cmb > veple) && 
-            !( (ln > 0) && (l < ln-1) && (lb[l]+g_ymin > g_H/4) && 
-               (le[l]+g_ymin < g_H/2) && (lb[ln-1]+g_ymin > g_H/2) ) )
+            !( (ln > 0) && (l < ln-1) && (lb[l]+g_ymin > g_Height/4) && 
+               (le[l]+g_ymin < g_Height/2) && (lb[ln-1]+g_ymin > g_Height/2) ) )
         {
             bln = 0;
             break;
@@ -1682,7 +1682,7 @@ int ConvertImage(int *ImRGB, int *ImF, int *ImVE, int w, int h)
 {
     int res;
 
-    if (g_MMX_SSE == true)
+    if (g_MMX_SSE)
     {
         res = GetVeryFastTransformedImage(ImRGB, ImF, ImVE, w, h);
     }
@@ -1726,11 +1726,11 @@ void ImToNativeSize(int *Im, int w, int h)
 
     memcpy(ImRES, Im, w*h*sizeof(int));
 
-    memset(Im, 255, g_W*g_H*sizeof(int));
+    memset(Im, 255, g_Width*g_Height*sizeof(int));
                 
     i = 0;
-    j = g_ymin*g_W + g_xmin;
-    dj = g_W-w;
+    j = g_ymin*g_Width + g_xmin;
+    dj = g_Width-w;
     for(y=0; y<h; y++)
     {
         for(x=0; x<w; x++)

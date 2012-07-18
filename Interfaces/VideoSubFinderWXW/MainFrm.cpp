@@ -134,7 +134,7 @@ END_EVENT_TABLE()
 /////////////////////////////////////////////////////////////////////////////
 
 CMainFrame::CMainFrame(const wxString& title)
-        : wxMDIParentFrame( NULL, wxID_ANY, title,
+        : wxMDIParentFrame( 0, wxID_ANY, title,
                             wxDefaultPosition, wxDefaultSize,
                             wxDEFAULT_FRAME_STYLE | wxFRAME_NO_WINDOW_MENU )
         , m_timer(this, TIMER_ID)
@@ -144,10 +144,10 @@ CMainFrame::CMainFrame(const wxString& title)
     m_WasInited = false;
     m_VIsOpen = false;
 
-    m_pPanel = NULL;
-    m_pVideoBox = NULL;
-    m_pImageBox = NULL;
-    m_pVideo = NULL;
+    m_pPanel = 0;
+    m_pVideoBox = 0;
+    m_pImageBox = 0;
+    m_pVideo = 0;
 
     // set frame icon
     this->SetIcon(wxIcon("vsf_ico"));
@@ -158,7 +158,7 @@ CMainFrame::CMainFrame(const wxString& title)
     Str.Replace("\\", "/"); 
     m_Dir = Str;
 
-    g_dir = m_Dir;
+    g_Directory = m_Dir;
     m_pVideo->m_Dir = m_Dir;
 
     g_pMF = this;
@@ -567,26 +567,26 @@ void CMainFrame::LoadSettings(std::string fname)
 
     fin.open(fname.c_str(), std::ios::in);
     
-    ReadProperty(fin, g_mthr, "moderate_threshold");
-    ReadProperty(fin, g_mvthr, "moderate_threshold_for_VEdges");
-    ReadProperty(fin, g_mhthr, "moderate_threshold_for_HEdges");
-    ReadProperty(fin, g_mnthr, "moderate_threshold_for_NEdges");
-    ReadProperty(fin, g_segw, "segment_width");
-    ReadProperty(fin, g_segh, "segment_height");
-    ReadProperty(fin, g_msegc, "minimum_segments_count");
-    ReadProperty(fin, g_scd, "min_sum_color_diff");
-    ReadProperty(fin, g_smcd, "min_sum_multiple_color_diff");
-    ReadProperty(fin, g_btd, "between_text_distace");
-    ReadProperty(fin, g_tco, "text_centre_offset");
-    ReadProperty(fin, g_tcpo, "text_centre_percent_offset");
+    ReadProperty(fin, g_ModerateThreshold, "moderate_threshold");
+    ReadProperty(fin, g_ModerateVerticalEdgesThreshold, "moderate_threshold_for_VEdges");
+    ReadProperty(fin, g_ModerateHorizontalEdgesThreshold, "moderate_threshold_for_HEdges");
+    ReadProperty(fin, g_ModerateNEdgesThreshold, "moderate_threshold_for_NEdges");
+    ReadProperty(fin, g_SegmentWidth, "segment_width");
+    ReadProperty(fin, g_SegmentHeight, "segment_height");
+    ReadProperty(fin, g_MinSegmentsCount, "minimum_segments_count");
+    ReadProperty(fin, g_MinSumColorDifference, "min_sum_color_diff");
+    ReadProperty(fin, g_MinSumMultipleColorDifference, "min_sum_multiple_color_diff");
+    ReadProperty(fin, g_DistanceBetweenText, "between_text_distace");
+    ReadProperty(fin, g_CenterTextOffset, "text_centre_offset");
+    ReadProperty(fin, g_CenterTextOffsetPercent, "text_centre_percent_offset");
 
-    ReadProperty(fin, g_mpn, "min_points_number");
-    ReadProperty(fin, g_mpd, "min_points_density");
-    ReadProperty(fin, g_mpvd, "min_VEdges_points_density_(per_full_line)");
-    ReadProperty(fin, g_mphd, "min_HEdges_points_density_(per_full_line)");
-    ReadProperty(fin, g_mpnd, "min_NEdges_points_density_(per_full_line)");
-    ReadProperty(fin, g_mpved, "min_VEdges_points_density");
-    ReadProperty(fin, g_mpned, "min_NEdges_points_density");
+    ReadProperty(fin, g_MinPointsNumber, "min_points_number");
+    ReadProperty(fin, g_MinPointsDensity, "min_points_density");
+    ReadProperty(fin, g_MinVerticalEdgesPointsDensityPerLine, "min_VEdges_points_density_(per_full_line)");
+    ReadProperty(fin, g_MinHorizontalEdgesPointsDensityPerLine, "min_HEdges_points_density_(per_full_line)");
+    ReadProperty(fin, g_MinNEdgesPointsDensityPerLine, "min_NEdges_points_density_(per_full_line)");
+    ReadProperty(fin, g_MinVerticalEdgesPointsDensity, "min_VEdges_points_density");
+    ReadProperty(fin, g_MinNEdgesPointsDensity, "min_NEdges_points_density");
 
     ReadProperty(fin, g_DL, "sub_frame_length");
     ReadProperty(fin, g_tp, "text_procent");
@@ -609,26 +609,26 @@ void CMainFrame::SaveSettings(std::string fname)
 
     fout.open(fname.c_str(), std::ios::out);
 
-    WriteProperty(fout, g_mthr, "moderate_threshold");
-    WriteProperty(fout, g_mvthr, "moderate_threshold_for_VEdges");
-    WriteProperty(fout, g_mhthr, "moderate_threshold_for_HEdges");
-    WriteProperty(fout, g_mnthr, "moderate_threshold_for_NEdges");
-    WriteProperty(fout, g_segw, "segment_width");
-    WriteProperty(fout, g_segh, "segment_height");
-    WriteProperty(fout, g_msegc, "minimum_segments_count");
-    WriteProperty(fout, g_scd, "min_sum_color_diff");
-    WriteProperty(fout, g_smcd, "min_sum_multiple_color_diff");
-    WriteProperty(fout, g_btd, "between_text_distace");
-    WriteProperty(fout, g_tco, "text_centre_offset");
-    WriteProperty(fout, g_tcpo, "text_centre_percent_offset");
+    WriteProperty(fout, g_ModerateThreshold, "moderate_threshold");
+    WriteProperty(fout, g_ModerateVerticalEdgesThreshold, "moderate_threshold_for_VEdges");
+    WriteProperty(fout, g_ModerateHorizontalEdgesThreshold, "moderate_threshold_for_HEdges");
+    WriteProperty(fout, g_ModerateNEdgesThreshold, "moderate_threshold_for_NEdges");
+    WriteProperty(fout, g_SegmentWidth, "segment_width");
+    WriteProperty(fout, g_SegmentHeight, "segment_height");
+    WriteProperty(fout, g_MinSegmentsCount, "minimum_segments_count");
+    WriteProperty(fout, g_MinSumColorDifference, "min_sum_color_diff");
+    WriteProperty(fout, g_MinSumMultipleColorDifference, "min_sum_multiple_color_diff");
+    WriteProperty(fout, g_DistanceBetweenText, "between_text_distace");
+    WriteProperty(fout, g_CenterTextOffset, "text_centre_offset");
+    WriteProperty(fout, g_CenterTextOffsetPercent, "text_centre_percent_offset");
 
-    WriteProperty(fout, g_mpn, "min_points_number");
-    WriteProperty(fout, g_mpd, "min_points_density");
-    WriteProperty(fout, g_mpvd, "min_VEdges_points_density_(per_full_line)");
-    WriteProperty(fout, g_mphd, "min_HEdges_points_density_(per_full_line)");
-    WriteProperty(fout, g_mpnd, "min_NEdges_points_density_(per_full_line)");
-    WriteProperty(fout, g_mpved, "min_VEdges_points_density");
-    WriteProperty(fout, g_mpned, "min_NEdges_points_density");
+    WriteProperty(fout, g_MinPointsNumber, "min_points_number");
+    WriteProperty(fout, g_MinPointsDensity, "min_points_density");
+    WriteProperty(fout, g_MinVerticalEdgesPointsDensityPerLine, "min_VEdges_points_density_(per_full_line)");
+    WriteProperty(fout, g_MinHorizontalEdgesPointsDensityPerLine, "min_HEdges_points_density_(per_full_line)");
+    WriteProperty(fout, g_MinNEdgesPointsDensityPerLine, "min_NEdges_points_density_(per_full_line)");
+    WriteProperty(fout, g_MinVerticalEdgesPointsDensity, "min_VEdges_points_density");
+    WriteProperty(fout, g_MinNEdgesPointsDensity, "min_NEdges_points_density");
 
     WriteProperty(fout, g_DL, "sub_frame_length");
     WriteProperty(fout, g_tp, "text_procent");
@@ -914,13 +914,13 @@ void CMainFrame::OnFileOpenPreviousVideo(wxCommandEvent& event)
     m_FileName = std::string(str);
 
     fin.getline(str, 300);
-    m_BegTime = (qint64)strtod(str, NULL);
+    m_BegTime = (qint64)strtod(str, 0);
 
     fin.getline(str, 300);
-    m_EndTime = (qint64)strtod(str, NULL);
+    m_EndTime = (qint64)strtod(str, 0);
 
     fin.getline(str, 300);
-    m_type = (int)strtod(str, NULL);
+    m_type = (int)strtod(str, 0);
 
     fin.close();
 
@@ -1110,7 +1110,7 @@ void ReadProperty(std::ifstream &fin, int &val, std::string Name)
     
     if (!fin.eof()) 
     {
-        val = (int)strtod(str, NULL);
+        val = (int)strtod(str, 0);
     }
 }
 
@@ -1134,7 +1134,7 @@ void ReadProperty(std::ifstream &fin, bool &val, std::string Name)
     
     if (!fin.eof()) 
     {
-        int get_val = (int)strtod(str, NULL);
+        int get_val = (int)strtod(str, 0);
 
         if (get_val != 0)
         {
@@ -1167,7 +1167,7 @@ void ReadProperty(std::ifstream &fin, double &val, std::string Name)
     
     if (!fin.eof()) 
     {
-        val = strtod(str, NULL);
+        val = strtod(str, 0);
     }
 }
 

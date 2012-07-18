@@ -36,7 +36,7 @@ void CImageWnd::OnPaint(wxPaintEvent& WXUNUSED(event))
 {
     wxPaintDC dc(this);
 
-    if ( (m_pIB != NULL) && (m_pIB->m_pBmp != NULL) )
+    if ( (m_pIB != 0) && (m_pIB->m_pBmp != 0) )
     {
         int w, h;
 
@@ -70,21 +70,21 @@ CImageBox::CImageBox(CMainFrame* pMF)
 
     m_w = 0;
     m_h = 0;
-    m_pBmp = NULL;
-    m_pBmpScaled = NULL;
+    m_pBmp = 0;
+    m_pBmpScaled = 0;
 
     m_WasInited = false;
 }
 
 CImageBox::~CImageBox()
 {
-    if (m_pBmp != NULL)
+    if (m_pBmp != 0)
     {
         delete m_pBmp;
-        m_pBmp = NULL;
+        m_pBmp = 0;
 
         delete m_pBmpScaled;
-        m_pBmpScaled = NULL;
+        m_pBmpScaled = 0;
     }
 }
 
@@ -146,7 +146,7 @@ void CImageBox::OnSize( wxSizeEvent& event )
 
 void CImageBox::ClearScreen()
 {
-    if (m_pBmp != NULL) 
+    if (m_pBmp != 0) 
     {
         delete m_pBmp;
         m_pBmp = new wxBitmap(m_w, m_h);
@@ -161,10 +161,10 @@ void CImageBox::ClearScreen()
 void CImageBox::ViewRGBImage(int *Im, int w, int h)
 {
     int i, x, y;
-    quint8 *color;
+    uchar *color;
     wxMemoryDC dc;
 
-    if (m_pBmp == NULL) 
+    if (m_pBmp == 0) 
     {
         m_pBmp = new wxBitmap(w, h);
         m_w = w;
@@ -187,13 +187,13 @@ void CImageBox::ViewRGBImage(int *Im, int w, int h)
     for(y=0, i=0; y<h; y++)
     for(x=0; x<w; x++, i++)
     {
-        color = (quint8*)(&Im[i]);
+        color = (uchar*)(&Im[i]);
 
         dc.SetPen(wxPen(wxColor(color[2], color[1], color[0])));
         dc.DrawPoint(x, y);
     }
     
-    if (m_pBmpScaled == NULL)
+    if (m_pBmpScaled == 0)
     {
         m_pBmpScaled = new wxBitmap(*m_pBmp);
     }
@@ -211,10 +211,10 @@ void CImageBox::ViewRGBImage(int *Im, int w, int h)
 void CImageBox::ViewGrayscaleImage(int *Im, int w, int h)
 {
     int i, x, y;
-    quint8 color;
+    uchar color;
     wxMemoryDC dc;
 
-    if (m_pBmp == NULL) 
+    if (m_pBmp == 0) 
     {
         m_pBmp = new wxBitmap(w, h);
         m_w = w;
@@ -243,7 +243,7 @@ void CImageBox::ViewGrayscaleImage(int *Im, int w, int h)
         dc.DrawPoint(x, y);
     }
 
-    if (m_pBmpScaled == NULL)
+    if (m_pBmpScaled == 0)
     {
         m_pBmpScaled = new wxBitmap(*m_pBmp);
     }
@@ -261,10 +261,10 @@ void CImageBox::ViewGrayscaleImage(int *Im, int w, int h)
 void CImageBox::ViewImage(int *Im, int w, int h)
 {
     int i, x, y;
-    quint8 *color;
+    uchar *color;
     wxMemoryDC dc;
 
-    if (m_pBmp == NULL) 
+    if (m_pBmp == 0) 
     {
         m_pBmp = new wxBitmap(w, h);
         m_w = w;
@@ -290,7 +290,7 @@ void CImageBox::ViewImage(int *Im, int w, int h)
     for(y=0, i=0; y<h; y++)
     for(x=0; x<w; x++, i++)
     {
-        color = (quint8*)(&Im[i]);
+        color = (uchar*)(&Im[i]);
 
         if (Im[i] == 0)
         {
@@ -304,7 +304,7 @@ void CImageBox::ViewImage(int *Im, int w, int h)
         }
     }    
 
-    if (m_pBmpScaled == NULL)
+    if (m_pBmpScaled == 0)
     {
         m_pBmpScaled = new wxBitmap(*m_pBmp);
     }

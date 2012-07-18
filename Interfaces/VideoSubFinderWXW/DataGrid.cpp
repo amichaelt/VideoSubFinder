@@ -81,7 +81,7 @@ public:
         if (res == true)
         {
             Str = grid->GetCellValue(row, col);
-            val = (int)strtod(Str, NULL);
+            val = (int)strtod(Str, 0);
             
             if ( (val >= m_vmin) && (val <= m_vmax) )
             {
@@ -137,7 +137,7 @@ public:
         if (res == true)
         {
             Str = grid->GetCellValue(row, col);
-            val = strtod(Str, NULL);
+            val = strtod(Str, 0);
             
             if ( (val >= m_vmin) && (val <= m_vmax) )
             {

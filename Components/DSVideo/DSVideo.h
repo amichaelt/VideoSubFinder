@@ -37,12 +37,12 @@
 
 class DSVideo;
 
-class CTransNull32 : public CTransInPlaceFilter
+class CTrans032 : public CTransInPlaceFilter
 {
 public:
     int **videoBuffer;
     bool *gotImage;
-    bool *isNullRenderSet;
+    bool *is0RenderSet;
     bool tryingToGetImage; 
     qint64 *startTime;
     IMediaControl    *mediaControl;
@@ -51,9 +51,9 @@ public:
     int videoHeight;
     int reInitialize;
 
-    CTransNull32(int **inBuffer, qint64 *inStartTime, 
+    CTrans032(int **inBuffer, qint64 *inStartTime, 
                  bool *inGotImage, IMediaControl *inMediaControl,
-                 bool *inIsNullRenderSet, LPUNKNOWN punk, HRESULT *phr);
+                 bool *inIs0RenderSet, LPUNKNOWN punk, HRESULT *phr);
 
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
@@ -66,13 +66,13 @@ class MySampleGrabberCallback :    public ISampleGrabberCB
 public:
     int             **m_ppBuffer;
     bool            *m_pImageGeted;
-    bool            *m_pIsSetNullRender;
+    bool            *m_pIsSet0Render;
     qint64             *m_pST;
     DSVideo            *m_pVideo;
     
     MySampleGrabberCallback( int **ppBuffer, qint64 *pST, 
                              bool *pImageGeted, DSVideo *pVideo,
-                             bool *pIsSetNullRender);
+                             bool *pIsSet0Render);
 
     STDMETHODIMP_(ULONG) AddRef() { return 1; }
     
@@ -80,7 +80,7 @@ public:
 
     STDMETHODIMP QueryInterface(REFIID riid, void **ppvObject)
     {
-        if (NULL == ppvObject) return E_POINTER;
+        if (0 == ppvObject) return E_POINTER;
         
         if (riid == __uuidof(IUnknown))
         {
@@ -115,7 +115,7 @@ public:
     
 public:        
     bool            m_IsMSSuported;
-    bool            m_IsSetNullRender;
+    bool            m_IsSet0Render;
 
     int     *m_pBuffer;
     int     m_BufferSize;
@@ -138,8 +138,8 @@ public:
     IBaseFilter        *m_pSourceFilter;
     IBaseFilter        *m_pSampleGrabberFilter; 
     IBaseFilter        *m_pVideoRenderFilter;
-    IBaseFilter        *m_pTransNull32Filter;
-    CTransNull32    *m_pTransNull32;
+    IBaseFilter        *m_pTrans032Filter;
+    CTrans032    *m_pTrans032;
 
     ICaptureGraphBuilder2  *m_pBuilder;
 
@@ -154,7 +154,7 @@ public:
     bool OpenMovieHard(std::string csMovieName, void *pHWnd);
 
     bool SetVideoWindowPlacement(void *pHWnd);
-    bool SetNullRender();
+    bool Set0Render();
 
     bool CloseMovie();
     

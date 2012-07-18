@@ -191,7 +191,7 @@ void CSSOWnd::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
     }
 
     *pResult = 0;
-    pNMHDR = NULL;*/
+    pNMHDR = 0;*/
 }
 
 void CSSOWnd::OnSize(UINT nType, int cx, int cy)

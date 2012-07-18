@@ -22,43 +22,41 @@
 #include <QtCore/QtGlobal>
 #include <QImage>
 
-void    (*g_pViewRGBImage)(int *Im, int w, int h);
-void    (*g_pViewImage[2])(int *Im, int w, int h);
+void    (*g_pViewRGBImage)(int *Image, int width, int height);
+void    (*g_pViewImage[2])(int *Image, int width, int height);
 
-int g_W;
-int g_H;
-int g_w;
-int g_h;
+int g_Width;
+int g_Height;
+int g_width;
+int g_height;
 int g_xmin;
 int g_xmax;
 int g_ymin;
 int g_ymax;
 
-std::string  g_dir;
+std::string  g_Directory;
 
-double    g_mthr = 0.4;
-double    g_mvthr = 0.3;
-double    g_mhthr = 0.2;
-double    g_mnthr = 0.3;
-int        g_hvt = 65;     
-int        g_segw = 8;
-int     g_segh = 3;  
-int        g_msegc = 2;
-int        g_scd = 800;
-int        g_smcd = 600;
-double    g_btd = 0.05;
-double    g_tco = 0.1;
-double    g_tcpo = 0.5;
+double g_ModerateThreshold = 0.4;
+double g_ModerateVerticalEdgesThreshold = 0.3;
+double g_ModerateHorizontalEdgesThreshold = 0.2;
+double g_ModerateNEdgesThreshold = 0.3;
+int g_HorizontalVerticalEdgesThreshold = 65;     
+int g_SegmentWidth = 8;
+int g_SegmentHeight = 3;  
+int g_MinSegmentsCount = 2;
+int g_MinSumColorDifference = 800;
+int g_MinSumMultipleColorDifference = 600;
+double g_DistanceBetweenText = 0.05;
+double g_CenterTextOffset = 0.1;
+double g_CenterTextOffsetPercent = 0.5;
 
-int        g_mpn = 50;     //min points number
-double    g_mpd = 0.7; //0.7
-double    g_mpvd = 0.3; //0.3
-double    g_mphd = 0.2; //0.2
-double    g_mpnd = 0.3; //0.3
-double    g_mpved = 0.3; //0.3
-double    g_mpned = 0.4; //0.4 
-
-int g_min_color = 5;
+int g_MinPointsNumber = 50;                             //min points number
+double g_MinPointsDensity = 0.7;                        //0.7
+double g_MinVerticalEdgesPointsDensityPerLine = 0.3;    //0.3
+double g_MinHorizontalEdgesPointsDensityPerLine = 0.2;  //0.2
+double g_MinNEdgesPointsDensityPerLine = 0.3;           //0.3
+double g_MinVerticalEdgesPointsDensity = 0.3;           //0.3
+double g_MinNEdgesPointsDensity = 0.4;                  //0.4 
 
 int g_dmaxy = 8;
 int g_dminy = 8;
@@ -74,123 +72,126 @@ int g_min_dQ = 9;
 int g_min_ddI = 14;
 int g_min_ddQ = 14;
 
-qint64 *g_ImYIQ = NULL;
-qint64 *g_ImRES1_64 = NULL;
-qint64 *g_ImRES2_64 = NULL;
+qint64 *g_ImageYIQ = 0;
+qint64 *g_ImRES1_64 = 0;
+qint64 *g_ImRES2_64 = 0;
 
-int *g_ImY = NULL;
-int *g_ImU = NULL;
-int *g_ImV = NULL;
-int *g_ImI = NULL;
-int *g_ImQ = NULL;
+//luma info
+int *g_ImageY = 0;
+//YUV chroma info
+int *g_ImageU = 0;
+int *g_ImageV = 0;
+//YIQ chroma info
+int *g_ImageI = 0;
+int *g_ImageQ = 0;
 
-int *g_ImYMOE = NULL;
-int *g_ImUMOE = NULL;
-int *g_ImVMOE = NULL;
-int *g_ImCMOE = NULL;
+int *g_ImYMOE = 0;
+int *g_ImUMOE = 0;
+int *g_ImVMOE = 0;
+int *g_ImCMOE = 0;
 
-int *g_Im = NULL;
-int *g_ImRES1 = NULL;
-int *g_ImRES2 = NULL;
-int *g_ImRES3 = NULL;
-int *g_ImRES4 = NULL;
-int *g_ImRES5 = NULL;
-int *g_ImRES6 = NULL;
-int *g_ImRES7 = NULL;
-int *g_ImRES8 = NULL;
-int *g_ImRES9 = NULL;
+int *g_Image = 0;
+int *g_ImRES1 = 0;
+int *g_ImRES2 = 0;
+int *g_ImRES3 = 0;
+int *g_ImRES4 = 0;
+int *g_ImRES5 = 0;
+int *g_ImRES6 = 0;
+int *g_ImRES7 = 0;
+int *g_ImRES8 = 0;
+int *g_ImRES9 = 0;
 
-int *g_ImSF = NULL;
-int *g_ImFF = NULL;
-int *g_ImRR = NULL;
+int *g_ImSF = 0;
+int *g_ImFF = 0;
+int *g_ImRR = 0;
 
-int *g_ImRGB = NULL;
-int *g_ImF[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+int *g_ImRGB = 0;
+int *g_ImF[6] = {0, 0, 0, 0, 0, 0};
 
 #define MAX_EDGE_STR 786432 //на сам деле ~ 32*3*255
 
 int g_edgeStr[MAX_EDGE_STR];
-int *g_pLB = NULL;
-int *g_pLE = NULL;
+int *g_pLB = 0;
+int *g_pLE = 0;
 
 int g_LN;
 
-int *g_pL2 = NULL;
-int *g_pLB2 = NULL;
-int *g_pLE2 = NULL;
-int *g_pLB3 = NULL;
-int *g_pLE3 = NULL;
-int *g_pLB4 = NULL;
-int *g_pLE4 = NULL;
-int *g_pLB5 = NULL;
-int *g_pLE5 = NULL;
-int *g_pLB6 = NULL;
-int *g_pLE6 = NULL;
-int *g_pLB7 = NULL;
-int *g_pLE7 = NULL;
-int *g_pLB8 = NULL;
-int *g_pLE8 = NULL;
-int *g_pLB9 = NULL;
-int *g_pLE9 = NULL;
+int *g_pL2 = 0;
+int *g_pLB2 = 0;
+int *g_pLE2 = 0;
+int *g_pLB3 = 0;
+int *g_pLE3 = 0;
+int *g_pLB4 = 0;
+int *g_pLE4 = 0;
+int *g_pLB5 = 0;
+int *g_pLE5 = 0;
+int *g_pLB6 = 0;
+int *g_pLE6 = 0;
+int *g_pLB7 = 0;
+int *g_pLE7 = 0;
+int *g_pLB8 = 0;
+int *g_pLE8 = 0;
+int *g_pLB9 = 0;
+int *g_pLE9 = 0;
 
-int *g_pLL = NULL;
-int *g_pLR = NULL;
-int *g_pLLB = NULL;
-int *g_pLLE = NULL;
-int *g_pLW = NULL;
-int *g_pLNN = NULL;
-int **g_ppLLLB = NULL;
-int **g_ppLLLE = NULL;
+int *g_pLL = 0;
+int *g_pLR = 0;
+int *g_pLLB = 0;
+int *g_pLLE = 0;
+int *g_pLW = 0;
+int *g_pLNN = 0;
+int **g_ppLLLB = 0;
+int **g_ppLLLE = 0;
 
-int *g_pLL2 = NULL;
-int *g_pLR2 = NULL;
-int *g_pLLB2 = NULL;
-int *g_pLLE2 = NULL;
-int *g_pLW2 = NULL;
-int *g_pLNN2 = NULL;
-int **g_ppLLLB2 = NULL;
-int **g_ppLLLE2 = NULL;
+int *g_pLL2 = 0;
+int *g_pLR2 = 0;
+int *g_pLLB2 = 0;
+int *g_pLLE2 = 0;
+int *g_pLW2 = 0;
+int *g_pLNN2 = 0;
+int **g_ppLLLB2 = 0;
+int **g_ppLLLE2 = 0;
 
-int *g_pLL3 = NULL;
-int *g_pLR3 = NULL;
-int *g_pLLB3 = NULL;
-int *g_pLLE3 = NULL;
-int *g_pLW3 = NULL;
-int *g_pLNN3 = NULL;
-int **g_ppLN3 = NULL;
+int *g_pLL3 = 0;
+int *g_pLR3 = 0;
+int *g_pLLB3 = 0;
+int *g_pLLE3 = 0;
+int *g_pLW3 = 0;
+int *g_pLNN3 = 0;
+int **g_ppLN3 = 0;
 
-int *g_pLLB4 = NULL;
-int *g_pLLE4 = NULL;
+int *g_pLLB4 = 0;
+int *g_pLLE4 = 0;
 
-int *g_pImFF1 = NULL;
-int *g_pImVE1 = NULL;
-int *g_pImNE1 = NULL;
-int *g_pImFF2 = NULL;
-int *g_pImVE2 = NULL;
-int *g_pImNE2 = NULL;
-int *g_pImTEMP1 = NULL;
-int *g_pImTEMP2 = NULL;
-int *g_pImTEMP3 = NULL;
-int *g_ImRES10 = NULL;
-int *g_ImRES11 = NULL;
-int *g_ImRES12 = NULL;
+int *g_pImFF1 = 0;
+int *g_pImVE1 = 0;
+int *g_pImNE1 = 0;
+int *g_pImFF2 = 0;
+int *g_pImVE2 = 0;
+int *g_pImNE2 = 0;
+int *g_TempImage1 = 0;
+int *g_TempImage2 = 0;
+int *g_TempImage3 = 0;
+int *g_ImRES10 = 0;
+int *g_ImRES11 = 0;
+int *g_ImRES12 = 0;
 
 int g_scale = 1;
 
-int g_blnVNE = 0;
-int g_blnHE = 0;
+bool g_blnVNE = false;
+bool g_blnHE = false;
 
 int g_str_size = 256*2;
 
 bool g_hard_sub_mining = false;
-int g_show_results = 1;
+bool g_show_results = true;
 
 bool g_wxImageHandlersInitialized = false;
 
 #ifdef _DEBUG
-int g_debug = 1;
+bool g_debug = true;
 #else
-int g_debug = 0;
+bool g_debug = false;
 #endif
 
 bool g_MMX_SSE = true;
@@ -201,16 +202,16 @@ void InitIPData(int w, int h, int scale)
     
     ReleaseIPData();
 
-    g_W = w;
-    g_H = h;
+    g_Width = w;
+    g_Height = h;
 
     g_scale = scale;
 
     //-------------
     size = w*h*scale;    
     
-    g_ImYIQ = new qint64[size];
-    memset(g_ImYIQ, 0, size*sizeof(qint64));
+    g_ImageYIQ = new qint64[size];
+    memset(g_ImageYIQ, 0, size*sizeof(qint64));
 
     g_ImRES1_64 = new qint64[size];
     memset(g_ImRES1_64, 0, size*sizeof(qint64));
@@ -218,20 +219,20 @@ void InitIPData(int w, int h, int scale)
     g_ImRES2_64 = new qint64[size];
     memset(g_ImRES2_64, 0, size*sizeof(qint64));
 
-    g_ImY = new int[size];
-    memset(g_ImY, 0, size*sizeof(int));
+    g_ImageY = new int[size];
+    memset(g_ImageY, 0, size*sizeof(int));
 
-    g_ImU = new int[size];
-    memset(g_ImU, 0, size*sizeof(int));
+    g_ImageU = new int[size];
+    memset(g_ImageU, 0, size*sizeof(int));
 
-    g_ImV = new int[size];
-    memset(g_ImV, 0, size*sizeof(int));
+    g_ImageV = new int[size];
+    memset(g_ImageV, 0, size*sizeof(int));
 
-    g_ImI = new int[size];
-    memset(g_ImI, 0, size*sizeof(int));
+    g_ImageI = new int[size];
+    memset(g_ImageI, 0, size*sizeof(int));
 
-    g_ImQ = new int[size];
-    memset(g_ImQ, 0, size*sizeof(int));
+    g_ImageQ = new int[size];
+    memset(g_ImageQ, 0, size*sizeof(int));
 
     g_ImYMOE = new int[size];
     memset(g_ImYMOE, 0, size*sizeof(int));
@@ -245,8 +246,8 @@ void InitIPData(int w, int h, int scale)
     g_ImCMOE = new int[size];
     memset(g_ImCMOE, 0, size*sizeof(int));
 
-    g_Im = new int[size];
-    memset(g_Im, 0, size*sizeof(int));
+    g_Image = new int[size];
+    memset(g_Image, 0, size*sizeof(int));
 
     g_ImRES1 = new int[size];
     memset(g_ImRES1, 0, size*sizeof(int));
@@ -290,7 +291,7 @@ void InitIPData(int w, int h, int scale)
     //-------------
 
     //-------------
-    size = g_W*g_H;
+    size = g_Width*g_Height;
 
     g_ImRGB = new int[size];
     memset(g_ImRGB, 0, size*sizeof(int));
@@ -303,11 +304,11 @@ void InitIPData(int w, int h, int scale)
     //-------------
 
     //-------------
-    size = g_W*3*4;    
+    size = g_Width*3*4;    
     //-------------
 
     //-------------
-    size = max(g_W, g_H);
+    size = max(g_Width, g_Height);
 
     g_pLB = new int[size];
     memset(g_pLB, 0, size*sizeof(int));
@@ -368,7 +369,7 @@ void InitIPData(int w, int h, int scale)
     //-------------
 
     //-------------
-    size = max(g_W, g_H);
+    size = max(g_Width, g_Height);
 
     g_pLL = new int[size];
     memset(g_pLL, 0, size*sizeof(int));    
@@ -432,15 +433,15 @@ void InitIPData(int w, int h, int scale)
     //-------------
 
     //-------------
-    size = g_H;    
+    size = g_Height;    
 
     g_ppLLLB = new int*[size];
     memset(g_ppLLLB, 0, size*sizeof(int*));    
 
     for(i=0; i<size; i++)
     {
-        g_ppLLLB[i] = new int[g_H];
-        memset(g_ppLLLB[i], 0, g_H*sizeof(int));    
+        g_ppLLLB[i] = new int[g_Height];
+        memset(g_ppLLLB[i], 0, g_Height*sizeof(int));    
     }
 
     g_ppLLLE = new int*[size];
@@ -448,8 +449,8 @@ void InitIPData(int w, int h, int scale)
 
     for(i=0; i<size; i++)
     {
-        g_ppLLLE[i] = new int[g_H];
-        memset(g_ppLLLE[i], 0, g_H*sizeof(int));    
+        g_ppLLLE[i] = new int[g_Height];
+        memset(g_ppLLLE[i], 0, g_Height*sizeof(int));    
     }
 
     g_ppLLLB2 = new int*[size];
@@ -457,8 +458,8 @@ void InitIPData(int w, int h, int scale)
 
     for(i=0; i<size; i++)
     {
-        g_ppLLLB2[i] = new int[g_H];
-        memset(g_ppLLLB2[i], 0, g_H*sizeof(int));    
+        g_ppLLLB2[i] = new int[g_Height];
+        memset(g_ppLLLB2[i], 0, g_Height*sizeof(int));    
     }
 
     g_ppLLLE2 = new int*[size];
@@ -466,8 +467,8 @@ void InitIPData(int w, int h, int scale)
 
     for(i=0; i<size; i++)
     {
-        g_ppLLLE2[i] = new int[g_H];
-        memset(g_ppLLLE2[i], 0, g_H*sizeof(int));    
+        g_ppLLLE2[i] = new int[g_Height];
+        memset(g_ppLLLE2[i], 0, g_Height*sizeof(int));    
     }
 
     g_ppLN3 = new int*[size];
@@ -475,13 +476,13 @@ void InitIPData(int w, int h, int scale)
 
     for(i=0; i<size; i++)
     {
-        g_ppLN3[i] = new int[g_W];
-        memset(g_ppLN3[i], 0, g_W*sizeof(int));    
+        g_ppLN3[i] = new int[g_Width];
+        memset(g_ppLN3[i], 0, g_Width*sizeof(int));    
     }
     //-------------
 
     //-------------
-    size = g_W*g_H;
+    size = g_Width*g_Height;
 
     g_pImFF1 = new int[size];
     memset(g_pImFF1, 0, size*sizeof(int));
@@ -501,14 +502,14 @@ void InitIPData(int w, int h, int scale)
     g_pImNE2 = new int[size];
     memset(g_pImNE2, 0, size*sizeof(int));
 
-    g_pImTEMP1 = new int[size];
-    memset(g_pImTEMP1, 0, size*sizeof(int));
+    g_TempImage1 = new int[size];
+    memset(g_TempImage1, 0, size*sizeof(int));
 
-    g_pImTEMP2 = new int[size];
-    memset(g_pImTEMP2, 0, size*sizeof(int));
+    g_TempImage2 = new int[size];
+    memset(g_TempImage2, 0, size*sizeof(int));
 
-    g_pImTEMP3 = new int[size];
-    memset(g_pImTEMP3, 0, size*sizeof(int));
+    g_TempImage3 = new int[size];
+    memset(g_TempImage3, 0, size*sizeof(int));
 
     g_ImRES10 = new int[size];
     memset(g_ImRES10, 0, size*sizeof(int));
@@ -526,580 +527,580 @@ void ReleaseIPData()
     int i;
 
     //-------------
-    if (g_ImYIQ != NULL) 
+    if (g_ImageYIQ) 
     {
-        delete[] g_ImYIQ;
-        g_ImYIQ = NULL;
+        delete[] g_ImageYIQ;
+        g_ImageYIQ = 0;
     }
 
-    if (g_ImRES1_64 != NULL) 
+    if (g_ImRES1_64) 
     {
         delete[] g_ImRES1_64;
-        g_ImRES1_64 = NULL;
+        g_ImRES1_64 = 0;
     }
 
-    if (g_ImRES2_64 != NULL) 
+    if (g_ImRES2_64) 
     {
         delete[] g_ImRES2_64;
-        g_ImRES2_64 = NULL;
+        g_ImRES2_64 = 0;
     }
     //-------------
 
     //-------------
-    if (g_ImY != NULL) 
+    if (g_ImageY) 
     {
-        delete[] g_ImY;
-        g_ImY = NULL;
+        delete[] g_ImageY;
+        g_ImageY = 0;
     }
 
-    if (g_ImU != NULL) 
+    if (g_ImageU) 
     {
-        delete[] g_ImU;
-        g_ImU = NULL;
+        delete[] g_ImageU;
+        g_ImageU = 0;
     }
 
-    if (g_ImV != NULL) 
+    if (g_ImageV) 
     {
-        delete[] g_ImV;
-        g_ImV = NULL;
+        delete[] g_ImageV;
+        g_ImageV = 0;
     }
 
-    if (g_ImI != NULL) 
+    if (g_ImageI) 
     {
-        delete[] g_ImI;
-        g_ImI = NULL;
+        delete[] g_ImageI;
+        g_ImageI = 0;
     }
 
-    if (g_ImQ != NULL) 
+    if (g_ImageQ) 
     {
-        delete[] g_ImQ;
-        g_ImQ = NULL;
+        delete[] g_ImageQ;
+        g_ImageQ = 0;
     }
     //-------------
 
     //-------------
-    if (g_ImYMOE != NULL) 
+    if (g_ImYMOE) 
     {
         delete[] g_ImYMOE;
-        g_ImYMOE = NULL;
+        g_ImYMOE = 0;
     }
 
-    if (g_ImUMOE != NULL) 
+    if (g_ImUMOE) 
     {
         delete[] g_ImUMOE;
-        g_ImUMOE = NULL;
+        g_ImUMOE = 0;
     }
 
-    if (g_ImVMOE != NULL) 
+    if (g_ImVMOE) 
     {
         delete[] g_ImVMOE;
-        g_ImVMOE = NULL;
+        g_ImVMOE = 0;
     }
 
-    if (g_ImCMOE != NULL) 
+    if (g_ImCMOE) 
     {
         delete[] g_ImCMOE;
-        g_ImCMOE = NULL;
+        g_ImCMOE = 0;
     }
     //-------------
 
 
     //-------------
-    if (g_Im != NULL) 
+    if (g_Image) 
     {
-        delete[] g_Im;
-        g_Im = NULL;
+        delete[] g_Image;
+        g_Image = 0;
     }
 
-    if (g_ImRES1 != NULL) 
+    if (g_ImRES1) 
     {
         delete[] g_ImRES1;
-        g_ImRES1 = NULL;
+        g_ImRES1 = 0;
     }
 
-    if (g_ImRES2 != NULL) 
+    if (g_ImRES2) 
     {
         delete[] g_ImRES2;
-        g_ImRES2 = NULL;
+        g_ImRES2 = 0;
     }
 
-    if (g_ImRES3 != NULL) 
+    if (g_ImRES3) 
     {
         delete[] g_ImRES3;
-        g_ImRES3 = NULL;
+        g_ImRES3 = 0;
     }
 
-    if (g_ImRES4 != NULL) 
+    if (g_ImRES4) 
     {
         delete[] g_ImRES4;
-        g_ImRES4 = NULL;
+        g_ImRES4 = 0;
     }
 
-    if (g_ImRES5 != NULL) 
+    if (g_ImRES5) 
     {
         delete[] g_ImRES5;
-        g_ImRES5 = NULL;
+        g_ImRES5 = 0;
     }
 
-    if (g_ImRES6 != NULL) 
+    if (g_ImRES6) 
     {
         delete[] g_ImRES6;
-        g_ImRES6 = NULL;
+        g_ImRES6 = 0;
     }
 
-    if (g_ImRES7 != NULL) 
+    if (g_ImRES7) 
     {
         delete[] g_ImRES7;
-        g_ImRES7 = NULL;
+        g_ImRES7 = 0;
     }
 
-    if (g_ImRES8 != NULL) 
+    if (g_ImRES8) 
     {
         delete[] g_ImRES8;
-        g_ImRES8 = NULL;
+        g_ImRES8 = 0;
     }
 
-    if (g_ImRES9 != NULL) 
+    if (g_ImRES9) 
     {
         delete[] g_ImRES9;
-        g_ImRES9 = NULL;
+        g_ImRES9 = 0;
     }
     //-------------
 
     //-------------
-    if (g_ImSF != NULL) 
+    if (g_ImSF) 
     {
         delete[] g_ImSF;
-        g_ImSF = NULL;
+        g_ImSF = 0;
     }
 
-    if (g_ImFF != NULL) 
+    if (g_ImFF) 
     {
         delete[] g_ImFF;
-        g_ImFF = NULL;
+        g_ImFF = 0;
     }
 
-    if (g_ImRR != NULL) 
+    if (g_ImRR) 
     {
         delete[] g_ImRR;
-        g_ImRR = NULL;
+        g_ImRR = 0;
     }
     //-------------
 
     //-------------
-    if (g_ImRGB != NULL)
+    if (g_ImRGB)
     {
         delete[] g_ImRGB;
-        g_ImRGB = NULL;
+        g_ImRGB = 0;
     }
 
     for(i=0; i<6; i++)
     {
-        if (g_ImF[i] != NULL)
+        if (g_ImF[i])
         {
             delete[] g_ImF[i];
-            g_ImF[i] = NULL;
+            g_ImF[i] = 0;
         }
     }
 
     //-------------
-    if (g_pLB != NULL) 
+    if (g_pLB) 
     {
         delete[] g_pLB;
-        g_pLB = NULL;
+        g_pLB = 0;
     }
     
-    if (g_pLE != NULL) 
+    if (g_pLE) 
     {
         delete[] g_pLE;
-        g_pLE = NULL;
+        g_pLE = 0;
     }
 
-    if (g_pL2 != NULL) 
+    if (g_pL2) 
     {
         delete[] g_pL2;
-        g_pL2 = NULL;
+        g_pL2 = 0;
     }
 
-    if (g_pLB2 != NULL) 
+    if (g_pLB2) 
     {
         delete[] g_pLB2;
-        g_pLB2 = NULL;
+        g_pLB2 = 0;
     }
     
-    if (g_pLE2 != NULL) 
+    if (g_pLE2) 
     {
         delete[] g_pLE2;
-        g_pLE2 = NULL;
+        g_pLE2 = 0;
     }
 
-    if (g_pLB3 != NULL) 
+    if (g_pLB3) 
     {
         delete[] g_pLB3;
-        g_pLB3 = NULL;
+        g_pLB3 = 0;
     }
 
-    if (g_pLE3 != NULL) 
+    if (g_pLE3) 
     {
         delete[] g_pLE3;
-        g_pLE3 = NULL;
+        g_pLE3 = 0;
     }
 
-    if (g_pLB4 != NULL) 
+    if (g_pLB4) 
     {
         delete[] g_pLB4;
-        g_pLB4 = NULL;
+        g_pLB4 = 0;
     }
     
-    if (g_pLE4 != NULL) 
+    if (g_pLE4) 
     {
         delete[] g_pLE4;
-        g_pLE4 = NULL;
+        g_pLE4 = 0;
     }
 
-    if (g_pLB5 != NULL) 
+    if (g_pLB5) 
     {
         delete[] g_pLB5;
-        g_pLB5 = NULL;
+        g_pLB5 = 0;
     }
     
-    if (g_pLE5 != NULL) 
+    if (g_pLE5) 
     {
         delete[] g_pLE5;
-        g_pLE5 = NULL;
+        g_pLE5 = 0;
     }
 
-    if (g_pLB6 != NULL) 
+    if (g_pLB6) 
     {
         delete[] g_pLB6;
-        g_pLB6 = NULL;
+        g_pLB6 = 0;
     }
     
-    if (g_pLE6 != NULL) 
+    if (g_pLE6) 
     {
         delete[] g_pLE6;
-        g_pLE6 = NULL;
+        g_pLE6 = 0;
     }
 
-    if (g_pLB7 != NULL) 
+    if (g_pLB7) 
     {
         delete[] g_pLB7;
-        g_pLB7 = NULL;
+        g_pLB7 = 0;
     }
     
-    if (g_pLE7 != NULL) 
+    if (g_pLE7) 
     {
         delete[] g_pLE7;
-        g_pLE7 = NULL;
+        g_pLE7 = 0;
     }
 
-    if (g_pLB8 != NULL) 
+    if (g_pLB8) 
     {
         delete[] g_pLB8;
-        g_pLB8 = NULL;
+        g_pLB8 = 0;
     }
     
-    if (g_pLE8 != NULL) 
+    if (g_pLE8) 
     {
         delete[] g_pLE8;
-        g_pLE8 = NULL;
+        g_pLE8 = 0;
     }
 
-    if (g_pLB9 != NULL) 
+    if (g_pLB9) 
     {
         delete[] g_pLB9;
-        g_pLB9 = NULL;
+        g_pLB9 = 0;
     }
     
-    if (g_pLE9 != NULL) 
+    if (g_pLE9) 
     {
         delete[] g_pLE9;
-        g_pLE9 = NULL;
+        g_pLE9 = 0;
     }
     //-------------
 
     //-------------
-    if (g_pLL != NULL)
+    if (g_pLL)
     {
         delete[] g_pLL;
-        g_pLL = NULL;
+        g_pLL = 0;
     }
 
-    if (g_pLR != NULL)
+    if (g_pLR)
     {
         delete[] g_pLR;
-        g_pLR = NULL;
+        g_pLR = 0;
     }
 
-    if (g_pLLB != NULL)
+    if (g_pLLB)
     {
         delete[] g_pLLB;
-        g_pLLB = NULL;
+        g_pLLB = 0;
     }
 
-    if (g_pLLE != NULL)
+    if (g_pLLE)
     {
         delete[] g_pLLE;
-        g_pLLE = NULL;
+        g_pLLE = 0;
     }
 
-    if (g_pLW != NULL)
+    if (g_pLW)
     {
         delete[] g_pLW;
-        g_pLW = NULL;
+        g_pLW = 0;
     }
 
-    if (g_pLNN != NULL)
+    if (g_pLNN)
     {
         delete[] g_pLNN;
-        g_pLNN = NULL;
+        g_pLNN = 0;
     }
 
-    if (g_pLL2 != NULL)
+    if (g_pLL2)
     {
         delete[] g_pLL2;
-        g_pLL2 = NULL;
+        g_pLL2 = 0;
     }
 
-    if (g_pLR2 != NULL)
+    if (g_pLR2)
     {
         delete[] g_pLR2;
-        g_pLR2 = NULL;
+        g_pLR2 = 0;
     }
 
-    if (g_pLLB2 != NULL)
+    if (g_pLLB2)
     {
         delete[] g_pLLB2;
-        g_pLLB2 = NULL;
+        g_pLLB2 = 0;
     }
 
-    if (g_pLLE2 != NULL)
+    if (g_pLLE2)
     {
         delete[] g_pLLE2;
-        g_pLLE2 = NULL;
+        g_pLLE2 = 0;
     }
 
-    if (g_pLW2 != NULL)
+    if (g_pLW2)
     {
         delete[] g_pLW2;
-        g_pLW2 = NULL;
+        g_pLW2 = 0;
     }
 
-    if (g_pLNN2 != NULL)
+    if (g_pLNN2)
     {
         delete[] g_pLNN2;
-        g_pLNN2 = NULL;
+        g_pLNN2 = 0;
     }
 
-    if (g_pLL3 != NULL)
+    if (g_pLL3)
     {
         delete[] g_pLL3;
-        g_pLL3 = NULL;
+        g_pLL3 = 0;
     }
 
-    if (g_pLR3 != NULL)
+    if (g_pLR3)
     {
         delete[] g_pLR3;
-        g_pLR3 = NULL;
+        g_pLR3 = 0;
     }
 
-    if (g_pLLB3 != NULL)
+    if (g_pLLB3)
     {
         delete[] g_pLLB3;
-        g_pLLB3 = NULL;
+        g_pLLB3 = 0;
     }
 
-    if (g_pLLE3 != NULL)
+    if (g_pLLE3)
     {
         delete[] g_pLLE3;
-        g_pLLE3 = NULL;
+        g_pLLE3 = 0;
     }
 
-    if (g_pLW3 != NULL)
+    if (g_pLW3)
     {
         delete[] g_pLW3;
-        g_pLW3 = NULL;
+        g_pLW3 = 0;
     }
 
-    if (g_pLNN3 != NULL)
+    if (g_pLNN3)
     {
         delete[] g_pLNN3;
-        g_pLNN3 = NULL;
+        g_pLNN3 = 0;
     }
 
-    if (g_pLLB4 != NULL)
+    if (g_pLLB4)
     {
         delete[] g_pLLB4;
-        g_pLLB4 = NULL;
+        g_pLLB4 = 0;
     }
 
-    if (g_pLLE4 != NULL)
+    if (g_pLLE4)
     {
         delete[] g_pLLE4;
-        g_pLLE4 = NULL;
+        g_pLLE4 = 0;
     }
     //-------------
 
     //-------------
-    if (g_ppLLLB != NULL)
+    if (g_ppLLLB)
     {
-        for(i=0; i<g_H; i++)
+        for(i=0; i<g_Height; i++)
         {
-            if (g_ppLLLB[i] != NULL)
+            if (g_ppLLLB[i])
             {
                 delete[] g_ppLLLB[i];
-                g_ppLLLB[i] = NULL;
+                g_ppLLLB[i] = 0;
             }
         }
     
         delete[] g_ppLLLB;
-        g_ppLLLB = NULL;
+        g_ppLLLB = 0;
     }
 
-    if (g_ppLLLE != NULL)
+    if (g_ppLLLE)
     {
-        for(i=0; i<g_H; i++)
+        for(i=0; i<g_Height; i++)
         {
-            if (g_ppLLLE[i] != NULL)
+            if (g_ppLLLE[i])
             {
                 delete[] g_ppLLLE[i];
-                g_ppLLLE[i] = NULL;
+                g_ppLLLE[i] = 0;
             }
         }
     
         delete[] g_ppLLLE;
-        g_ppLLLE = NULL;
+        g_ppLLLE = 0;
     }
 
-    if (g_ppLLLB2 != NULL)
+    if (g_ppLLLB2)
     {
-        for(i=0; i<g_H; i++)
+        for(i=0; i<g_Height; i++)
         {
-            if (g_ppLLLB2[i] != NULL)
+            if (g_ppLLLB2[i])
             {
                 delete[] g_ppLLLB2[i];
-                g_ppLLLB2[i] = NULL;
+                g_ppLLLB2[i] = 0;
             }
         }
     
         delete[] g_ppLLLB2;
-        g_ppLLLB2 = NULL;
+        g_ppLLLB2 = 0;
     }
 
-    if (g_ppLLLE2 != NULL)
+    if (g_ppLLLE2)
     {
-        for(i=0; i<g_H; i++)
+        for(i=0; i<g_Height; i++)
         {
-            if (g_ppLLLE2[i] != NULL)
+            if (g_ppLLLE2[i])
             {
                 delete[] g_ppLLLE2[i];
-                g_ppLLLE2[i] = NULL;
+                g_ppLLLE2[i] = 0;
             }
         }
     
         delete[] g_ppLLLE2;
-        g_ppLLLE2 = NULL;
+        g_ppLLLE2 = 0;
     }
 
-    if (g_ppLN3 != NULL)
+    if (g_ppLN3)
     {
-        for(i=0; i<g_H; i++)
+        for(i=0; i<g_Height; i++)
         {
-            if (g_ppLN3[i] != NULL)
+            if (g_ppLN3[i])
             {
                 delete[] g_ppLN3[i];
-                g_ppLN3[i] = NULL;
+                g_ppLN3[i] = 0;
             }
         }
     
         delete[] g_ppLN3;
-        g_ppLN3 = NULL;
+        g_ppLN3 = 0;
     }
     //-------------
 
     //-------------
-    if (g_pImFF1 != NULL)
+    if (g_pImFF1)
     {
         delete[] g_pImFF1;
-        g_pImFF1 = NULL;
+        g_pImFF1 = 0;
     }
 
-    if (g_pImVE1 != NULL)
+    if (g_pImVE1)
     {
         delete[] g_pImVE1;
-        g_pImVE1 = NULL;
+        g_pImVE1 = 0;
     }
 
-    if (g_pImNE1 != NULL)
+    if (g_pImNE1)
     {
         delete[] g_pImNE1;
-        g_pImNE1 = NULL;
+        g_pImNE1 = 0;
     }
 
-    if (g_pImFF2 != NULL)
+    if (g_pImFF2)
     {
         delete[] g_pImFF2;
-        g_pImFF2 = NULL;
+        g_pImFF2 = 0;
     }
 
-    if (g_pImVE2 != NULL)
+    if (g_pImVE2)
     {
         delete[] g_pImVE2;
-        g_pImVE2 = NULL;
+        g_pImVE2 = 0;
     }
 
-    if (g_pImNE2 != NULL)
+    if (g_pImNE2)
     {
         delete[] g_pImNE2;
-        g_pImNE2 = NULL;
+        g_pImNE2 = 0;
     }
 
-    if (g_pImTEMP1 != NULL)
+    if (g_TempImage1)
     {
-        delete[] g_pImTEMP1;
-        g_pImTEMP1 = NULL;
+        delete[] g_TempImage1;
+        g_TempImage1 = 0;
     }
 
-    if (g_pImTEMP2 != NULL)
+    if (g_TempImage2)
     {
-        delete[] g_pImTEMP2;
-        g_pImTEMP2 = NULL;
+        delete[] g_TempImage2;
+        g_TempImage2 = 0;
     }
 
-    if (g_pImTEMP3 != NULL)
+    if (g_TempImage3)
     {
-        delete[] g_pImTEMP3;
-        g_pImTEMP3 = NULL;
+        delete[] g_TempImage3;
+        g_TempImage3 = 0;
     }
 
-    if (g_ImRES10 != NULL)
+    if (g_ImRES10)
     {
         delete[] g_ImRES10;
-        g_ImRES10 = NULL;
+        g_ImRES10 = 0;
     }
 
-    if (g_ImRES11 != NULL)
+    if (g_ImRES11)
     {
         delete[] g_ImRES11;
-        g_ImRES11 = NULL;
+        g_ImRES11 = 0;
     }
 
-    if (g_ImRES12 != NULL)
+    if (g_ImRES12)
     {
         delete[] g_ImRES12;
-        g_ImRES12 = NULL;
+        g_ImRES12 = 0;
     }
     //-------------
 }
 
 void RGB_to_YUV(int *ImIn, int *ImY, int *ImU, int *ImV, int w, int h)
 {
-    quint8 *color;
+    uchar *color;
     int i, r, g, b, y, u, v;
 
     for(i = 0; i < w * h; ++i)
     {
-        color = (quint8*)(&ImIn[i]);
+        color = (uchar*)(&ImIn[i]);
 
         r = color[2];
         g = color[1];
@@ -1173,12 +1174,12 @@ void YIQ_to_RGB(int Y, int I, int Q, int &R, int &G, int &B, int max_val)
 
 void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h)
 {
-    quint8 *color;
+    uchar *color;
     int i, r, g, b, Y, I, Q;
 
     for(i=0; i<w*h; i++)
     {
-        color = (quint8*)(&ImIn[i]);
+        color = (uchar*)(&ImIn[i]);
 
         r = color[2];
         g = color[1];
@@ -1219,7 +1220,7 @@ void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h)
 
 void RGB_to_YIQ(int *ImRGB, qint64 *ImYIQ, int w, int h)
 {
-    quint8 *color;
+    uchar *color;
     int i;
     int r, g, b, Y, I, Q;
     int *pImRGB = ImRGB;
@@ -1229,7 +1230,7 @@ void RGB_to_YIQ(int *ImRGB, qint64 *ImYIQ, int w, int h)
 
     for(i=0; i<w*h; i++, pImRGB++, pImYIQ++)
     {
-        color = (quint8*)pImRGB;
+        color = (uchar*)pImRGB;
 
         r = color[2];
         g = color[1];
@@ -1925,27 +1926,27 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
 {
     int *line=g_pL2, *lb=g_pLB2, *le=g_pLE2;
     int r0, g0, b0, r1, g1, b1;
-    int scd, segw, msegc, i, ib, ia, mi, cnt;
+    int scd, segw, msegc, i, ib, ia, mi, count;
     int dif, rdif, gdif, bdif;
     int y, nx, mx, val;
     int sbegin, n, k;
-    quint8 *color;
+    uchar *color;
 
     memset(line, 0, h*sizeof(int));
 
-    scd = g_scd;
-    segw = g_segw;
-    msegc = g_msegc;
+    scd = g_MinSumColorDifference;
+    segw = g_SegmentWidth;
+    msegc = g_MinSegmentsCount;
 
     mx = w/segw;
 
     for(y=0, ib=0; y<h; y++, ib+=w)
     {
-        cnt = 0;
+        count = 0;
 
         for(nx=0, ia=ib; nx<mx; nx++, ia+=segw)
         {
-            color = (quint8*)(&Im[ia]);
+            color = (uchar*)(&Im[ia]);
             r0 = color[2];
             g0 = color[1];
             b0 = color[0];    
@@ -1955,7 +1956,7 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
             
             for(i=ia+1; i<=mi; i++)
             {
-                color = (quint8*)(&Im[i]);
+                color = (uchar*)(&Im[i]);
                 r1 = color[2];
                 g1 = color[1];
                 b1 = color[0];    
@@ -1976,10 +1977,10 @@ void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h)
                 b0 = b1;
             }
 
-            if (dif>=scd) cnt++;
-            else cnt = 0;
+            if (dif>=scd) count++;
+            else count = 0;
 
-            if (cnt==msegc) 
+            if (count==msegc) 
             {
                 line[y] = 1;
                 break;
@@ -2149,7 +2150,7 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
 {
     int i, ib, x, y, mx, my,MX, S, SS, thr, size;
 
-    RGB_to_YIQ(ImRGB, g_ImY, g_ImU, g_ImV, w, h);
+    RGB_to_YIQ(ImRGB, g_ImageY, g_ImageU, g_ImageV, w, h);
 
     EasyBorderClear(g_ImCMOE, w, h);
     BorderClear(ImRES, 2, w, h);
@@ -2158,9 +2159,9 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
     BorderClear(g_ImRES4, 2, w, h);
     
 
-    ImprovedSobelMEdge(g_ImY, g_ImYMOE, w, h);
-    ImprovedSobelMEdge(g_ImU, g_ImUMOE, w, h);
-    ImprovedSobelMEdge(g_ImV, g_ImVMOE, w, h);
+    ImprovedSobelMEdge(g_ImageY, g_ImYMOE, w, h);
+    ImprovedSobelMEdge(g_ImageU, g_ImUMOE, w, h);
+    ImprovedSobelMEdge(g_ImageV, g_ImVMOE, w, h);
 
     mx = w-1;
     my = h-1;
@@ -2258,9 +2259,9 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
     memset(g_edgeStr, 0, (MX+1)*sizeof(int));
 }
 
-int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, int *ImNE, int *ImHE, int W, int H)
+int GetTransformedImage(int *RGBImage, int *ImFF, int *ImSF, int *ImTF, int *ImVE, int *ImNE, int *ImHE, int W, int H)
 {
-    int i, k, cnt, val, N;
+    int i, k, count, val, N;
     int x, y, mx, my, segh;
     int w, h;
     int res;
@@ -2270,7 +2271,7 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 
     res = 0;
 
-    ColorFiltration(ImRGB, g_pLB, g_pLE, N, W, H);
+    ColorFiltration(RGBImage, g_pLB, g_pLE, N, W, H);
 
     ImVE[0] = -1;
     ImNE[0] = -1;
@@ -2292,12 +2293,12 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     for(k = 0; k < N; ++k)
     {
         h += g_pLE[k] - g_pLB[k] + 1;
-        cnt = W * (g_pLE[k] - g_pLB[k] + 1);
-        memcpy(&g_Im[i], &ImRGB[W * g_pLB[k]], cnt * sizeof(int));
-        i += cnt;
+        count = W * (g_pLE[k] - g_pLB[k] + 1);
+        memcpy(g_Image + i, RGBImage + (W * g_pLB[k]), count * sizeof(int));
+        i += count;
     }
 
-    RGB_to_YIQ(g_Im, g_ImY, g_ImU, g_ImV, w, h);
+    RGB_to_YIQ(g_Image, g_ImageY, g_ImageU, g_ImageV, w, h);
 
     EasyBorderClear(g_ImCMOE, w, h);
     BorderClear(g_ImRES1, 2, w, h);
@@ -2305,9 +2306,9 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     BorderClear(g_ImRES3, 2, w, h);
     BorderClear(g_ImRES4, 2, w, h);
 
-    ImprovedSobelMEdge(g_ImY, g_ImYMOE, w, h);
-    ImprovedSobelMEdge(g_ImU, g_ImUMOE, w, h);
-    ImprovedSobelMEdge(g_ImV, g_ImVMOE, w, h);
+    ImprovedSobelMEdge(g_ImageY, g_ImYMOE, w, h);
+    ImprovedSobelMEdge(g_ImageU, g_ImUMOE, w, h);
+    ImprovedSobelMEdge(g_ImageV, g_ImVMOE, w, h);
 
     mx = w-1;
     my = h-1;
@@ -2336,9 +2337,9 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        ApplyModerateThreshold(&g_ImRES4[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        ApplyModerateThreshold(&g_ImRES4[i], g_ModerateThreshold, W, g_pLE[k]-g_pLB[k]+1);
+        i += count;
     }
 
     mx = w-1;
@@ -2368,11 +2369,11 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        ApplyModerateThreshold(&g_ImRES1[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        ApplyModerateThreshold(g_ImRES1 + i, g_ModerateThreshold, W, g_pLE[k]-g_pLB[k]+1);
+        i += count;
     }
-    //ApplyModerateThreshold(g_ImRES1, g_mthr, w, h);
+
     CombineTwoImages(g_ImRES1, g_ImRES4, w, h);
     
     t1 = clock()-t1;
@@ -2381,23 +2382,23 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        memcpy(&ImFF[W*g_pLB[k]], &g_ImRES1[i], cnt*sizeof(int));
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        memcpy(ImFF + (W*g_pLB[k]), g_ImRES1 + i, count*sizeof(int));
+        i += count;
     }
 
     memcpy(ImSF, ImFF, W*H*sizeof(int));
 
-    RGB_to_YIQ(ImRGB, g_ImY, g_ImU, g_ImV, W, H);
+    RGB_to_YIQ(RGBImage, g_ImageY, g_ImageU, g_ImageV, W, H);
 
     EasyBorderClear(g_ImRES1, W, H);
     EasyBorderClear(ImVE, W, H);
     EasyBorderClear(ImNE, W, H);
     EasyBorderClear(ImHE, W, H);
 
-    FastImprovedSobelVEdge(g_ImY, g_ImYMOE, W, H);
-    FastImprovedSobelVEdge(g_ImU, g_ImUMOE, W, H);
-    FastImprovedSobelVEdge(g_ImV, g_ImVMOE, W, H);
+    FastImprovedSobelVEdge(g_ImageY, g_ImYMOE, W, H);
+    FastImprovedSobelVEdge(g_ImageU, g_ImUMOE, W, H);
+    FastImprovedSobelVEdge(g_ImageV, g_ImVMOE, W, H);
     mx = W-1;
     my = H-1;
     i = W+1;
@@ -2406,7 +2407,7 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     {
         g_ImRES1[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
     }
-    ApplyModerateThreshold(g_ImRES1, g_mvthr, W, H);
+    ApplyModerateThreshold(g_ImRES1, g_ModerateVerticalEdgesThreshold, W, H);
     mx = W-1;
     my = H-1;
     i = W+1;
@@ -2415,12 +2416,12 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     {
         ImVE[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
     }
-    ApplyModerateThreshold(ImVE, g_mvthr, W, H);
+    ApplyModerateThreshold(ImVE, g_ModerateVerticalEdgesThreshold, W, H);
     CombineTwoImages(ImVE, g_ImRES1, W, H);
 
-    FastImprovedSobelNEdge(g_ImY, g_ImYMOE, W, H);
-    FastImprovedSobelNEdge(g_ImU, g_ImUMOE, W, H);
-    FastImprovedSobelNEdge(g_ImV, g_ImVMOE, W, H);
+    FastImprovedSobelNEdge(g_ImageY, g_ImYMOE, W, H);
+    FastImprovedSobelNEdge(g_ImageU, g_ImUMOE, W, H);
+    FastImprovedSobelNEdge(g_ImageV, g_ImVMOE, W, H);
     mx = W-1;
     my = H-1;
     i = W+1;
@@ -2429,7 +2430,7 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     {
         g_ImRES1[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
     }
-    ApplyModerateThreshold(g_ImRES1, g_mnthr, W, H);
+    ApplyModerateThreshold(g_ImRES1, g_ModerateNEdgesThreshold, W, H);
     mx = W-1;
     my = H-1;
     i = W+1;
@@ -2438,12 +2439,12 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     {
         ImNE[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
     }
-    ApplyModerateThreshold(ImNE, g_mnthr, W, H);
+    ApplyModerateThreshold(ImNE, g_ModerateNEdgesThreshold, W, H);
     CombineTwoImages(ImNE, g_ImRES1, W, H);
 
-    FastImprovedSobelHEdge(g_ImY, g_ImYMOE, W, H);
-    FastImprovedSobelHEdge(g_ImU, g_ImUMOE, W, H);
-    FastImprovedSobelHEdge(g_ImV, g_ImVMOE, W, H);
+    FastImprovedSobelHEdge(g_ImageY, g_ImYMOE, W, H);
+    FastImprovedSobelHEdge(g_ImageU, g_ImUMOE, W, H);
+    FastImprovedSobelHEdge(g_ImageV, g_ImVMOE, W, H);
     mx = W-1;
     my = H-1;
     i = W+1;
@@ -2452,7 +2453,7 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     {
         g_ImRES1[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
     }
-    ApplyModerateThreshold(g_ImRES1, g_mhthr, W, H);
+    ApplyModerateThreshold(g_ImRES1, g_ModerateHorizontalEdgesThreshold, W, H);
     mx = W-1;
     my = H-1;
     i = W+1;
@@ -2461,10 +2462,10 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
     {
         ImHE[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
     }
-    ApplyModerateThreshold(ImHE, g_mhthr, W, H);
+    ApplyModerateThreshold(ImHE, g_ModerateHorizontalEdgesThreshold, W, H);
     CombineTwoImages(ImHE, g_ImRES1, W, H);
 
-    segh = g_segh;
+    segh = g_SegmentHeight;
     for(k=0; k<N; k++)
     {
         val = g_pLB[k]%segh;
@@ -2475,10 +2476,10 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
         if (g_pLE[k] + val < H) g_pLE[k] += val;
     }
 
-    if ((g_pLE[N-1] + g_segh) > H)
+    if ((g_pLE[N-1] + g_SegmentHeight) > H)
     {
-        val = g_pLE[N-1]-(H-g_segh);
-        g_pLE[N-1] = H-g_segh;
+        val = g_pLE[N-1]-(H-g_SegmentHeight);
+        g_pLE[N-1] = H-g_SegmentHeight;
 
         memset(&ImSF[W*(g_pLE[N-1]+1)], 0, W*val*sizeof(int));
         memset(&ImVE[W*(g_pLE[N-1]+1)], 0, W*val*sizeof(int));        
@@ -2486,12 +2487,12 @@ int GetTransformedImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, 
 
     t2 = clock()-t2;
 
-    res = SecondFiltration(ImSF, ImRGB, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
+    res = SecondFiltration(ImSF, RGBImage, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
     memcpy(ImTF, ImSF, W*H*sizeof(int));
 
     if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
 
-    if (res == 1) res = SecondFiltration(ImTF, ImRGB, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
+    if (res == 1) res = SecondFiltration(ImTF, RGBImage, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
 
     if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
 
@@ -2542,30 +2543,30 @@ void FreeImage(int *Im, int* LB, int* LE, int N, int w, int h)
 
 void UnpackImage(int *ImIn, int* ImRES, int *LB, int *LE, int LN, int w, int h)
 {
-    int i, k, cnt;
+    int i, k, count;
 
     FreeImage(ImRES, LB, LE, LN, w, h);
 
     i = 0;
     for(k=0; k<LN; k++)
     {
-        cnt = w*(LE[k]-LB[k]+1);        
-        memcpy(&ImRES[w*LB[k]], &ImIn[i], cnt*sizeof(int));
-        i += cnt;
+        count = w*(LE[k]-LB[k]+1);        
+        memcpy(&ImRES[w*LB[k]], &ImIn[i], count*sizeof(int));
+        i += count;
     }        
 }
 
 int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 {
-    int i, j, k, cnt, val, N;
+    int i, j, k, count, val, N;
     int x, y, mx, my, segh;
     int *LB=g_pLB3, *LE=g_pLE3; 
     int w, h, dh;
     int res;
     
     res = 0;
-    g_blnVNE = 0;
-    g_blnHE = 0;
+    g_blnVNE = false;
+    g_blnHE = false;
 
     ColorFiltration(ImRGB, g_pLB, g_pLE, N, W, H);
 
@@ -2575,7 +2576,7 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     }    
 
     /////////////////
-    segh = g_segh;
+    segh = g_SegmentHeight;
     val = (int)(0.02*(double)H)+1;
     for(k=0; k<N; k++)
     {
@@ -2618,12 +2619,12 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
         LB[k] = h;
         h += dh;
         LE[k] = h-1;
-        cnt = W*dh;
-        memcpy(&g_Im[i], &ImRGB[W*g_pLB[k]], cnt*sizeof(int));
-        i += cnt;
+        count = W*dh;
+        memcpy(&g_Image[i], &ImRGB[W*g_pLB[k]], count*sizeof(int));
+        i += count;
     }
 
-    RGB_to_YIQ(g_Im, g_ImY, g_ImU, g_ImV, w, h);
+    RGB_to_YIQ(g_Image, g_ImageY, g_ImageU, g_ImageV, w, h);
 
     EasyBorderClear(g_ImCMOE, w, h);
     BorderClear(g_ImRES1, 2, w, h);
@@ -2632,9 +2633,9 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     BorderClear(g_ImRES4, 2, w, h);
     BorderClear(g_ImRES5, 2, w, h);
 
-    ImprovedSobelMEdge(g_ImY, g_ImYMOE, w, h);
-    ImprovedSobelMEdge(g_ImU, g_ImUMOE, w, h);
-    ImprovedSobelMEdge(g_ImV, g_ImVMOE, w, h);
+    ImprovedSobelMEdge(g_ImageY, g_ImYMOE, w, h);
+    ImprovedSobelMEdge(g_ImageU, g_ImUMOE, w, h);
+    ImprovedSobelMEdge(g_ImageV, g_ImVMOE, w, h);
 
     mx = w-1;
     my = h-1;
@@ -2663,9 +2664,9 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        ApplyModerateThreshold(&g_ImRES5[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        ApplyModerateThreshold(&g_ImRES5[i], g_ModerateThreshold, W, g_pLE[k]-g_pLB[k]+1);
+        i += count;
     }
 
     mx = w-1;
@@ -2695,16 +2696,16 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        ApplyModerateThreshold(&g_ImRES1[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        ApplyModerateThreshold(&g_ImRES1[i], g_ModerateThreshold, W, g_pLE[k]-g_pLB[k]+1);
+        i += count;
     }
     CombineTwoImages(g_ImRES5, g_ImRES1, w, h);
         
 
-    FastImprovedSobelVEdge(g_ImY, g_ImYMOE, w, h);
-    FastImprovedSobelVEdge(g_ImU, g_ImUMOE, w, h);
-    FastImprovedSobelVEdge(g_ImV, g_ImVMOE, w, h);
+    FastImprovedSobelVEdge(g_ImageY, g_ImYMOE, w, h);
+    FastImprovedSobelVEdge(g_ImageU, g_ImUMOE, w, h);
+    FastImprovedSobelVEdge(g_ImageV, g_ImVMOE, w, h);
     mx = w-1;
     my = h-1;
     i = w+1;
@@ -2713,7 +2714,7 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     {
         g_ImRES1[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
     }
-    ApplyModerateThreshold(g_ImRES1, g_mvthr, w, h);
+    ApplyModerateThreshold(g_ImRES1, g_ModerateVerticalEdgesThreshold, w, h);
     mx = w-1;
     my = h-1;
     i = w+1;
@@ -2722,13 +2723,13 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     {
         g_ImRES2[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
     }
-    ApplyModerateThreshold(g_ImRES2, g_mvthr, w, h);
+    ApplyModerateThreshold(g_ImRES2, g_ModerateVerticalEdgesThreshold, w, h);
     CombineTwoImages(g_ImRES1, g_ImRES2, w, h);
 
     
-    FastImprovedSobelNEdge(g_ImY, g_ImYMOE, w, h);
-    FastImprovedSobelNEdge(g_ImU, g_ImUMOE, w, h);
-    FastImprovedSobelNEdge(g_ImV, g_ImVMOE, w, h);
+    FastImprovedSobelNEdge(g_ImageY, g_ImYMOE, w, h);
+    FastImprovedSobelNEdge(g_ImageU, g_ImUMOE, w, h);
+    FastImprovedSobelNEdge(g_ImageV, g_ImVMOE, w, h);
     mx = w-1;
     my = h-1;
     i = w+1;
@@ -2737,7 +2738,7 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     {
         g_ImRES2[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
     }
-    ApplyModerateThreshold(g_ImRES2, g_mnthr, w, h);
+    ApplyModerateThreshold(g_ImRES2, g_ModerateNEdgesThreshold, w, h);
     mx = w-1;
     my = h-1;
     i = w+1;
@@ -2746,7 +2747,7 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     {
         g_ImRES3[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
     }
-    ApplyModerateThreshold(g_ImRES3, g_mnthr, w, h);
+    ApplyModerateThreshold(g_ImRES3, g_ModerateNEdgesThreshold, w, h);
     CombineTwoImages(g_ImRES2, g_ImRES3, w, h);
     
     /////////////////
@@ -2762,15 +2763,15 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     }
     /////////////////
 
-    g_blnVNE = 1;
+    g_blnVNE = true;
 
-    res = SecondFiltration(g_ImRES5, g_Im, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
+    res = SecondFiltration(g_ImRES5, g_Image, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
 
     if (res == 1)
     {
-        FastImprovedSobelHEdge(g_ImY, g_ImYMOE, w, h);
-        FastImprovedSobelHEdge(g_ImU, g_ImUMOE, w, h);
-        FastImprovedSobelHEdge(g_ImV, g_ImVMOE, w, h);
+        FastImprovedSobelHEdge(g_ImageY, g_ImYMOE, w, h);
+        FastImprovedSobelHEdge(g_ImageU, g_ImUMOE, w, h);
+        FastImprovedSobelHEdge(g_ImageV, g_ImVMOE, w, h);
         mx = w-1;
         my = h-1;
         i = w+1;
@@ -2779,7 +2780,7 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
         {
             g_ImRES3[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
         }
-        ApplyModerateThreshold(g_ImRES3, g_mhthr, w, h);
+        ApplyModerateThreshold(g_ImRES3, g_ModerateHorizontalEdgesThreshold, w, h);
         mx = w-1;
         my = h-1;
         i = w+1;
@@ -2788,15 +2789,15 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
         {
             g_ImRES4[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
         }
-        ApplyModerateThreshold(g_ImRES4, g_mhthr, w, h);
+        ApplyModerateThreshold(g_ImRES4, g_ModerateHorizontalEdgesThreshold, w, h);
         CombineTwoImages(g_ImRES3, g_ImRES4, w, h);
 
-        g_blnHE = 1;
+        g_blnHE = true;
     }
 
     if (res == 1) res = ThirdFiltrationForGFTI(g_ImRES5, g_ImRES1, g_ImRES2, g_ImRES3, LB, LE, N, w, h);
 
-    if (res == 1) res = SecondFiltration(g_ImRES5, g_Im, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
+    if (res == 1) res = SecondFiltration(g_ImRES5, g_Image, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
 
     if (res == 1) res = ThirdFiltrationForGFTI(g_ImRES5, g_ImRES1, g_ImRES2, g_ImRES3, LB, LE, N, w, h);
 
@@ -2809,10 +2810,10 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
         i = 0;
         for(k=0; k<N; k++)
         {
-            cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-            memcpy(&ImF[W*g_pLB[k]], &g_ImRES5[i], cnt*sizeof(int));
-            memcpy(&ImVE[W*g_pLB[k]], &g_ImRES1[i], cnt*sizeof(int));
-            i += cnt;
+            count = W*(g_pLE[k]-g_pLB[k]+1);        
+            memcpy(ImF + (W*g_pLB[k]), g_ImRES5 + i, count*sizeof(int));
+            memcpy(ImVE + (W*g_pLB[k]), g_ImRES1 + i, count*sizeof(int));
+            i += count;
         }        
     }
     /////////////////
@@ -2822,15 +2823,15 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 
 int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 {
-    int i, j, k, cnt, val, N;
+    int i, j, k, count, val, N;
     int x, y, mx, my, segh;
     int *LB=g_pLB4, *LE=g_pLE4; 
     int w, h, dh;
     int res;
     
     res = 0;
-    g_blnVNE = 0;
-    g_blnHE = 0;
+    g_blnVNE = false;
+    g_blnHE = false;
 
     ColorFiltration(ImRGB, g_pLB, g_pLE, N, W, H);
 
@@ -2840,7 +2841,7 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     }    
 
     /////////////////
-    segh = g_segh;
+    segh = g_SegmentHeight;
     val = (int)(0.02*(double)H)+1;
     for(k=0; k<N; k++)
     {
@@ -2883,12 +2884,12 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
         LB[k] = h;
         h += dh;
         LE[k] = h-1;
-        cnt = W*dh;
-        memcpy(&g_Im[i], &ImRGB[W*g_pLB[k]], cnt*sizeof(int));
-        i += cnt;
+        count = W*dh;
+        memcpy(&g_Image[i], &ImRGB[W*g_pLB[k]], count*sizeof(int));
+        i += count;
     }
 
-    RGB_to_YIQ(g_Im, g_ImYIQ, w, h);
+    RGB_to_YIQ(g_Image, g_ImageYIQ, w, h);
 
     EasyBorderClear(g_ImRES1, w, h);
     EasyBorderClear(g_ImRES4, w, h);
@@ -2897,7 +2898,7 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     BorderClear(g_ImRES7, 2, w, h);
     BorderClear(g_ImRES8, 2, w, h);
     
-    ImprovedSobelAllEdge_MMX_SSE(g_ImYIQ, g_ImRES4, g_ImRES5, g_ImRES1, g_ImRES2, g_ImRES3, g_mvthr, g_mnthr, g_mhthr, w, h);
+    ImprovedSobelAllEdge_MMX_SSE(g_ImageYIQ, g_ImRES4, g_ImRES5, g_ImRES1, g_ImRES2, g_ImRES3, g_ModerateVerticalEdgesThreshold, g_ModerateNEdgesThreshold, g_ModerateHorizontalEdgesThreshold, w, h);
 
     FindAndApplyGlobalThreshold(g_ImRES4, w, h);    
     FindAndApplyLocalThresholding(g_ImRES4, w, 32, w, h);
@@ -2917,9 +2918,9 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        ApplyModerateThreshold_MMX_SSE(&g_ImRES8[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        ApplyModerateThreshold_MMX_SSE(&g_ImRES8[i], g_ModerateThreshold, W, g_pLE[k]-g_pLB[k]+1);
+        i += count;
     }
     
     FindAndApplyGlobalThreshold(g_ImRES5, w, h);    
@@ -2940,9 +2941,9 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     i = 0;
     for(k=0; k<N; k++)
     {
-        cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-        ApplyModerateThreshold_MMX_SSE(&g_ImRES7[i], g_mthr, W, g_pLE[k]-g_pLB[k]+1);
-        i += cnt;
+        count = W*(g_pLE[k]-g_pLB[k]+1);        
+        ApplyModerateThreshold_MMX_SSE(&g_ImRES7[i], g_ModerateThreshold, W, g_pLE[k]-g_pLB[k]+1);
+        i += count;
     }
     CombineTwoImages(g_ImRES7, g_ImRES8, w, h);
 
@@ -2961,23 +2962,23 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     }
     /////////////////
 
-    if ((LE[N-1] + g_segh) > H)
+    if ((LE[N-1] + g_SegmentHeight) > H)
     {
-        val = LE[N-1]-(H-g_segh);
-        LE[N-1] = H-g_segh;
+        val = LE[N-1]-(H-g_SegmentHeight);
+        LE[N-1] = H-g_SegmentHeight;
 
         memset(&g_ImRES7[w*(LE[N-1]+1)], 0, w*val*sizeof(int));
         memset(&g_ImRES1[w*(LE[N-1]+1)], 0, w*val*sizeof(int));        
     }
 
-    g_blnVNE = 1;
-    g_blnHE = 1;
+    g_blnVNE = true;
+    g_blnHE = true;
 
-    res = SecondFiltration(g_ImRES7, g_Im, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
+    res = SecondFiltration(g_ImRES7, g_Image, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
 
     if (res == 1) res = ThirdFiltrationForGFTI(g_ImRES7, g_ImRES1, g_ImRES2, g_ImRES3, LB, LE, N, w, h);
 
-    if (res == 1) res = SecondFiltration(g_ImRES7, g_Im, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
+    if (res == 1) res = SecondFiltration(g_ImRES7, g_Image, g_ImRES1, g_ImRES2, LB, LE, N, w, h);
 
     if (res == 1) res = ThirdFiltrationForGFTI(g_ImRES7, g_ImRES1, g_ImRES2, g_ImRES3, LB, LE, N, w, h);
 
@@ -2990,10 +2991,10 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
         i = 0;
         for(k=0; k<N; k++)
         {
-            cnt = W*(g_pLE[k]-g_pLB[k]+1);        
-            memcpy(&ImF[W*g_pLB[k]], &g_ImRES7[i], cnt*sizeof(int));
-            memcpy(&ImVE[W*g_pLB[k]], &g_ImRES1[i], cnt*sizeof(int));
-            i += cnt;
+            count = W*(g_pLE[k]-g_pLB[k]+1);        
+            memcpy(&ImF[W*g_pLB[k]], &g_ImRES7[i], count*sizeof(int));
+            memcpy(&ImVE[W*g_pLB[k]], &g_ImRES1[i], count*sizeof(int));
+            i += count;
         }        
     }
     /////////////////
@@ -3016,7 +3017,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
     int segw, msegc, smcd, sb, ns, ngs;
     int r0, g0, b0, r1, g1, b1;
     int mi, dif, rdif, gdif, bdif;
-    quint8 *color;
+    uchar *color;
     int nVE = 0;
     int nNE = 0;
     int S = 0;
@@ -3025,20 +3026,20 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
     res = 0;
 
-    segw = g_segw;
-    msegc = g_msegc;
-    smcd = g_smcd;
+    segw = g_SegmentWidth;
+    msegc = g_MinSegmentsCount;
+    smcd = g_MinSumMultipleColorDifference;
 
-    segh = g_segh;
+    segh = g_SegmentHeight;
     w_2 = w/2;
-    dw = (int)(g_btd*(double)g_W);
-    dw2 = (int)(g_tco*(double)g_W);
-    tcpo = g_tcpo;
+    dw = (int)(g_DistanceBetweenText*(double)g_Width);
+    dw2 = (int)(g_CenterTextOffset*(double)g_Width);
+    tcpo = g_CenterTextOffsetPercent;
 
-    mpn = g_mpn;
-    mpd = g_mpd;
-    mpved = g_mpved;
-    mpned = g_mpned;
+    mpn = g_MinPointsNumber;
+    mpd = g_MinPointsDensity;
+    mpved = g_MinVerticalEdgesPointsDensity;
+    mpned = g_MinNEdgesPointsDensity;
     
     da = segh*w;
 
@@ -3507,7 +3508,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 bln = 1;
                 for(y=0, ic=ib; y<segh; y++, ic+=w)
                 {
-                    color = (quint8*)(&ImRGB[ic]);
+                    color = (uchar*)(&ImRGB[ic]);
                     r0 = color[2];
                     g0 = color[1];
                     b0 = color[0];    
@@ -3517,7 +3518,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     
                     for(i=ic+1; i<mi; i++)
                     {
-                        color = (quint8*)(&ImRGB[i]);
+                        color = (uchar*)(&ImRGB[i]);
                         r1 = color[2];
                         g1 = color[1];
                         b1 = color[0];    
@@ -3572,19 +3573,19 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
 int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, int LN, int w, int h)
 {
-    int *LL=g_pLL, *LR=g_pLR, *LLB=g_pLLB, *LLE=g_pLLE, *LW=g_pLW, **LLLB=g_ppLLLB, **LLLE=g_ppLLLE, *NN=g_pLNN;
+    int *LL = g_pLL, *LR = g_pLR, *LLB = g_pLLB, *LLE = g_pLLE, *LW = g_pLW, **LLLB = g_ppLLLB, **LLLE = g_ppLLLE, *NN = g_pLNN;
     int wmin, wmax, nmin, im, vmin, vmax, bln, bln2, res, x, y, k, l, r, val, val1, val2;
     int i, j, da, ib, ie, S, segh, N;
     double mphd, mpnd, mpvd;
-    int dy = g_H/16;
-    int w_2, ww, mw = g_W/10, yb, ym_temp, ym, xb, xm, nHE1, nHE2, nNE1, nNE2, npNE1, npNE2, nVE1, nVE2;
+    int dy = g_Height/16;
+    int w_2, ww, mw = g_Width/10, yb, ym_temp, ym, xb, xm, nHE1, nHE2, nNE1, nNE2, npNE1, npNE2, nVE1, nVE2;
 
     res = 0;
 
-    segh = g_segh;
-    mpvd = g_mpvd;
-    mphd = g_mphd;
-    mpnd = g_mpnd;
+    segh = g_SegmentHeight;
+    mpvd = g_MinVerticalEdgesPointsDensityPerLine;
+    mphd = g_MinHorizontalEdgesPointsDensityPerLine;
+    mpnd = g_MinNEdgesPointsDensityPerLine;
 
     w_2 = w/2;
 
@@ -3860,7 +3861,7 @@ int ThirdFiltration(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, int *LE, 
 
         bln = 0;
 
-        if ((xm-xb+1 < g_W/5) && ((g_ymin + yb) > 0.7*g_H))
+        if ((xm-xb+1 < g_Width/5) && ((g_ymin + yb) > 0.7*g_Height))
         {
             bln2 = 1;
         }
@@ -3979,7 +3980,7 @@ L:        ib = yb*w;
         vmin = vmax;
         ib = LLE[k]*w+xb;
         ie = ib-xb+xm;
-        val = LLE[k]+(int)(0.04*(double)g_H);
+        val = LLE[k]+(int)(0.04*(double)g_Height);
         if (val > h-1) val = h-1;
         im = val*w+xb;
         for (;ib<=im; ib+=w, ie+=w)
@@ -4130,7 +4131,7 @@ L:        ib = yb*w;
         vmin = vmax;
         ib = LLB[k]*w+xb;
         ie = ib-xb+xm;
-        val = LLB[k]-(int)(0.04*(double)g_H);
+        val = LLB[k]-(int)(0.04*(double)g_Height);
         if (val < 0) val = 0;
         im = val*w+xb;
         for (;ib>=im; ib-=w, ie-=w)
@@ -4171,17 +4172,17 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 {
     int *LL=g_pLL2, *LR=g_pLR2, *LLB=g_pLLB2, *LLE=g_pLLE2, *LW=g_pLW2, **LLLB=g_ppLLLB2, **LLLE=g_ppLLLE2, *NN=g_pLNN2;
     int wmin, wmax, nmin, im, vmin, vmax, bln, bln2, res, x, y, k, l, r, val, val1, val2;
-    int i, j, da, ib, ie, S, segh, YMIN, YMAX, K, N;
+    int i, j, da, ib, ie, S, segmentHeight, YMIN, YMAX, K, N;
     double mphd, mpnd, mpvd;
-    int dy = g_H/16;
-    int w_2, ww, mw = g_W/10, yb, ym_temp, ym, xb, xm, nHE1, nHE2, nNE1, nNE2, npNE1, npNE2, nVE1, nVE2;
+    int dy = g_Height/16;
+    int w_2, ww, mw = g_Width/10, yb, ym_temp, ym, xb, xm, nHE1, nHE2, nNE1, nNE2, npNE1, npNE2, nVE1, nVE2;
 
     res = 0;
 
-    segh = g_segh;
-    mpvd = g_mpvd;
-    mphd = g_mphd;
-    mpnd = g_mpnd;
+    segmentHeight = g_SegmentHeight;
+    mpvd = g_MinVerticalEdgesPointsDensityPerLine;
+    mphd = g_MinHorizontalEdgesPointsDensityPerLine;
+    mpnd = g_MinNEdgesPointsDensityPerLine;
 
     w_2 = w/2;
 
@@ -4396,7 +4397,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
             LL[k] = LL[k]/(LLE[k]-LLB[k]+1);
             LR[k] = LR[k]/(LLE[k]-LLB[k]+1);
 
-            if ( ((LLE[k]-LLB[k]+1) < segh) || 
+            if ( ((LLE[k]-LLB[k]+1) < segmentHeight) || 
                 (LL[k] >= w_2) || 
                 (LR[k] <= w_2) )
             {
@@ -4420,9 +4421,9 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
             }
 
             yb = (LLE[k] + LLB[k])/2;
-            yb -= yb%segh;
+            yb -= yb%segmentHeight;
 
-            if ((LLE[k]-LLB[k]+1) > segh)
+            if ((LLE[k]-LLB[k]+1) > segmentHeight)
             {
                 ym = yb + dy;
                 if (ym >= h) ym = h-1;
@@ -4433,18 +4434,18 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
                         ym = LLB[k+1] - 1;
                     }
                 }
-                ym -= ym%segh;
+                ym -= ym%segmentHeight;
             }
             else
             {
                 yb = LLB[k];
 
-                ym = yb + 2*segh;
+                ym = yb + 2*segmentHeight;
             }
             if (ym > YMAX) 
             {
                 ym = YMAX;
-                ym -= ym%segh;
+                ym -= ym%segmentHeight;
             }
 
             val1 = w_2-LL[k];
@@ -4456,7 +4457,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 
             bln = 0;
 
-            if ((xm-xb+1 < g_W/5) && ((g_ymin + g_pLB[K] + yb - LB[K]) > 0.7*g_H))
+            if ((xm-xb+1 < g_Width/5) && ((g_ymin + g_pLB[K] + yb - LB[K]) > 0.7*g_Height))
             {
                 bln2 = 1;
             }
@@ -4483,9 +4484,9 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 
     L:        ib = yb*w;
             ie = ym*w;
-            da = w*segh;
+            da = w*segmentHeight;
             ww = xm-xb+1;
-            S = ww*segh;
+            S = ww*segmentHeight;
 
             npNE1 = 0;
             npNE2 = 0;
@@ -4499,7 +4500,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
                 nVE1 = 0;
                 nVE2 = 0;
 
-                for (y=0; y<segh; y++, ib+=w)
+                for (y=0; y<segmentHeight; y++, ib+=w)
                 {
                     for (x=xb; x<=xm; x++)
                     {
@@ -4575,7 +4576,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
             vmin = vmax;
             ib = LLE[k]*w+xb;
             ie = ib-xb+xm;
-            val = LLE[k]+(int)(0.04*(double)g_H);
+            val = LLE[k]+(int)(0.04*(double)g_Height);
             if (val > YMAX) val = YMAX;
             im = val*w+xb;
             for (;ib<=im; ib+=w, ie+=w)
@@ -4606,7 +4607,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
                 continue;
             }
 
-            if ((LLE[k]-LLB[k]+1) > segh)
+            if ((LLE[k]-LLB[k]+1) > segmentHeight)
             {
                 ym = yb - dy;
                 if (ym < 0) ym = 0;
@@ -4617,11 +4618,11 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
                         ym = LLE[k-1] + 1;
                     }
                 }
-                ym -= ym%segh;
+                ym -= ym%segmentHeight;
             }
             else
             {
-                ym = yb - 2*segh;                
+                ym = yb - 2*segmentHeight;                
             }
             if (ym < YMIN) ym = YMIN;
             
@@ -4629,8 +4630,8 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
 
             ib = yb*w;
             ie = ym*w;
-            da = w*segh;
-            S = (xm-xb+1)*segh;
+            da = w*segmentHeight;
+            S = (xm-xb+1)*segmentHeight;
 
             npNE1 = 0;
             npNE2 = 0;
@@ -4644,7 +4645,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
                 nVE1 = 0;
                 nVE2 = 0;
 
-                for (y=0; y<segh; y++, ib+=w)
+                for (y=0; y<segmentHeight; y++, ib+=w)
                 {
                     for (x=xb; x<=xm; x++)
                     {
@@ -4726,7 +4727,7 @@ int ThirdFiltrationForGFTI(int* Im, int* ImVE, int* ImNE, int *ImHE, int *LB, in
             vmin = vmax;
             ib = LLB[k]*w+xb;
             ie = ib-xb+xm;
-            val = LLB[k]-(int)(0.04*(double)g_H);
+            val = LLB[k]-(int)(0.04*(double)g_Height);
             if (val < YMIN) val = YMIN;
             im = val*w+xb;
             for (;ib>=im; ib-=w, ie-=w)
@@ -4768,12 +4769,12 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
 {
     int *LL = g_pLL3, *LR = g_pLR3, *LLB = g_pLLB3, *LLE = g_pLLE3, *LW = g_pLW3;
     int **LN = g_ppLN3, *LNN = g_pLNN3;
-    int i, j, k, l, r, x, y, ib, bln, N, N1, N2, N3, N4, N5, N6, N7, minN, maxN, w, h, ww, hh, cnt;
+    int i, j, k, l, r, x, y, ib, bln, N, N1, N2, N3, N4, N5, N6, N7, minN, maxN, w, h, ww, hh, count;
     int XB, XE, YB, YE, DXB, DXE, DYB, DYE;
     int xb, xe, yb, ye, segh;
-    int delta, val, val1, val2, val3, val4, val5, cnt1, cnt2, NN, ys1, ys2, ys3, ys4, ys5, val_min, val_max;
+    int delta, val, val1, val2, val3, val4, val5, count1, count2, NN, ys1, ys2, ys3, ys4, ys5, val_min, val_max;
     static int GRStr[256*2], smax[256*2], smaxi[256*2];
-    int j1, j2, j3, j4, j5, j1_min, j1_max, j2_min, j2_max, j3_min, j3_max, j4_min, j4_max, j5_min, j5_max/*, j1_min_prev, j1_max_prev*/;
+    int j1, j2, j3, j4, j5, j1_min, j1_max, j2_min, j2_max, j3_min, j3_max, j4_min, j4_max, j5_min, j5_max;
     int mY, dY, mI, mQ, dI, dQ, jY_min, jY_max, mmY, ddY1, ddY2, mmI, mmQ, ddI, ddQ;
     int LH, LMAXY;
     double mthr;
@@ -4787,10 +4788,16 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
     SavedFiles.clear();
 
     mthr = 0.3;
-    segh = g_segh;
+    segh = g_SegmentHeight;
 
-    if (g_show_results == 1) SaveImage(ImF, "\\TestImages\\Image0_F.jpeg", W, H);
-    if (g_show_results == 1) SaveImage(ImNF, "\\TestImages\\Image0_NF.jpeg", W, H);
+    if (g_show_results)
+    {
+        SaveImage(ImF, "\\TestImages\\Image0_F.jpeg", W, H);
+    }
+    if (g_show_results)
+    {
+        SaveImage(ImNF, "\\TestImages\\Image0_NF.jpeg", W, H);
+    }
 
     N = 0;
     LLB[0] = -1;
@@ -4800,7 +4807,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
     for (y=0, ib=0; y<H; y++, ib+=W)
     {
         bln = 0;
-        cnt = 0;
+        count = 0;
         for(x=0; x<W; x++)
         {
             if (ImF[ib+x] == 255) 
@@ -4822,7 +4829,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
 
                 r = x;
-                cnt++;
+                count++;
             }            
         }        
         
@@ -4841,7 +4848,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             if (LR[N]<r) LR[N] = r;
         }
         
-        LW[y] = cnt;
+        LW[y] = count;
     }
     if (LLE[N] == H-1) N++;
 
@@ -4905,7 +4912,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         }
     }
 
-    val = (int)(0.06*(double)g_H);
+    val = (int)(0.06*(double)g_Height);
     k=N-2;
     while (k >= 0)
     {
@@ -4949,7 +4956,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
     }
 
 
-    val = (int)(0.08*(double)g_H);
+    val = (int)(0.08*(double)g_Height);
     k=N-1;
     while (k >= 0)
     {
@@ -5017,7 +5024,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             h = YE-YB+1;
         }
 
-        val = (int)((double)g_H*0.15) - h;
+        val = (int)((double)g_Height*0.15) - h;
         if (val > 10*2)
         {
             YB -= val/2;
@@ -5047,28 +5054,40 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         {
             memcpy(&g_ImRES1[j], &ImRGB[i], w*sizeof(int));
         }
-        ResizeImage4x(g_ImRES1, g_Im, w, h);
-        if (g_show_results == 1) SaveRGBImage(g_Im, "\\TestImages\\Image1_RGB.jpeg", w*4, h*4);
-        
+        ResizeImage4x(g_ImRES1, g_Image, w, h);
+        if (g_show_results)
+        {
+            SaveRGBImage(g_Image, "\\TestImages\\Image1_RGB.jpeg", w*4, h*4);
+        }
+
         for(y=YB, i=YB*W+XB, j=0; y<=YE; y++, i+=W, j+=w)
         {
             memcpy(&g_ImRES2[j], &ImF[i], w*sizeof(int));
         }
         SimpleResizeImage4x(g_ImRES2, g_ImSF, w, h);
-        if (g_show_results == 1) SaveImage(g_ImSF, "\\TestImages\\Image2_SF.jpeg", w*4, h*4);
-        
+        if (g_show_results)
+        {
+            SaveImage(g_ImSF, "\\TestImages\\Image2_SF.jpeg", w*4, h*4);
+        }
+
         GetFirstFilteredImage(g_ImRES1, g_ImSF, g_ImFF, w, h, (LL[k]-XB)*4, (LR[k]-XB)*4, (LLB[k]-YB)*4, (LLE[k]-YB)*4);
-        if (g_show_results == 1) SaveImage(g_ImFF, "\\TestImages\\Image3_FF.jpeg", w*4, h*4);
-        
+        if (g_show_results)
+        {
+            SaveImage(g_ImFF, "\\TestImages\\Image3_FF.jpeg", w*4, h*4);
+        }
+
         w *= 4;
         h *= 4;
         
         memcpy(g_ImRES1, g_ImFF, (w*h)*sizeof(int));
         IntersectTwoImages(g_ImRES1, g_ImSF, w, h);
-        if (g_show_results == 1) SaveImage(g_ImRES1, "\\TestImages\\Image4_IF.jpeg", w, h);
+        if (g_show_results)
+        {
+            SaveImage(g_ImRES1, "\\TestImages\\Image4_IF.jpeg", w, h);
+        }
 
-        RGB_to_YUV(g_Im, g_ImY, g_ImU, g_ImV, w, h);
-        RGB_to_YIQ(g_Im, g_ImY, g_ImI, g_ImQ, w, h);
+        RGB_to_YUV(g_Image, g_ImageY, g_ImageU, g_ImageV, w, h);
+        RGB_to_YIQ(g_Image, g_ImageY, g_ImageI, g_ImageQ, w, h);
 
         delta = 40;
 
@@ -5077,7 +5096,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         xb = (LL[k]-XB)*4;
         xe = (LR[k]-XB)*4;
         
-        StrAnalyseImage(g_ImRES1, g_ImY, GRStr, w, h, xb, xe, yb, ye, 0);
+        StrAnalyseImage(g_ImRES1, g_ImageY, GRStr, w, h, xb, xe, yb, ye, 0);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 0);
         FindMaxStr(smax, smaxi, j1, ys1, NN);
         j1_min = j1;
@@ -5087,9 +5106,9 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         {
             for (x=0; x<w; x++, i++)
             {                
-                val = g_ImY[i];
+                val = g_ImageY[i];
 
-                if ( ( (g_ImY[i] < j1_min) || (g_ImY[i] > j1_max) ) && 
+                if ( ( (g_ImageY[i] < j1_min) || (g_ImageY[i] > j1_max) ) && 
                      (g_ImSF[i] == 255) )
                 {
                     g_ImRES2[i] = 255;
@@ -5108,7 +5127,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         xb = (LL[k]-XB)*4+val2;
         xe = (LR[k]-XB)*4-val2;
         
-        StrAnalyseImage(g_ImRES2, g_ImY, GRStr, w, h, xb, xe, yb, ye, 0);
+        StrAnalyseImage(g_ImRES2, g_ImageY, GRStr, w, h, xb, xe, yb, ye, 0);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 0);
         FindMaxStr(smax, smaxi, j2, ys2, NN);
         j2_min = j2;
@@ -5122,9 +5141,9 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         j3_max = j3+delta-1;
 
         int color, r, g, b, c;
-        quint8 *pClr;
+        uchar *pClr;
 
-        pClr = (quint8*)(&color);
+        pClr = (uchar*)(&color);
 
         color = 0;
         pClr[2] = 255;
@@ -5147,7 +5166,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         {
             for (x=0; x<w; x++, i++)
             {                
-                val = g_ImY[i];                    
+                val = g_ImageY[i];                    
 
                 if ( ( val >= j1_min ) && (val <= j1_max) )
                 {
@@ -5167,9 +5186,10 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
             }
         }
-        if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image5_SE1.jpeg", w, h);
-        //g_pMF->m_pImageBox->g_pViewRGBImage(g_ImRES2, w, h);
-        //break;
+        if (g_show_results)
+        {
+            SaveRGBImage(g_ImRES2, "\\TestImages\\Image5_SE1.jpeg", w, h);
+        }
 
         yb = (LLB[k]-YB)*4;
         ye = (LLE[k]-YB)*4;
@@ -5179,27 +5199,39 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         val += ClearImage(g_ImRES2, w, h, yb, ye, b);
         val += ClearImage(g_ImRES2, w, h, yb, ye, c);
 
-        if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image6_SE2.jpeg", w, h);
+        if (g_show_results)
+        {
+            SaveRGBImage(g_ImRES2, "\\TestImages\\Image6_SE2.jpeg", w, h);
+        }
 
-        if (val == 0) continue;
+        if (!val)
+        {
+            continue;
+        }
 
-        memcpy(g_ImRES3, g_ImSF, (w*h)*sizeof(int));
-        for(i=0; i<w*h; i++)
+        memcpy(g_ImRES3, g_ImSF, (w * h) * sizeof(int));
+        for(i = 0; i < (w * h); ++i)
         {
             if (g_ImRES2[i] == 0)
             {
                 g_ImRES3[i] = 0;    
             }
         }
-        if (g_show_results == 1) SaveImage(g_ImRES3, "\\TestImages\\Image7_IF.jpeg", w, h);
+        if (g_show_results)
+        {
+            SaveImage(g_ImRES3, "\\TestImages\\Image7_IF.jpeg", w, h);
+        }
 
         yb = (LLB[k]-YB)*4;
         ye = (LLE[k]-YB)*4;
         xb = (LL[k]-XB)*4;
         xe = (LR[k]-XB)*4;
         ClearImageSpecific1(g_ImRES3, w, h, yb, ye, xb, xe, 255);
-        if (g_show_results == 1) SaveImage(g_ImRES3, "\\TestImages\\Image7_IFB.jpeg", w, h);
-        
+        if (g_show_results)
+        {
+            SaveImage(g_ImRES3, "\\TestImages\\Image7_IFB.jpeg", w, h);
+        }
+
         delta = 40;
         
         val1 = (int)((double)((LLE[k]-LLB[k]+1)*4)*0.3);
@@ -5209,48 +5241,58 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         xb = (LL[k]-XB)*4+val2;
         xe = (LR[k]-XB)*4-val2;
 
-        StrAnalyseImage(g_ImRES3, g_ImY, GRStr, w, h, xb, xe, yb, ye, 0);
+        StrAnalyseImage(g_ImRES3, g_ImageY, GRStr, w, h, xb, xe, yb, ye, 0);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 0);
         FindMaxStr(smax, smaxi, j1, ys1, NN);
 
-        val1 = j1-80;
-        if (val1 < 0) val1 = 0;
-        val2 = j1+80;
-        if (val2 > 255) val2 = 255;
+        val1 = j1 - 80;
+        if (val1 < 0)
+        {
+            val1 = 0;
+        }
 
-        for (i=val1; i<=val2; i++) GRStr[i] = 0;
-        
+        val2 = j1 + 80;
+        if (val2 > 255)
+        {
+            val2 = 255;
+        }
+
+        for (i = val1; i <= val2; ++i)
+        {
+            GRStr[i] = 0;
+        }
+
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 0);
         FindMaxStr(smax, smaxi, j2, ys2, NN);
 
-        if ( (j2 > j1) && ((double)ys1/ys2 < 3) )
+        if ((j2 > j1) && ((double)ys1 / ys2 < 3))
         {
             j1 = j2;
         }
 
-        int cnt3 = 0;
-        for(i=0; i<w*h; i++)
+        int count3 = 0;
+        for(i = 0; i < (w * h); ++i)
         {
             if (g_ImRES3[i] != 0)
             {
-                cnt3++;    
+                count3++;    
             }
         }
 
         int delta_new;
         int val_prev;
-        int d_cnt, d_cnt_prev, j1_min_prev, j1_max_prev;
+        int d_count, d_count_previous, j1_min_prev, j1_max_prev;
         int recn;
         
-        yb = (LLB[k]-YB)*4;
-        ye = (LLE[k]-YB)*4;
-        xb = (LL[k]-XB)*4;
-        xe = (LR[k]-XB)*4;
+        yb = (LLB[k] - YB) * 4;
+        ye = (LLE[k] - YB) * 4;
+        xb = (LL[k] - XB) * 4;
+        xe = (LR[k] - XB) * 4;
 
         recn = 1;
         delta_new = delta;
         val_prev = -1;
-        d_cnt_prev = -1;
+        d_count_previous = -1;
 
         while(1)
         {
@@ -5270,18 +5312,18 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 j1_min = 255-delta+1;
             }
 
-            AnalizeAndClearImage(g_ImRES1, g_ImY, w, h, j1_min, j1_max, r, g, yb, ye, xb, xe, cnt1, cnt2);
+            AnalizeAndClearImage(g_ImRES1, g_ImageY, w, h, j1_min, j1_max, r, g, yb, ye, xb, xe, count1, count2);
 
-            if (cnt1 > cnt2) val = cnt1;
-            else val = cnt2;
-            d_cnt = cnt2-cnt1;
+            if (count1 > count2) val = count1;
+            else val = count2;
+            d_count = count2-count1;
 
-            if ( ((double)cnt3/val > 6) && (delta_new < 120) && 
+            if ( ((double)count3/val > 6) && (delta_new < 120) && 
                 ( (val_prev == -1) || (val >= val_prev) ) &&
-                ( (d_cnt_prev == -1) || (delta_new<=80) || ( (d_cnt_prev*d_cnt > 0) && (delta_new > 80) ) )
+                ( (d_count_previous == -1) || (delta_new<=80) || ( (d_count_previous*d_count > 0) && (delta_new > 80) ) )
                 )
             {
-                d_cnt_prev = d_cnt;
+                d_count_previous = d_count;
                 j1_min_prev = j1_min;
                 j1_max_prev = j1_max;
                 val_prev = val;
@@ -5291,16 +5333,19 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 continue;
             }
 
-            if ( (val_prev != -1) && ( ( (val < val_prev) && (d_cnt_prev*d_cnt >= 0) ) || ( (d_cnt_prev*d_cnt <= 0) && (delta_new > 80) ) ) ) 
+            if ( (val_prev != -1) && ( ( (val < val_prev) && (d_count_previous*d_count >= 0) ) || ( (d_count_previous*d_count <= 0) && (delta_new > 80) ) ) ) 
             {
-                d_cnt = d_cnt_prev;
+                d_count = d_count_previous;
                 j1_min = j1_min_prev;
                 j1_max = j1_max_prev;
                 memcpy(g_ImRES1, g_ImRES4, (w*h)*sizeof(int));
-                if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGF.jpeg", w, h);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGF.jpeg", w, h);
+                }
             }
 
-            if ( (d_cnt > 0) && (recn == 2) )
+            if ( (d_count > 0) && (recn == 2) )
             {
                 val1 = 0;
                 val2 = 0;
@@ -5314,20 +5359,23 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
 
                     while(1)
                     {
-                        val = AnalizeAndClearImage(g_ImRES1, g_ImY, w, h, j1_min, j1_max, r, g, yb, ye, xb, xe, cnt1, cnt2);
-                        if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFC.jpeg", w, h);
+                        val = AnalizeAndClearImage(g_ImRES1, g_ImageY, w, h, j1_min, j1_max, r, g, yb, ye, xb, xe, count1, count2);
+                        if (g_show_results)
+                        {
+                            SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFC.jpeg", w, h);
+                        }
 
                         if (val > (val4*4)/3)
                         {
-                            val1 = cnt1;
+                            val1 = count1;
                             val2 = j1_min;
                             val3 = delta;
                             val4 = val;
                         }
                         
-                        if ( (cnt1 > val1) && ((3*val)/4 >= val4) )
+                        if ( (count1 > val1) && ((3*val)/4 >= val4) )
                         {
-                            val1 = cnt1;
+                            val1 = count1;
                             val2 = j1_min;
                             val3 = delta;
                             val4 = val;
@@ -5350,7 +5398,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 delta = val3;
                 j1_max = j1_min+delta-1;
 
-                AnalizeAndClearImage(g_ImRES1, g_ImY, w, h, j1_min, j1_max, r, g, yb, ye, xb, xe, cnt1, cnt2);
+                AnalizeAndClearImage(g_ImRES1, g_ImageY, w, h, j1_min, j1_max, r, g, yb, ye, xb, xe, count1, count2);
 
                 for (i=0; i<=w*h; i++)
                 {
@@ -5361,7 +5409,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
 
                 break;
             }
-            else if ( (d_cnt > 0) && (recn < 2) )
+            else if ( (d_count > 0) && (recn < 2) )
             {
                 recn++;
 
@@ -5371,14 +5419,17 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
 
                 ClearImageSpecific(g_ImRES1, w, h, g);
-                if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFB.jpeg", w, h);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFB.jpeg", w, h);
+                }
 
                 delta = 60;
-                StrAnalyseImage(g_ImRES1, g_ImY, GRStr, w, h, xb, xe, yb, ye, 0);
+                StrAnalyseImage(g_ImRES1, g_ImageY, GRStr, w, h, xb, xe, yb, ye, 0);
                 FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 0);
                 FindMaxStr(smax, smaxi, j1, ys1, NN);
                 val_prev = -1;
-                d_cnt_prev = -1;
+                d_count_previous = -1;
                 delta_new = delta;
             }
             else
@@ -5392,12 +5443,15 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             }
         }
 
-        if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFF.jpeg", w, h);
+        if (g_show_results)
+        {
+            SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_RGFF.jpeg", w, h);
+        }
 
         j1 = j1_min;
 
         delta = 20;
-        StrAnalyseImage(g_ImRES1, g_ImU, GRStr, w, h, xb, xe, yb, ye, 256);
+        StrAnalyseImage(g_ImRES1, g_ImageU, GRStr, w, h, xb, xe, yb, ye, 256);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 256);
         if (NN == 0) continue;
         FindMaxStr(smax, smaxi, j2, ys2, NN);
@@ -5410,7 +5464,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         j2_max = j2_min+delta-1;
 
         delta = 20;
-        StrAnalyseImage(g_ImRES1, g_ImV, GRStr, w, h, xb, xe, yb, ye, 256);
+        StrAnalyseImage(g_ImRES1, g_ImageV, GRStr, w, h, xb, xe, yb, ye, 256);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 256);
         if (NN == 0) continue;
         FindMaxStr(smax, smaxi, j3, ys3, NN);
@@ -5423,7 +5477,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         j3_max = j3_min+delta-1;
 
         delta = 20;
-        StrAnalyseImage(g_ImRES1, g_ImI, GRStr, w, h, xb, xe, yb, ye, 256);
+        StrAnalyseImage(g_ImRES1, g_ImageI, GRStr, w, h, xb, xe, yb, ye, 256);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 256);
         if (NN == 0) continue;
         FindMaxStr(smax, smaxi, j4, ys4, NN);
@@ -5436,7 +5490,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         j4_max = j4_min+delta-1;
 
         delta = 20;
-        StrAnalyseImage(g_ImRES1, g_ImQ, GRStr, w, h, xb, xe, yb, ye, 256);
+        StrAnalyseImage(g_ImRES1, g_ImageQ, GRStr, w, h, xb, xe, yb, ye, 256);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NN, 256);
         if (NN == 0) continue;
         FindMaxStr(smax, smaxi, j5, ys5, NN);
@@ -5451,198 +5505,24 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
         j1_min_prev = j1_min;
         j1_max_prev = j1_max;
 
-        //-----применяем первый метод отделения текста-----//
-        if (g_hard_sub_mining == true) while(1)
+        //-----apply the first method for the separation of text-----//
+        if (g_hard_sub_mining)
         {
-            if ( j1_max-j1_min+1 > 60 )
+            while(1)
             {
-                j1_min += 10;
-                j1_max -= 10;
-            }
-
-            for (i=0; i<w*h; i++)
-            {
-                val1 = g_ImY[i];
-                val2 = g_ImU[i];
-                val3 = g_ImV[i];
-                val4 = g_ImI[i];
-                val5 = g_ImQ[i];
-
-                if ( ( val1 >= j1_min ) && (val1 <= j1_max) &&
-                    ( val2 >= j2_min ) && (val2 <= j2_max) &&
-                    ( val3 >= j3_min ) && (val3 <= j3_max) &&
-                    ( val4 >= j4_min ) && (val4 <= j4_max) &&
-                    ( val5 >= j5_min ) && (val5 <= j5_max)
-                    ) 
+                if ( j1_max-j1_min+1 > 60 )
                 {
-                    g_ImRES1[i] = r;
+                    j1_min += 10;
+                    j1_max -= 10;
                 }
-                else
-                {
-                    g_ImRES1[i] = 0;
-                }
-            }
 
-            for (i=0; i<w*h; i++)
-            {
-                val1 = g_ImY[i];
-
-                if ( ( val1 >= j1_min ) && (val1 <= j1_max) ) 
-                {
-                    g_ImRES2[i] = r;
-                }
-                else
-                {
-                    g_ImRES2[i] = 0;
-                }
-            }
-
-            val_min = j1_min-20;
-            val_max = j1_max-20;
-            for (i=0; i<w*h; i++)
-            {
-                val1 = g_ImY[i];
-
-                if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
-                {
-                    g_ImRES3[i] = r;
-                }
-                else
-                {
-                    g_ImRES3[i] = 0;
-                }
-            }
-
-            val_min = j1_min+20;
-            val_max = j1_max+20;
-            for (i=0; i<w*h; i++)
-            {
-                val1 = g_ImY[i];
-
-                if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
-                {
-                    g_ImRES4[i] = r;
-                }
-                else
-                {
-                    g_ImRES4[i] = 0;
-                }
-            }
-
-            val_min = j1_min;
-            val_max = j1_max+20;
-            for (i=0; i<w*h; i++)
-            {
-                val1 = g_ImY[i];
-                val1 = g_ImY[i];
-                val2 = g_ImU[i];
-                val3 = g_ImV[i];
-                val4 = g_ImI[i];
-                val5 = g_ImQ[i];
-
-                if ( ( val1 >= val_min ) && (val1 <= val_max) &&
-                    ( val2 >= j2_min ) && (val2 <= j2_max) &&
-                    ( val3 >= j3_min ) && (val3 <= j3_max) &&
-                    ( val4 >= j4_min ) && (val4 <= j4_max) &&
-                    ( val5 >= j5_min ) && (val5 <= j5_max)
-                    ) 
-                {
-                    g_ImRES5[i] = r;
-                }
-                else
-                {
-                    g_ImRES5[i] = 0;
-                }
-            }
-
-            val_min = j1_min-20;
-            if (val_min > 70)
-            {
-                if (val_min-30 < 70) val_min = 70;
-                else val_min -= 30;
-            }
-            val_max = j1_max;
-            for (i=0; i<w*h; i++)
-            {
-                val1 = g_ImY[i];
-                val2 = g_ImU[i];
-                val3 = g_ImV[i];
-                val4 = g_ImI[i];
-                val5 = g_ImQ[i];
-
-                if ( ( val1 >= val_min ) && (val1 <= val_max) &&
-                    ( val2 >= j2_min ) && (val2 <= j2_max) &&
-                    ( val3 >= j3_min ) && (val3 <= j3_max) &&
-                    ( val4 >= j4_min ) && (val4 <= j4_max) &&
-                    ( val5 >= j5_min ) && (val5 <= j5_max)
-                    ) 
-                {
-                    g_ImRES6[i] = r;
-                }
-                else
-                {
-                    g_ImRES6[i] = 0;
-                }
-            }
-
-            if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE1_01.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE1_02.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE1_03.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE1_04.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE1_05.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE1_06.jpeg", w, h);
-
-            yb = (LLB[k]-YB)*4;
-            ye = (LLE[k]-YB)*4;
-            xb = (LL[k]-XB)*4;
-            xe = (LR[k]-XB)*4;
-
-            memcpy(g_ImRES7, g_ImRES6, (w*h)*sizeof(int));
-            //memcpy(g_ImRES9, g_ImRES1, (w*h)*sizeof(int));
-
-            ClearImage4x4(g_ImRES1, w, h, r);
-            N1 = ClearImageOptimal(g_ImRES1, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE1_012.jpeg", w, h);
-
-            ClearImage4x4(g_ImRES2, w, h, r);
-            N2 = ClearImageOptimal(g_ImRES2, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE1_022.jpeg", w, h);
-
-            ClearImage4x4(g_ImRES3, w, h, r);
-            N3 = ClearImageOptimal(g_ImRES3, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE1_032.jpeg", w, h);
-
-            ClearImage4x4(g_ImRES4, w, h, r);
-            N4 = ClearImageOptimal(g_ImRES4, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE1_042.jpeg", w, h);
-
-            ClearImage4x4(g_ImRES5, w, h, r);
-            N5 = ClearImageOptimal(g_ImRES5, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE1_052.jpeg", w, h);
-
-            ClearImage4x4(g_ImRES6, w, h, r);
-            N6 = ClearImageOptimal(g_ImRES6, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE1_062.jpeg", w, h);
-
-            maxN = 0;
-            val = 1;
-
-            if (N6 >= maxN) { maxN = N6; val = 6; }
-            if (N5 >= maxN) { maxN = N5; val = 5; }
-            if (N4 >= maxN) { maxN = N4; val = 4; }
-            if (N3 >= maxN) { maxN = N3; val = 3; }
-            if (N2 >= maxN) { maxN = N2; val = 2; }
-            if (N1 >= maxN) { maxN = N1; val = 1; }
-
-            if (val == 1)
-            {
                 for (i=0; i<w*h; i++)
                 {
-                    val1 = g_ImY[i];
-                    val2 = g_ImU[i];
-                    val3 = g_ImV[i];
-                    val4 = g_ImI[i];
-                    val5 = g_ImQ[i];
+                    val1 = g_ImageY[i];
+                    val2 = g_ImageU[i];
+                    val3 = g_ImageV[i];
+                    val4 = g_ImageI[i];
+                    val5 = g_ImageQ[i];
 
                     if ( ( val1 >= j1_min ) && (val1 <= j1_max) &&
                         ( val2 >= j2_min ) && (val2 <= j2_max) &&
@@ -5651,77 +5531,70 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                         ( val5 >= j5_min ) && (val5 <= j5_max)
                         ) 
                     {
-                        g_ImRES9[i] = r;
+                        g_ImRES1[i] = r;
                     }
                     else
                     {
-                        g_ImRES9[i] = 0;
+                        g_ImRES1[i] = 0;
                     }
                 }
-            }
-            else if (val == 2)
-            {
+
                 for (i=0; i<w*h; i++)
                 {
-                    val1 = g_ImY[i];
+                    val1 = g_ImageY[i];
 
                     if ( ( val1 >= j1_min ) && (val1 <= j1_max) ) 
                     {
-                        g_ImRES9[i] = r;
+                        g_ImRES2[i] = r;
                     }
                     else
                     {
-                        g_ImRES9[i] = 0;
+                        g_ImRES2[i] = 0;
                     }
                 }
-            }
-            else if (val == 3)
-            {
+
                 val_min = j1_min-20;
                 val_max = j1_max-20;
                 for (i=0; i<w*h; i++)
                 {
-                    val1 = g_ImY[i];
+                    val1 = g_ImageY[i];
 
                     if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
                     {
-                        g_ImRES9[i] = r;
+                        g_ImRES3[i] = r;
                     }
                     else
                     {
-                        g_ImRES9[i] = 0;
+                        g_ImRES3[i] = 0;
                     }
                 }
-            }
-            else if (val == 4)
-            {
+
                 val_min = j1_min+20;
                 val_max = j1_max+20;
                 for (i=0; i<w*h; i++)
                 {
-                    val1 = g_ImY[i];
+                    val1 = g_ImageY[i];
 
                     if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
                     {
-                        g_ImRES9[i] = r;
+                        g_ImRES4[i] = r;
                     }
                     else
                     {
-                        g_ImRES9[i] = 0;
+                        g_ImRES4[i] = 0;
                     }
                 }
-            }
-            else if (val == 5)
-            {
+
                 val_min = j1_min;
                 val_max = j1_max+20;
                 for (i=0; i<w*h; i++)
                 {
-                    val1 = g_ImY[i];
-                    val2 = g_ImU[i];
-                    val3 = g_ImV[i];
-                    val4 = g_ImI[i];
-                    val5 = g_ImQ[i];
+                    val1 = g_ImageY[i];
+                    val1 = g_ImageY[i];
+                    val2 = g_ImageU[i];
+                    val3 = g_ImageV[i];
+                    val4 = g_ImageI[i];
+                    val5 = g_ImageQ[i];
 
                     if ( ( val1 >= val_min ) && (val1 <= val_max) &&
                         ( val2 >= j2_min ) && (val2 <= j2_max) &&
@@ -5730,16 +5603,14 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                         ( val5 >= j5_min ) && (val5 <= j5_max)
                         ) 
                     {
-                        g_ImRES9[i] = r;
+                        g_ImRES5[i] = r;
                     }
                     else
                     {
-                        g_ImRES9[i] = 0;
+                        g_ImRES5[i] = 0;
                     }
                 }
-            }
-            else if (val == 6)
-            {
+
                 val_min = j1_min-20;
                 if (val_min > 70)
                 {
@@ -5749,11 +5620,11 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 val_max = j1_max;
                 for (i=0; i<w*h; i++)
                 {
-                    val1 = g_ImY[i];
-                    val2 = g_ImU[i];
-                    val3 = g_ImV[i];
-                    val4 = g_ImI[i];
-                    val5 = g_ImQ[i];
+                    val1 = g_ImageY[i];
+                    val2 = g_ImageU[i];
+                    val3 = g_ImageV[i];
+                    val4 = g_ImageI[i];
+                    val5 = g_ImageQ[i];
 
                     if ( ( val1 >= val_min ) && (val1 <= val_max) &&
                         ( val2 >= j2_min ) && (val2 <= j2_max) &&
@@ -5762,176 +5633,466 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                         ( val5 >= j5_min ) && (val5 <= j5_max)
                         ) 
                     {
-                        g_ImRES9[i] = r;
+                        g_ImRES6[i] = r;
                     }
                     else
                     {
-                        g_ImRES9[i] = 0;
+                        g_ImRES6[i] = 0;
                     }
                 }
-            }
 
-            if (maxN > 6) minN = (int)((double)maxN*0.9);
-            else minN = maxN/2;
-
-            for (i=0; i<w*h; i++)
-            {
-                if ( ( (N1 >= minN) && (g_ImRES1[i] != 0) ) ||
-                    ( (N2 >= minN) && (g_ImRES2[i] != 0) ) ||
-                    ( (N3 >= minN) && (g_ImRES3[i] != 0) ) ||
-                    ( (N4 >= minN) && (g_ImRES4[i] != 0) ) ||
-                    ( (N5 >= minN) && (g_ImRES5[i] != 0) ) ||
-                    ( (N6 >= minN) && (g_ImRES6[i] != 0) )
-                    )
+                if (g_show_results)
                 {
-                    g_ImRES8[i] = r;
+                    SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE1_01.jpeg", w, h);
                 }
-                else
+                if (g_show_results)
                 {
-                    g_ImRES8[i] = 0;
+                    SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE1_02.jpeg", w, h);
                 }
-            }        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE1_03.jpeg", w, h);
+                }
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE1_04.jpeg", w, h);
+                }
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE1_05.jpeg", w, h);
+                }
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE1_06.jpeg", w, h);
+                }
 
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES00.jpeg", w, h);
+                yb = (LLB[k]-YB)*4;
+                ye = (LLE[k]-YB)*4;
+                xb = (LL[k]-XB)*4;
+                xe = (LR[k]-XB)*4;
 
-            ClearImage4x4(g_ImRES8, w, h, r);
-            
-            LH = (LLE[k] - LLB[k])*4;
-            val = ClearImageOpt2(g_ImRES8, w, h, r, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ);
-            ddI = ddQ = max(min((ddI*4)/3, 20), ddI);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES01.jpeg", w, h);
+                memcpy(g_ImRES7, g_ImRES6, (w*h)*sizeof(int));
 
-            if (val == 0)
-            {
-                memset(g_ImRES9, 0, (w*h)*sizeof(int));
+                ClearImage4x4(g_ImRES1, w, h, r);
+                N1 = ClearImageOptimal(g_ImRES1, w, h, yb, ye, r);        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE1_012.jpeg", w, h);
+                }
+
+                ClearImage4x4(g_ImRES2, w, h, r);
+                N2 = ClearImageOptimal(g_ImRES2, w, h, yb, ye, r);        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE1_022.jpeg", w, h);
+                }
+
+                ClearImage4x4(g_ImRES3, w, h, r);
+                N3 = ClearImageOptimal(g_ImRES3, w, h, yb, ye, r);        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE1_032.jpeg", w, h);
+                }
+
+                ClearImage4x4(g_ImRES4, w, h, r);
+                N4 = ClearImageOptimal(g_ImRES4, w, h, yb, ye, r);        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE1_042.jpeg", w, h);
+                }
+
+                ClearImage4x4(g_ImRES5, w, h, r);
+                N5 = ClearImageOptimal(g_ImRES5, w, h, yb, ye, r);        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE1_052.jpeg", w, h);
+                }
+
+                ClearImage4x4(g_ImRES6, w, h, r);
+                N6 = ClearImageOptimal(g_ImRES6, w, h, yb, ye, r);        
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE1_062.jpeg", w, h);
+                }
+
+                maxN = 0;
+                val = 1;
+
+                if (N6 >= maxN)
+                {
+                    maxN = N6;
+                    val = 6;
+                }
+                if (N5 >= maxN)
+                {
+                    maxN = N5;
+                    val = 5;
+                }
+                if (N4 >= maxN)
+                {
+                    maxN = N4;
+                    val = 4;
+                }
+                if (N3 >= maxN)
+                {
+                    maxN = N3;
+                    val = 3;
+                }
+                if (N2 >= maxN)
+                {
+                    maxN = N2;
+                    val = 2;
+                }
+                if (N1 >= maxN)
+                {
+                    maxN = N1;
+                    val = 1;
+                }
+
+                if (val == 1)
+                {
+                    for (i=0; i<w*h; i++)
+                    {
+                        val1 = g_ImageY[i];
+                        val2 = g_ImageU[i];
+                        val3 = g_ImageV[i];
+                        val4 = g_ImageI[i];
+                        val5 = g_ImageQ[i];
+
+                        if ( ( val1 >= j1_min ) && (val1 <= j1_max) &&
+                            ( val2 >= j2_min ) && (val2 <= j2_max) &&
+                            ( val3 >= j3_min ) && (val3 <= j3_max) &&
+                            ( val4 >= j4_min ) && (val4 <= j4_max) &&
+                            ( val5 >= j5_min ) && (val5 <= j5_max)
+                            ) 
+                        {
+                            g_ImRES9[i] = r;
+                        }
+                        else
+                        {
+                            g_ImRES9[i] = 0;
+                        }
+                    }
+                }
+                else if (val == 2)
+                {
+                    for (i=0; i<w*h; i++)
+                    {
+                        val1 = g_ImageY[i];
+
+                        if ( ( val1 >= j1_min ) && (val1 <= j1_max) ) 
+                        {
+                            g_ImRES9[i] = r;
+                        }
+                        else
+                        {
+                            g_ImRES9[i] = 0;
+                        }
+                    }
+                }
+                else if (val == 3)
+                {
+                    val_min = j1_min-20;
+                    val_max = j1_max-20;
+                    for (i=0; i<w*h; i++)
+                    {
+                        val1 = g_ImageY[i];
+
+                        if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
+                        {
+                            g_ImRES9[i] = r;
+                        }
+                        else
+                        {
+                            g_ImRES9[i] = 0;
+                        }
+                    }
+                }
+                else if (val == 4)
+                {
+                    val_min = j1_min+20;
+                    val_max = j1_max+20;
+                    for (i=0; i<w*h; i++)
+                    {
+                        val1 = g_ImageY[i];
+
+                        if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
+                        {
+                            g_ImRES9[i] = r;
+                        }
+                        else
+                        {
+                            g_ImRES9[i] = 0;
+                        }
+                    }
+                }
+                else if (val == 5)
+                {
+                    val_min = j1_min;
+                    val_max = j1_max+20;
+                    for (i=0; i<w*h; i++)
+                    {
+                        val1 = g_ImageY[i];
+                        val2 = g_ImageU[i];
+                        val3 = g_ImageV[i];
+                        val4 = g_ImageI[i];
+                        val5 = g_ImageQ[i];
+
+                        if ( ( val1 >= val_min ) && (val1 <= val_max) &&
+                            ( val2 >= j2_min ) && (val2 <= j2_max) &&
+                            ( val3 >= j3_min ) && (val3 <= j3_max) &&
+                            ( val4 >= j4_min ) && (val4 <= j4_max) &&
+                            ( val5 >= j5_min ) && (val5 <= j5_max)
+                            ) 
+                        {
+                            g_ImRES9[i] = r;
+                        }
+                        else
+                        {
+                            g_ImRES9[i] = 0;
+                        }
+                    }
+                }
+                else if (val == 6)
+                {
+                    val_min = j1_min-20;
+                    if (val_min > 70)
+                    {
+                        if (val_min-30 < 70) val_min = 70;
+                        else val_min -= 30;
+                    }
+                    val_max = j1_max;
+                    for (i=0; i<w*h; i++)
+                    {
+                        val1 = g_ImageY[i];
+                        val2 = g_ImageU[i];
+                        val3 = g_ImageV[i];
+                        val4 = g_ImageI[i];
+                        val5 = g_ImageQ[i];
+
+                        if ( ( val1 >= val_min ) && (val1 <= val_max) &&
+                            ( val2 >= j2_min ) && (val2 <= j2_max) &&
+                            ( val3 >= j3_min ) && (val3 <= j3_max) &&
+                            ( val4 >= j4_min ) && (val4 <= j4_max) &&
+                            ( val5 >= j5_min ) && (val5 <= j5_max)
+                            ) 
+                        {
+                            g_ImRES9[i] = r;
+                        }
+                        else
+                        {
+                            g_ImRES9[i] = 0;
+                        }
+                    }
+                }
+
+                if (maxN > 6) minN = (int)((double)maxN*0.9);
+                else minN = maxN/2;
+
+                for (i=0; i<w*h; i++)
+                {
+                    if ( ( (N1 >= minN) && (g_ImRES1[i] != 0) ) ||
+                        ( (N2 >= minN) && (g_ImRES2[i] != 0) ) ||
+                        ( (N3 >= minN) && (g_ImRES3[i] != 0) ) ||
+                        ( (N4 >= minN) && (g_ImRES4[i] != 0) ) ||
+                        ( (N5 >= minN) && (g_ImRES5[i] != 0) ) ||
+                        ( (N6 >= minN) && (g_ImRES6[i] != 0) )
+                        )
+                    {
+                        g_ImRES8[i] = r;
+                    }
+                    else
+                    {
+                        g_ImRES8[i] = 0;
+                    }
+                }        
+
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES00.jpeg", w, h);
+                }
+
+                ClearImage4x4(g_ImRES8, w, h, r);
+                
+                LH = (LLE[k] - LLB[k])*4;
+                val = ClearImageOpt2(g_ImRES8, w, h, r, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ);
+                ddI = ddQ = max(min((ddI*4)/3, 20), ddI);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES01.jpeg", w, h);
+                }
+
+                if (val == 0)
+                {
+                    memset(g_ImRES9, 0, (w*h)*sizeof(int));
+                    break;
+                }
+
+                for (i=0; i<w*h; i++)
+                {
+                    if ( ( (N1 >= minN) && (g_ImRES1[i] != 0) ) ||
+                        ( (N2 >= minN) && (g_ImRES2[i] != 0) ) ||
+                        ( (N3 >= minN) && (g_ImRES3[i] != 0) ) ||
+                        ( (N4 >= minN) && (g_ImRES4[i] != 0) ) ||
+                        ( (N5 >= minN) && (g_ImRES5[i] != 0) ) ||
+                        ( (N6 >= minN) && (g_ImRES6[i] != 0) )
+                        )
+                    {
+                        g_ImRES9[i] = r;
+                    }
+                }
+
+                ClearImage4x4(g_ImRES9, w, h, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES02.jpeg", w, h);
+                }
+
+                for (i=0; i<w*h; i++)
+                {
+                    if (g_ImRES8[i] != 0)
+                    {
+                        g_ImRES9[i] = r;
+                    }
+                }
+                
+                ClearImage4x4(g_ImRES9, w, h, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES03.jpeg", w, h);
+                }
+
+                ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES04.jpeg", w, h);
+                }
+
+                val = ClearImageLogical(g_ImRES9, w, h, LH, LMAXY, xb, xe, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES05!.jpeg", w, h);
+                }
+
+                if (val == 0)
+                {
+                    memset(g_ImRES9, 0, (w*h)*sizeof(int));
+                    break;
+                }
+
+                memcpy(g_ImRES8, g_ImRES9, (w*h)*sizeof(int));
+                for (i=0; i<w*h; i++)
+                {
+                    if ( (N5 >= minN) && (g_ImRES5[i] != 0) )
+                    {
+                        g_ImRES8[i] = r;
+                    }
+                }
+
+                ClearImageOpt5(g_ImRES8, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                ClearImage4x4(g_ImRES8, w, h, r);
+                ClearImageOpt5(g_ImRES8, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES06.jpeg", w, h);
+                }
+
+                val = ClearImageLogical(g_ImRES8, w, h, LH, LMAXY, xb, xe, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES07!.jpeg", w, h);
+                }
+
+                if (val == 0)
+                {
+                    memset(g_ImRES9, 0, (w*h)*sizeof(int));
+                    break;
+                }
+
+                for (i=0; i<w*h; i++)
+                {
+                    if ( (N4 >= minN) && (g_ImRES4[i] != 0) )
+                    {
+                        g_ImRES9[i] = r;
+                    }
+                }
+
+                ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                ClearImage4x4(g_ImRES9, w, h, r);
+                ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES08.jpeg", w, h);
+                }
+
+                val = ClearImageLogical(g_ImRES9, w, h, LH, LMAXY, xb, xe, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES09!.jpeg", w, h);
+                }
+
+                for (i=0; i<w*h; i++)
+                {
+                    if (g_ImRES8[i] != 0)
+                    {
+                        g_ImRES9[i] = r;
+                    }
+                }
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES10.jpeg", w, h);
+                }
+                ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES11.jpeg", w, h);
+                }
+
+                val = ClearImageLogical(g_ImRES9, w, h, LH, LMAXY, xb, xe, r);
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES12!.jpeg", w, h);
+                }
+
+                if (val == 0)
+                {
+                    memset(g_ImRES9, 0, (w*h)*sizeof(int));
+                    break;
+                }
+
+                ClearImageOpt5(g_ImRES4, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+                ClearImage4x4(g_ImRES4, w, h, r);
+                ClearImageOpt5(g_ImRES4, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
+
+                val1 = LH;
+                val2 = LMAXY;
+                val = ClearImageLogical(g_ImRES4, w, h, val1, val2, xb, xe, r);
+                ClearImageSpecific2(g_ImRES4, w, h, LMAXY, LH, r);
+                
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE1_RES13.jpeg", w, h);
+                }
+
+                for (i=0; i<w*h; i++)
+                {
+                    if (g_ImRES4[i] != 0)
+                    {
+                        g_ImRES9[i] = r;
+                    }
+                }
+
+                if (g_show_results)
+                {
+                    SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES14.jpeg", w, h);
+                }
+
                 break;
             }
-
-            for (i=0; i<w*h; i++)
-            {
-                if ( ( (N1 >= minN) && (g_ImRES1[i] != 0) ) ||
-                    ( (N2 >= minN) && (g_ImRES2[i] != 0) ) ||
-                    ( (N3 >= minN) && (g_ImRES3[i] != 0) ) ||
-                    ( (N4 >= minN) && (g_ImRES4[i] != 0) ) ||
-                    ( (N5 >= minN) && (g_ImRES5[i] != 0) ) ||
-                    ( (N6 >= minN) && (g_ImRES6[i] != 0) )
-                    )
-                {
-                    g_ImRES9[i] = r;
-                }
-            }
-
-            ClearImage4x4(g_ImRES9, w, h, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES02.jpeg", w, h);
-
-            for (i=0; i<w*h; i++)
-            {
-                if (g_ImRES8[i] != 0)
-                {
-                    g_ImRES9[i] = r;
-                }
-            }
-            
-            ClearImage4x4(g_ImRES9, w, h, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES03.jpeg", w, h);
-
-            ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES04.jpeg", w, h);
-
-            val = ClearImageLogical(g_ImRES9, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES05!.jpeg", w, h);
-
-            if (val == 0)
-            {
-                memset(g_ImRES9, 0, (w*h)*sizeof(int));
-                break;
-            }
-
-            memcpy(g_ImRES8, g_ImRES9, (w*h)*sizeof(int));
-            for (i=0; i<w*h; i++)
-            {
-                if ( (N5 >= minN) && (g_ImRES5[i] != 0) )
-                {
-                    g_ImRES8[i] = r;
-                }
-            }
-
-            ClearImageOpt5(g_ImRES8, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            ClearImage4x4(g_ImRES8, w, h, r);
-            ClearImageOpt5(g_ImRES8, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES06.jpeg", w, h);        
-
-            val = ClearImageLogical(g_ImRES8, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE1_RES07!.jpeg", w, h);
-
-            if (val == 0)
-            {
-                memset(g_ImRES9, 0, (w*h)*sizeof(int));
-                break;
-            }
-
-            for (i=0; i<w*h; i++)
-            {
-                if ( (N4 >= minN) && (g_ImRES4[i] != 0) )
-                {
-                    g_ImRES9[i] = r;
-                }
-            }
-
-            ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            ClearImage4x4(g_ImRES9, w, h, r);
-            ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES08.jpeg", w, h);        
-
-            val = ClearImageLogical(g_ImRES9, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES09!.jpeg", w, h);
-
-            for (i=0; i<w*h; i++)
-            {
-                if (g_ImRES8[i] != 0)
-                {
-                    g_ImRES9[i] = r;
-                }
-            }
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES10.jpeg", w, h);
-            ClearImageOpt5(g_ImRES9, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES11.jpeg", w, h);
-
-            val = ClearImageLogical(g_ImRES9, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES12!.jpeg", w, h);
-
-            if (val == 0)
-            {
-                memset(g_ImRES9, 0, (w*h)*sizeof(int));
-                break;
-            }
-
-            ClearImageOpt5(g_ImRES4, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            ClearImage4x4(g_ImRES4, w, h, r);
-            ClearImageOpt5(g_ImRES4, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-
-            val1 = LH;
-            val2 = LMAXY;
-            val = ClearImageLogical(g_ImRES4, w, h, val1, val2, xb, xe, r);
-            ClearImageSpecific2(g_ImRES4, w, h, LMAXY, LH, r);
-            
-            if (g_show_results == 1) SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE1_RES13.jpeg", w, h);
-
-            for (i=0; i<w*h; i++)
-            {
-                if (g_ImRES4[i] != 0)
-                {
-                    g_ImRES9[i] = r;
-                }
-            }
-
-            if (g_show_results == 1) SaveRGBImage(g_ImRES9, "\\TestImages\\Image8_SE1_RES14.jpeg", w, h);
-
-            break;
         }
         ///////////////////////////////////////////////////////////////////////
 
-        //-----применяем второй метод отделения текста-----//
+        //-----apply a second method of separating text-----//
         while(1)
         {            
             j1_min = j1_min_prev;
@@ -5939,11 +6100,11 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
 
             for (i=0; i<w*h; i++)
             {
-                val1 = g_ImY[i];
-                val2 = g_ImU[i];
-                val3 = g_ImV[i];
-                val4 = g_ImI[i];
-                val5 = g_ImQ[i];
+                val1 = g_ImageY[i];
+                val2 = g_ImageU[i];
+                val3 = g_ImageV[i];
+                val4 = g_ImageI[i];
+                val5 = g_ImageQ[i];
 
                 if ( ( val1 >= j1_min ) && (val1 <= j1_max) &&
                     ( val2 >= j2_min ) && (val2 <= j2_max) &&
@@ -5962,7 +6123,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
 
             for (i=0; i<w*h; i++)
             {
-                val1 = g_ImY[i];
+                val1 = g_ImageY[i];
 
                 if ( ( val1 >= j1_min ) && (val1 <= j1_max) ) 
                 {
@@ -5978,7 +6139,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             val_max = j1_max-20;
             for (i=0; i<w*h; i++)
             {
-                val1 = g_ImY[i];
+                val1 = g_ImageY[i];
 
                 if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
                 {
@@ -5994,7 +6155,7 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             val_max = j1_max+20;
             for (i=0; i<w*h; i++)
             {
-                val1 = g_ImY[i];
+                val1 = g_ImageY[i];
 
                 if ( ( val1 >= val_min ) && (val1 <= val_max) ) 
                 {
@@ -6010,12 +6171,12 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             val_max = j1_max+20;
             for (i=0; i<w*h; i++)
             {
-                val1 = g_ImY[i];
-                val1 = g_ImY[i];
-                val2 = g_ImU[i];
-                val3 = g_ImV[i];
-                val4 = g_ImI[i];
-                val5 = g_ImQ[i];
+                val1 = g_ImageY[i];
+                val1 = g_ImageY[i];
+                val2 = g_ImageU[i];
+                val3 = g_ImageV[i];
+                val4 = g_ImageI[i];
+                val5 = g_ImageQ[i];
 
                 if ( ( val1 >= val_min ) && (val1 <= val_max) &&
                     ( val2 >= j2_min ) && (val2 <= j2_max) &&
@@ -6041,12 +6202,12 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             val_max = j1_max;
             for (i=0; i<w*h; i++)
             {
-                val1 = g_ImY[i];
-                val1 = g_ImY[i];
-                val2 = g_ImU[i];
-                val3 = g_ImV[i];
-                val4 = g_ImI[i];
-                val5 = g_ImQ[i];
+                val1 = g_ImageY[i];
+                val1 = g_ImageY[i];
+                val2 = g_ImageU[i];
+                val3 = g_ImageV[i];
+                val4 = g_ImageI[i];
+                val5 = g_ImageQ[i];
 
                 if ( ( val1 >= val_min ) && (val1 <= val_max) &&
                     ( val2 >= j2_min ) && (val2 <= j2_max) &&
@@ -6063,12 +6224,30 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
             }
 
-            if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE2_01.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE2_02.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE2_03.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE2_04.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE2_05.jpeg", w, h);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_06.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE2_01.jpeg", w, h);
+            }
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE2_02.jpeg", w, h);
+            }
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE2_03.jpeg", w, h);
+            }
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE2_04.jpeg", w, h);
+            }
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE2_05.jpeg", w, h);
+            }
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_06.jpeg", w, h);
+            }
 
             yb = (LLB[k]-YB)*4;
             ye = (LLE[k]-YB)*4;
@@ -6079,25 +6258,41 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             memcpy(g_ImFF, g_ImRES1, (w*h)*sizeof(int));
 
             N1 = ClearImageOptimal(g_ImRES1, w, h, yb, ye, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE2_012.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES1, "\\TestImages\\Image8_SE2_012.jpeg", w, h);
+            }
 
-            //ClearImage4x4(g_ImRES2, w, h, r);
             N2 = ClearImageOptimal(g_ImRES2, w, h, yb, ye, r);        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE2_022.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES2, "\\TestImages\\Image8_SE2_022.jpeg", w, h);
+            }
 
-            //ClearImage4x4(g_ImRES3, w, h, r);
             N3 = ClearImageOptimal(g_ImRES3, w, h, yb, ye, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE2_032.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES3, "\\TestImages\\Image8_SE2_032.jpeg", w, h);
+            }
 
             N4 = ClearImageOptimal(g_ImRES4, w, h, yb, ye, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE2_042.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES4, "\\TestImages\\Image8_SE2_042.jpeg", w, h);
+            }
 
             N5 = ClearImageOptimal(g_ImRES5, w, h, yb, ye, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE2_052.jpeg", w, h);
-            
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES5, "\\TestImages\\Image8_SE2_052.jpeg", w, h);
+            }
+
             ClearImage4x4(g_ImRES4, w, h, r);
             N6 = ClearImageOptimal(g_ImRES6, w, h, yb, ye, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_062.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_062.jpeg", w, h);
+            }
 
             minN = N5/2;
 
@@ -6118,14 +6313,23 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                     g_ImRES8[i] = 0;
                 }
             }        
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE2_RES00.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE2_RES00.jpeg", w, h);
+            }
 
             LH = (LLE[k] - LLB[k])*4;
             val = ClearImageOpt2(g_ImRES8, w, h, r, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE2_RES01.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE2_RES01.jpeg", w, h);
+            }
 
             ClearImageOpt5(g_ImRES6, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_RES02.jpeg", w, h);            
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_RES02.jpeg", w, h);
+            }
 
             if (val == 0)
             {
@@ -6141,16 +6345,25 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
             }            
 
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES03.jpeg", w, h);            
-            
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES03.jpeg", w, h);
+            }
+
             ClearImageOpt5(g_ImFF, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
 
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES04.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES04.jpeg", w, h);
+            }
 
             memcpy(g_ImRES8, g_ImFF, (w*h)*sizeof(int));
 
             N7 = ClearImageOpt5(g_ImRES7, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES7, "\\TestImages\\Image8_SE2_RES05.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES7, "\\TestImages\\Image8_SE2_RES05.jpeg", w, h);
+            }
 
             for (i=0; i<w*h; i++)
             {
@@ -6163,13 +6376,22 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
             }
             
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES06.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES06.jpeg", w, h);
+            }
 
             ClearImageOpt5(g_ImFF, w, h, LH, LMAXY, jY_min, jY_max, j4_min, j4_max, j5_min, j5_max, mY, dY, mI, dI, mQ, dQ, mmY, ddY1, ddY2, mmI, ddI, mmQ, ddQ, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES07.jpeg", w, h);
-            
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES07.jpeg", w, h);
+            }
+
             val = ClearImageLogical(g_ImFF, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES08!.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES08!.jpeg", w, h);
+            }
 
             if (val == 0)
             {
@@ -6178,13 +6400,22 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             }
 
             val = ClearImageLogical(g_ImRES8, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE2_RES09!.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES8, "\\TestImages\\Image8_SE2_RES09!.jpeg", w, h);
+            }
 
             val = ClearImageLogical(g_ImRES7, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES7, "\\TestImages\\Image8_SE2_RES10!.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES7, "\\TestImages\\Image8_SE2_RES10!.jpeg", w, h);
+            }
 
             val = ClearImageLogical(g_ImRES6, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_RES11!.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImRES6, "\\TestImages\\Image8_SE2_RES11!.jpeg", w, h);
+            }
 
             for (i=0; i<w*h; i++)
             {
@@ -6195,8 +6426,11 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                 }
             }
             val = ClearImageLogical(g_ImFF, w, h, LH, LMAXY, xb, xe, r);
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES12!.jpeg", w, h);
-            
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES12!.jpeg", w, h);
+            }
+
             for (i=0; i<w*h; i++)
             {
                 if (g_ImRES8[i] != 0)
@@ -6204,13 +6438,16 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
                     g_ImFF[i] = r;
                 }
             }
-            if (g_show_results == 1) SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES13.jpeg", w, h);
+            if (g_show_results)
+            {
+                SaveRGBImage(g_ImFF, "\\TestImages\\Image8_SE2_RES13.jpeg", w, h);
+            }
 
             break;
         }
         ///////////////////////////////////////////////////////////////////////
 
-        if (g_hard_sub_mining == true)
+        if (g_hard_sub_mining)
         {
             bln = 0;
 
@@ -6225,19 +6462,19 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
             xe = xb+val;
             for (i=0; i<n; i++, xb+=val, xe+= val)
             {
-                cnt1 = 0;
-                cnt2 = 0;
+                count1 = 0;
+                count2 = 0;
 
                 for(y=yb; y<ye; y++)
                 for(x=xb; x<xe; x++)
                 {
                     j = y*w + x;
 
-                    if (g_ImRES9[j] != 0) cnt1++;                    
-                    if (g_ImFF[j] != 0) cnt2++;                    
+                    if (g_ImRES9[j] != 0) count1++;                    
+                    if (g_ImFF[j] != 0) count2++;                    
                 }
 
-                if (cnt2 < cnt1)
+                if (count2 < count1)
                 {
                     bln = 1;
                     break;
@@ -6303,15 +6540,15 @@ int FindTextLines(int *ImRGB, int *ImF, int *ImNF, std::vector<std::string> &Sav
     return res;
 }
 
-int AnalizeAndClearImage(int *Im, int *ImGR, int w, int h, int j1_min, int j1_max, int r, int g, int yb, int ye, int xb, int xe, int &cnt1, int &cnt2)
+int AnalizeAndClearImage(int *Im, int *ImGR, int w, int h, int j1_min, int j1_max, int r, int g, int yb, int ye, int xb, int xe, int &count1, int &count2)
 {
     int i, x, y, val, ib, val1, val2, N;
 
-    for (i=0; i< w*h; i++)
+    for (i = 0; i < w * h; ++i)
     {
         val = ImGR[i];
 
-        if ( ( val >= j1_min ) && (val <= j1_max) )
+        if (( val >= j1_min) && (val <= j1_max))
         {
             Im[i] = r;
         }
@@ -6320,7 +6557,10 @@ int AnalizeAndClearImage(int *Im, int *ImGR, int w, int h, int j1_min, int j1_ma
             Im[i] = g;
         }
     }
-    if (g_debug == 1) SaveRGBImage(Im, "\\TestImages\\Image8_RG.jpeg", w, h);
+    if (g_debug)
+    {
+        SaveRGBImage(Im, "\\TestImages\\Image8_RG.jpeg", w, h);
+    }
 
     ClearImageDetailed(Im, w, h, yb, ye, r);
     ClearImageDetailed(Im, w, h, yb, ye, g);
@@ -6331,7 +6571,10 @@ int AnalizeAndClearImage(int *Im, int *ImGR, int w, int h, int j1_min, int j1_ma
     N = ClearImageDetailed(Im, w, h, yb, ye, r);
     ClearImageDetailed(Im, w, h, yb, ye, g);
 
-    if (g_debug == 1) SaveRGBImage(Im, "\\TestImages\\Image8_RGF.jpeg", w, h);
+    if (g_debug)
+    {
+        SaveRGBImage(Im, "\\TestImages\\Image8_RGF.jpeg", w, h);
+    }
 
     val1 = (int)((double)(ye-yb+1)*0.3);
     val2 = (int)((double)(xe-xb+1)*0.1);
@@ -6340,15 +6583,15 @@ int AnalizeAndClearImage(int *Im, int *ImGR, int w, int h, int j1_min, int j1_ma
     xb += val2;
     xe -= val2;
 
-    cnt1 = 0;
-    cnt2 = 0;
+    count1 = 0;
+    count2 = 0;
     for (y=yb, ib=yb*w; y<=ye; y++, ib+=w)
     for (x=xb, i=ib+xb; x<=xe; x++, i++)
     {
         if (g_ImRES3[i] != 0)
         {
-            if (g_ImRES1[i] == r) cnt1++;
-            if (g_ImRES1[i] == g) cnt2++;
+            if (g_ImRES1[i] == r) count1++;
+            if (g_ImRES1[i] == g) count2++;
         }
     }
 
@@ -6529,10 +6772,10 @@ int ClearImageDetailed(int *Im, int w, int h, int yb, int ye, int white)
 
 int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white)
 {
-    MyClosedFigure *pFigures=NULL, *pFigure, **ppFigures=NULL;
+    MyClosedFigure *pFigures=0, *pFigure, **ppFigures=0;
     int i, j, k, l, ii, val, N, NNY, min_h;
     int val1, val2;
-    int *maxY = NULL, *NN = NULL, *NY = NULL; 
+    int *maxY = 0, *NN = 0, *NY = 0; 
     MyPoint *PA;
     clock_t t;
 
@@ -6589,8 +6832,8 @@ int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white)
 
     if (N == 0)
     {
-        if (pFigures != NULL) delete[] pFigures;
-        if (ppFigures != NULL) delete[] ppFigures;
+        if (pFigures != 0) delete[] pFigures;
+        if (ppFigures != 0) delete[] ppFigures;
 
         return 0;
     }
@@ -6664,12 +6907,12 @@ int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white)
         }
     }
 
-    if (maxY != NULL) delete[] maxY;
-    if (NN != NULL) delete[] NN;
-    if (NY != NULL) delete[] NY;
+    if (maxY != 0) delete[] maxY;
+    if (NN != 0) delete[] NN;
+    if (NY != 0) delete[] NY;
 
-    if (pFigures != NULL) delete[] pFigures;
-    if (ppFigures != NULL) delete[] ppFigures;
+    if (pFigures != 0) delete[] pFigures;
+    if (ppFigures != 0) delete[] ppFigures;
 
     return val;
 }
@@ -6857,20 +7100,20 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
         pFigure = ppFigures[i];
 
         delta = 80;
-        StrAnalyseImage(pFigure, g_ImY, GRStr, 0);
+        StrAnalyseImage(pFigure, g_ImageY, GRStr, 0);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 0);
         FindMaxStr(smax, smaxi, jY, val, NNN);
         pFigure->setMMY(jY);
 
         delta = 5;
-        StrAnalyseImage(pFigure, g_ImI, GRStr, 256);
+        StrAnalyseImage(pFigure, g_ImageI, GRStr, 256);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
         FindMaxStr(smax, smaxi, jI, val, NNN);
         jI -= 256;
         pFigure->setMMI(jI);
         
         delta = 5;
-        StrAnalyseImage(pFigure, g_ImQ, GRStr, 256);
+        StrAnalyseImage(pFigure, g_ImageQ, GRStr, 256);
         FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
         FindMaxStr(smax, smaxi, jQ, val, NNN);
         jQ -= 256;
@@ -7014,21 +7257,21 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
     ddI = ddQ = max(ddI, ddQ);
 
     delta = 30;
-    StrAnalyseImage(g_ImRR, g_ImY, GRStr, w, h, 0, w-1, 0, h-1, 0);
+    StrAnalyseImage(g_ImRR, g_ImageY, GRStr, w, h, 0, w-1, 0, h-1, 0);
     FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 0);
     FindMaxStr(smax, smaxi, jY, val, NNN);
     jY_min = jY;
     jY_max = jY_min+delta-1;
 
     delta = 30;
-    StrAnalyseImage(g_ImRR, g_ImI, GRStr, w, h, 0, w-1, 0, h-1, 256);
+    StrAnalyseImage(g_ImRR, g_ImageI, GRStr, w, h, 0, w-1, 0, h-1, 256);
     FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
     FindMaxStr(smax, smaxi, jI, val, NNN);
     jI_min = jI-256;
     jI_max = jI_min+delta-1;
 
     delta = 30;
-    StrAnalyseImage(g_ImRR, g_ImQ, GRStr, w, h, 0, w-1, 0, h-1, 256);
+    StrAnalyseImage(g_ImRR, g_ImageQ, GRStr, w, h, 0, w-1, 0, h-1, 256);
     FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
     FindMaxStr(smax, smaxi, jQ, val, NNN);
     jQ_min = jQ-256;
@@ -7049,9 +7292,9 @@ int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY,
         for(l=0; l < pFigure->square(); l++)
         {
             ii = PA[l].pointNumber();
-            val1 += g_ImI[ii];
-            val2 += g_ImQ[ii];
-            val3 += g_ImY[ii];
+            val1 += g_ImageI[ii];
+            val2 += g_ImageQ[ii];
+            val3 += g_ImageY[ii];
         }
             
         pFigure->setMI(val1 / pFigure->square());
@@ -7416,7 +7659,7 @@ void SaveTextLineParameters(std::string ImageName, int YB, int LH, int LY, int L
     PropString += std::string(" YIQ ");
     PropString += std::string(str);        
     
-    fname = g_dir + std::string("\\text_lines.info");
+    fname = g_Directory + std::string("\\text_lines.info");
     fout.open(fname.c_str(), std::ios::out | std::ios::app);
 
     fout << ImageName << " = " << PropString << '\n';
@@ -7454,9 +7697,9 @@ void GetSymbolAvgColor(MyClosedFigure *pFigure)
         j = (PA[i].y() - pFigure->minY()) * w + (PA[i].x() - pFigure->minX());
 
         pImage[j] = 1;
-        pImageY[j] = g_ImY[ii];
-        pImageI[j] = g_ImI[ii];
-        pImageQ[j] = g_ImQ[ii];
+        pImageY[j] = g_ImageY[ii];
+        pImageI[j] = g_ImageI[ii];
+        pImageQ[j] = g_ImageQ[ii];
     }
 
     //находим все точки границы
@@ -7596,10 +7839,10 @@ void GetSymbolAvgColor(MyClosedFigure *pFigure)
 
 void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, int &XE, int &YB, int &YE, int &mY, int &mI, int &mQ, int white)
 {
-    MyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL;
-    MyPoint *PA = NULL;
+    MyClosedFigure *pFigures = 0, **ppFigures = 0, *pFigure = 0;
+    MyPoint *PA = 0;
     int i, j, k, l, N, val, val1, val2, val3, val4;
-    int *maxY = NULL, *NN = NULL, *NY = NULL, *NH = NULL, NNY, min_h, min_w, prev_min_w;
+    int *maxY = 0, *NN = 0, *NY = 0, *NH = 0, NNY, min_h, min_w, prev_min_w;
     int dmaxy = g_dmaxy;
     int dminy = g_dminy;
     clock_t t;
@@ -7878,10 +8121,10 @@ void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, 
 
 int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe, int white)
 {
-    MyClosedFigure *pFigures = NULL, **ppFigures = NULL, *pFigure = NULL, *pFigure2 = NULL, **ppFgs = NULL;
+    MyClosedFigure *pFigures = 0, **ppFigures = 0, *pFigure = 0, *pFigure2 = 0, **ppFgs = 0;
     int i, ib, i1, i2, i3, j, k, l, x, y, val, val1, N, bln, bln1, bln2, bln3, LMINY, LM1, LM2;
     int res, is_point, is_comma, LLH;
-    MyPoint *PA = NULL, *PA1 = NULL, *PA2 = NULL;
+    MyPoint *PA = 0, *PA1 = 0, *PA2 = 0;
     clock_t t;
     int dmaxy = g_dmaxy;
     int dminy = g_dminy;
@@ -7890,7 +8133,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
     double dval;
 
     int *maxY;
-    int *NN = NULL, *NY = NULL, *NH = NULL, NNY, min_h, H;
+    int *NN = 0, *NY = 0, *NH = 0, NNY, min_h, H;
 
     res = 0;
 
@@ -7900,8 +8143,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
     maxph = g_maxph;
     minpwh = g_minpwh;
 
-    // Увеличиваем область основных текстовых симоволов
-    // если её длина меньше 120 пикселов на оригинальном изображении
+    // Increase the area of the main text characters
+    // if its length is less than 120 pixels on the original image
 
     val = 120*4 - (xe-xb+1);
     if (val > 0)
@@ -7914,8 +8157,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
         if (xe > w-1) xe = w-1;
     }
 
-    // Убиваем все горизонтальные отрезки чья длина <= 2
-    // (что означает что в оригинале их длина меньше 1-го пиксела)
+    // Kill all the horizontal segments whose length <= 2
+    // (which means that their length is less than the original one of the first pixel)
 
     for (y=0, ib=0; y<h; y++, ib+=w)
     {
@@ -7947,8 +8190,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
         }
     }
 
-    // Убиваем все вертикальные отрезки чья длина <= 2
-    // (что означает что в оригинале их длина меньше 1-го пиксела)
+    // Kill all the vertical segments whose length <= 2
+    // (which means that their length is less than the original one of the first pixel)
 
     for (x=0; x<w; x++)
     {
@@ -8038,8 +8281,8 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
         }
     }
 
-    // отыскиваем группы символов, чья высота различается не более чем на dmaxy по всевозможным высотам
-    // (такие группы могут частично содержать одни и теже символы)
+    // we seek a group of characters whose height varies by no more than dmaxy over all heights
+    // (such groups may partially contain the same characters)
     j=0;
     k=0;
     i=0;
@@ -8194,7 +8437,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
                 if (val < 0) val = -val;
                 val = (pFigure->maxX() - pFigure->minX()) + (pFigure2->maxX() - pFigure2->minX()) + 2 - val;
 
-                if (val >= 2)//наезжают друг на друга минимум на 2 пиксела
+                if (val >= 2)//bump against each other for at least 2 pixels
                 {
                     ppFgs[k] = pFigure2;
                     k++;
@@ -8397,7 +8640,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
     min_h = (int)((double)LH*0.6);
 
-    //-----очищаем с левого края-----//
+    //-----clean from the left edge-----//
     i=0;
     while(i < N)
     {
@@ -8433,7 +8676,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
         }
     }
 
-    //-----очищаем с правого края-----//
+    //-----clean from the right edge-----//
     i=N-1;
     while(i >= 0)
     {
@@ -8481,7 +8724,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
         }
     }
 
-    //--определяем минимальную высоту нормальных символов--//
+    //--determine the minimum height of normal characters--//
     NH = new int[N];
 
     k = 0;
@@ -8543,7 +8786,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
                 if (val < 0) val = -val;
                 val = (pFigure->maxX()-pFigure->minX())+(pFigure2->maxX()-pFigure2->minX())+1 - val;
 
-                if (val >= 1)//наезжают друг на друга минимум на 1 пиксела
+                if (val >= 1)//bump against each other for at least 1 pixel
                 {
                     ppFgs[k] = pFigure2;
                     k++;
@@ -8640,7 +8883,7 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
                 if ( (pFigure->minY() <= LMAXY-LLH) &&
                      (pFigure->maxY() >= LMAXY) )
                 {
-                    if (val >= 5)//наезжают друг на друга минимум на 2 пиксела
+                    if (val >= 5)//bump against each other for at least 5 pixels
                     {
                         ppFgs[k] = pFigure2;
                         k++;
@@ -8650,13 +8893,13 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
                           (pFigure->maxY() <= LMAXY) &&
                           (pFigure->maxY() >= LMAXY-dmaxy) )
                 {
-                    if (val >= 3)//наезжают друг на друга минимум на 3 пиксела
+                    if (val >= 3)//bump against each other for at least 3 pixels
                     {
                         ppFgs[k] = pFigure2;
                         k++;
                     }
                 }
-                else if (val >= 1)//наезжают друг на друга минимум на 1 пиксела
+                else if (val >= 1)//bump against each other for at least 1 pixel
                 {
                     ppFgs[k] = pFigure2;
                     k++;
@@ -8872,9 +9115,9 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
             for(l=0; l < pFigure->square(); l++)
             {
                 ii = PA[l].pointNumber();
-                valI = g_ImI[ii];
-                valQ = g_ImQ[ii];
-                valY = g_ImY[ii];
+                valI = g_ImageI[ii];
+                valQ = g_ImageQ[ii];
+                valY = g_ImageY[ii];
                 val1 += valI;
                 val2 += valQ;
                 val3 += valY;
@@ -8894,7 +9137,7 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
             pFigure->setMQ(val2/pFigure->square());
             pFigure->setMY(val3/pFigure->square());
             
-            StrAnalyseImage(pFigure, g_ImY, GRStr, 0);            
+            StrAnalyseImage(pFigure, g_ImageY, GRStr, 0);            
             delta = 80;
             FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
             FindMaxStr(smax, smaxi, val1, max_val, NNN);
@@ -8910,7 +9153,7 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
             if (val3 < val4) pFigure->setMMY(val1);
             else pFigure->setMMY(val2);
 
-            StrAnalyseImage(pFigure, g_ImI, GRStr, 256);
+            StrAnalyseImage(pFigure, g_ImageI, GRStr, 256);
             delta = 5;
             FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
             FindMaxStr(smax, smaxi, val1, max_val, NNN);
@@ -8926,7 +9169,7 @@ int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY,
             if (val3 < val4) pFigure->setMMI(val1);
             else pFigure->setMMI(val2);
             
-            StrAnalyseImage(pFigure, g_ImQ, GRStr, 256);
+            StrAnalyseImage(pFigure, g_ImageQ, GRStr, 256);
             delta = 5;
             FindMaxStrDistribution(GRStr, delta, smax, smaxi, NNN, 256);
             FindMaxStr(smax, smaxi, val1, max_val, NNN);
@@ -9177,15 +9420,15 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
 {
     int i, j, x, y;
     int r0, g0, b0, r1, g1, b1;
-    quint8 *color, *clr;
+    uchar *color, *clr;
     int clr_res;
 
     clr_res = 0;
-    clr = (quint8*)(&clr_res);
+    clr = (uchar*)(&clr_res);
 
     for(y=0, i=0, j=0; y<h; y++)
     {
-        color = (quint8*)(&Im[i]);
+        color = (uchar*)(&Im[i]);
         r0 = color[2];
         g0 = color[1];
         b0 = color[0];    
@@ -9201,7 +9444,7 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
             }
             else
             {
-                color = (quint8*)(&Im[i+1]);
+                color = (uchar*)(&Im[i+1]);
                 r1 = color[2];
                 g1 = color[1];
                 b1 = color[0];    
@@ -9236,7 +9479,7 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
     for(x=0; x<4*w; x++)
     {
         i = y*4*w+x;
-        color = (quint8*)(&g_ImRES2[i]);
+        color = (uchar*)(&g_ImRES2[i]);
         r0 = color[2];
         g0 = color[1];
         b0 = color[0];    
@@ -9255,7 +9498,7 @@ void ResizeImage4x(int *Im, int *ImRES, int w, int h)
             }
             else
             {
-                color = (quint8*)(&g_ImRES2[i+4*w]);
+                color = (uchar*)(&g_ImRES2[i+4*w]);
                 r1 = color[2];
                 g1 = color[1];
                 b1 = color[0];    
@@ -9400,21 +9643,25 @@ void SaveRGBImage(int *Im, std::string name, int w, int h)
     QImage qImage(w, h, QImage::Format_RGB888);
     qImage.fill(Qt::black);
     int i, x, y;
-    quint8 *color;
+    int bytesPerPixel = qImage.depth() / 8;
+    uchar *color;
     std::string full_name;
 
-    full_name = g_dir;
+    full_name = g_Directory;
     full_name += name;     
 
     for (y = 0, i = 0; y < h; ++y)
     {
-        int bytes = qImage.byteCount();
-        int bytesPerLine = qImage.bytesPerLine();
-        QRgb* pixels = (QRgb*) qImage.scanLine(y);
-        for (x = 0; x < w; ++x, ++i)
+        uchar *pixels = qImage.scanLine(y);
+        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
         {
-            color = (quint8*)(Im + i);
-            pixels[x] = qRgba(color[2], color[1], color[0], 255);    
+            color = (uchar*)(Im + i);
+            //Setting red color
+            pixels[x] = color[2];
+            //Setting green color
+            pixels[x + 1] = color[1];
+            //Setting blue color
+            pixels[x + 2] = color[0];
         }
     }
 
@@ -9424,22 +9671,26 @@ void SaveRGBImage(int *Im, std::string name, int w, int h)
 void LoadRGBImage(int *Im, std::string name, int &w, int &h)
 {
     QImage qImage(QString::fromStdString(name));
+    int bytesPerPixel = qImage.depth() / 8;
     int i, x, y;
-    quint8 *color;
+    uchar *color;
 
     w = qImage.width();
     h = qImage.height();
 
     for (y = 0, i = 0; y < h; ++y)
     {
-        QRgb* pixels = (QRgb*) qImage.scanLine(y);
-        for (x = 0; x < w; ++x, ++i)
+        uchar* pixels = qImage.scanLine(y);
+        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
         {
             Im[i] = 0;
-            color = (quint8*)(Im + i);
-            color[2] = qRed(pixels[x]);
-            color[1] = qGreen(pixels[x]);
-            color[0] = qBlue(pixels[x]);
+            color = (uchar*)(Im + i);
+            //Reading in red color
+            color[2] = pixels[x + 2];
+            //Reading in green color
+            color[1] = pixels[x + 1];
+            //Reading in blue color
+            color[0] = pixels[x];
         }
     }
 }
@@ -9448,19 +9699,25 @@ void SaveImage(int *Im, std::string name, int w, int h, int dpi)
 {
     QImage qImage(w, h, QImage::Format_RGB888);;
     qImage.fill(Qt::black);
+    int bytesPerPixel = qImage.depth() / 8;
     int i, x, y;
-    quint8 *color;
+    uchar *color;
     std::string full_name;
 
-    full_name = std::string(g_dir + name);
+    full_name = std::string(g_Directory + name);
 
     for (y = 0, i = 0; y < h; ++y)
     {
-        QRgb* pixels = (QRgb*) qImage.scanLine(y);
-        for (x = 0; x < w; ++x, ++i)
+        uchar* pixels = qImage.scanLine(y);
+        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
         {
-            color = (quint8*)(Im + i);
-            pixels[x] = qRgba(color[0], color[0], color[0], 0);
+            color = (uchar*)(Im + i);
+            //Setting red color
+            pixels[x] = color[0];
+            //Setting green color
+            pixels[x + 1] = color[0];
+            //Setting blue color
+            pixels[x + 2] = color[0];
         }
     }
 
@@ -9477,6 +9734,7 @@ void SaveImage(int *Im, std::string name, int w, int h, int dpi)
 void LoadImage(int *Im, std::string name, int &w, int &h)
 {
     QImage qImage(QString::fromStdString(name));
+    int bytesPerPixel = qImage.depth() / 8;
     int i, x, y;
 
     w = qImage.width();
@@ -9484,10 +9742,11 @@ void LoadImage(int *Im, std::string name, int &w, int &h)
 
     for (y = 0, i = 0; y < h; ++y)
     {
-        QRgb *pixels = (QRgb*) qImage.scanLine(y);
-        for (x = 0; x < w; ++x, ++i)
+        uchar *pixels = qImage.scanLine(y);
+        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
         {
-            if (qRed(pixels[x]) != 0)
+            //Reading in red color and testing it
+            if (pixels[x + 2] != 0)
             {
                 Im[i] = 255;
             }

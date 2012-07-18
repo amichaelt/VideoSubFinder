@@ -76,7 +76,7 @@ public:
         return false;
     }
 
-    virtual bool SetNullRender()
+    virtual bool Set0Render()
     {
         return false;
     }

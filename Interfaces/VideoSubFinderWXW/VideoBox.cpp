@@ -40,7 +40,7 @@ void CVideoWnd::OnPaint(wxPaintEvent& WXUNUSED(event))
 {
     wxPaintDC dc(this);    
 
-    if ( (m_pVB != NULL) && (m_pVB->m_pBmp != NULL) )
+    if ( (m_pVB != 0) && (m_pVB->m_pBmp != 0) )
     {
         int w, h;
 
@@ -183,8 +183,8 @@ CVideoBox::CVideoBox(CMainFrame* pMF)
 {
     m_w = 0;
     m_h = 0;
-    m_pBmp = NULL;
-    m_pBmpScaled = NULL;
+    m_pBmp = 0;
+    m_pBmpScaled = 0;
 
     m_pMF = pMF;
 
@@ -193,13 +193,13 @@ CVideoBox::CVideoBox(CMainFrame* pMF)
 
 CVideoBox::~CVideoBox()
 {
-    if (m_pBmp != NULL)
+    if (m_pBmp != 0)
     {
         delete m_pBmp;
-        m_pBmp = NULL;
+        m_pBmp = 0;
 
         delete m_pBmpScaled;
-        m_pBmpScaled = NULL;
+        m_pBmpScaled = 0;
     }
 }
 
@@ -434,10 +434,10 @@ void CVideoBox::OnMouseWheel(wxMouseEvent& event)
 void CVideoBox::ViewImage(int *Im, int w, int h)
 {
     int i, x, y;
-    quint8 *color;
+    uchar *color;
     wxMemoryDC dc;
 
-    if (m_pBmp == NULL) 
+    if (m_pBmp == 0) 
     {
         m_pBmp = new wxBitmap(w, h);
         m_w = w;
@@ -460,13 +460,13 @@ void CVideoBox::ViewImage(int *Im, int w, int h)
     for(y=0, i=0; y<h; y++)
     for(x=0; x<w; x++, i++)
     {
-        color = (quint8*)(&Im[i]);
+        color = (uchar*)(&Im[i]);
 
         dc.SetPen(wxPen(wxColor(color[2], color[1], color[0])));
         dc.DrawPoint(x, y);
     }
 
-    if (m_pBmpScaled == NULL)
+    if (m_pBmpScaled == 0)
     {
         m_pBmpScaled = new wxBitmap(*m_pBmp);
     }

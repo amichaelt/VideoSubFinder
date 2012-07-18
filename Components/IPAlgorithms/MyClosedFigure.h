@@ -72,10 +72,10 @@ public:
     void setMinY(int minY) { m_minY = minY; }
     int maxY() { return m_maxY; }
     void setMaxY(int maxY) { m_maxY = maxY; }
-    int width() { return m_w; }
-    void setWidth(int width) { m_w = width; }
-    int height() { return m_h; }
-    void setHeight(int height) { m_h = height; }
+    int width() { return m_Width; }
+    void setWidth(int width) { m_Width = width; }
+    int height() { return m_Height; }
+    void setHeight(int height) { m_Height = height; }
     int square() { return m_Square; }
     void setSquare(int square) { m_Square = square; }
     int count() { return m_Count; }
@@ -102,19 +102,19 @@ public:
     int mmQ() { return m_mmQ; }
     void setMMQ(int mmQ) { m_mmQ = mmQ; }
 
-    char *image() { return m_pImage; }
-    void setImage(char *image) { m_pImage = image; }
-    int imageWidth() { return m_Imagew; }
-    void setImageWidth(int width) { m_Imagew = width; }
-    int imageHeight() { return m_Imageh; }
-    void setImageHeight(int height) { m_Imageh = height; }
+    char *image() { return m_Image; }
+    void setImage(char *image) { m_Image = image; }
+    int imageWidth() { return m_ImageWidth; }
+    void setImageWidth(int width) { m_ImageWidth = width; }
+    int imageHeight() { return m_ImageHeight; }
+    void setImageHeight(int height) { m_ImageHeight = height; }
     char white() { return m_White; }
     void setWhite(char white) { m_White = white; }
     char black() { return m_Black; }
     void setBlack(char black) { m_Black = black; }
 
-    POS position() { return m_pos; }
-    void setPosition(POS pos) { m_pos = pos; }
+    POS position() { return m_Position; }
+    void setPosition(POS pos) { m_Position = pos; }
 
 private:
     MyPoint *m_PointsArray;
@@ -122,8 +122,8 @@ private:
     int m_maxX;
     int m_minY;
     int m_maxY;
-    int m_w;
-    int m_h;
+    int m_Width;
+    int m_Height;
     int m_Square;
     int m_Count;
     int m_Weight;
@@ -138,13 +138,13 @@ private:
     int m_mmI;
     int m_mmQ;
 
-    char *m_pImage;
-    int m_Imagew;
-    int m_Imageh;
+    char *m_Image;
+    int m_ImageWidth;
+    int m_ImageHeight;
     char m_White;
     char m_Black;
 
-    POS m_pos;
+    POS m_Position;
 };
 
 clock_t SearchClosedFigures(int *Im, int w, int h, int white, MyClosedFigure* &FiguresArray, int &Number);

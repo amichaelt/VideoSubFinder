@@ -47,7 +47,7 @@ AssTXTLine::AssTXTLine()
     m_BT = 0;
     m_ET = 0;
 
-    m_pAssStyle = NULL;
+    m_pAssStyle = 0;
 
     m_dX = -1;
     m_dY = -1;
@@ -133,7 +133,7 @@ void AssTXTStyle::Compute()
     m_mY = val1/size;
     m_mI = val2/size;
     m_mQ = val3/size;
-    m_LH = (val4*528*100)/(size*g_H*53);
+    m_LH = (val4*528*100)/(size*g_Height*53);
     m_LH += m_LH%2;
 }
 
@@ -575,7 +575,7 @@ void COCRPanel::CreateSubFromTXTResults()
 
     str[0] = '\0';
 
-    fname = g_dir + std::string("/text_lines.info");
+    fname = g_Directory + std::string("/text_lines.info");
     txt_info.open(fname.c_str(), std::ios::in);
 
     NT = 0;
@@ -586,9 +586,9 @@ void COCRPanel::CreateSubFromTXTResults()
     
     //--------------
 
-    image_name = g_dir+std::string("/RGBImages/")+std::string(FileNameVector[0]).substr(0, 24) + std::string(".jpeg");
-    GetImageSize(image_name, g_W, g_H);    
-    InitIPData(g_W, g_H, 1);
+    image_name = g_Directory+std::string("/RGBImages/")+std::string(FileNameVector[0]).substr(0, 24) + std::string(".jpeg");
+    GetImageSize(image_name, g_Width, g_Height);    
+    InitIPData(g_Width, g_Height, 1);
 
     //--------------
     
@@ -685,7 +685,7 @@ void COCRPanel::CreateSubFromTXTResults()
                     + wxString("Please run \"Create Cleared Text Images\" again.");
 
                 #ifdef WIN32
-                ::MessageBox(NULL, Str, "CreateSubFromTXTResults", MB_ICONERROR);            
+                ::MessageBox(0, Str, "CreateSubFromTXTResults", MB_ICONERROR);            
                 #endif
 
                 return;
@@ -815,8 +815,8 @@ void COCRPanel::CreateSubFromTXTResults()
     {
         if (AssTXTVector[i+1].m_BT == AssTXTVector[i].m_BT)
         {
-            val1 = AssTXTVector[i].m_LY - AssTXTVector[i].m_LH/2 - g_H/2;
-            val2 = AssTXTVector[i+1].m_LY - AssTXTVector[i+1].m_LH/2 - g_H/2;
+            val1 = AssTXTVector[i].m_LY - AssTXTVector[i].m_LH/2 - g_Height/2;
+            val2 = AssTXTVector[i+1].m_LY - AssTXTVector[i+1].m_LH/2 - g_Height/2;
 
             if ( (val1 >= AssTXTVector[i].m_LH/2) &&
                  (val2 >= AssTXTVector[i+1].m_LH/2) )
@@ -985,11 +985,11 @@ void COCRPanel::CreateSubFromTXTResults()
             AssStyle.m_maxLH = AssStyleDatum.m_LH;
 
             val1 = (AssTXTVector[i].m_LXB + AssTXTVector[i].m_LXE)/2;
-            val2 = val1 - g_W/2;
+            val2 = val1 - g_Width/2;
 
             AssStyle.m_Alignment = 2;
 
-            if ((double)abs(val2)/(g_W/2) < 0.3)
+            if ((double)abs(val2)/(g_Width/2) < 0.3)
             {
                 AssStyle.m_MarginL = -1;
                 AssStyle.m_MarginR = -1;
@@ -1006,7 +1006,7 @@ void COCRPanel::CreateSubFromTXTResults()
                 }
                 else
                 {
-                    val3 = g_W-(AssTXTVector[i].m_LXE + AssTXTVector[i].m_LH/10);
+                    val3 = g_Width-(AssTXTVector[i].m_LXE + AssTXTVector[i].m_LH/10);
                     if (val3 < 0) val3 = 0;
 
                     AssStyle.m_MarginL = val3;
@@ -1015,7 +1015,7 @@ void COCRPanel::CreateSubFromTXTResults()
             }
 
             val1 = AssTXTVector[i].m_LY - AssTXTVector[i].m_LH/2;
-            val2 = val1 - g_H/2;
+            val2 = val1 - g_Height/2;
 
             if (abs(val2) < AssTXTVector[i].m_LH/2)
             {
@@ -1042,7 +1042,7 @@ void COCRPanel::CreateSubFromTXTResults()
                 }
                 else
                 {
-                    val3 = g_H - AssTXTVector[i].m_LYE;
+                    val3 = g_Height - AssTXTVector[i].m_LYE;
 
                     if (val3 > 0)
                     {
@@ -1086,7 +1086,7 @@ void COCRPanel::CreateSubFromTXTResults()
         int vo = (AssTXTVector[i].m_pAssStyle->m_Alignment - 1)/3 + 1;
 
         val1 = (AssTXTVector[i].m_LXB + AssTXTVector[i].m_LXE)/2;
-        val2 = val1 - g_W/2;
+        val2 = val1 - g_Width/2;
 
         val3 = AssTXTVector[i].m_LXB - AssTXTVector[i].m_LH/10;
         if (val3 < 0) val3 = 0;
@@ -1124,9 +1124,9 @@ void COCRPanel::CreateSubFromTXTResults()
         }
 
         val1 = AssTXTVector[i].m_LY - AssTXTVector[i].m_LH/2;
-        val2 = val1 - g_H/2;
+        val2 = val1 - g_Height/2;
 
-        if ((double)abs(val2)/(g_H/2) < 0.05)
+        if ((double)abs(val2)/(g_Height/2) < 0.05)
         {
             if (vo != 2)
             {
@@ -1174,7 +1174,7 @@ void COCRPanel::CreateSubFromTXTResults()
             }
             else
             {
-                val3 = (g_H - (AssTXTVector[i].m_LY + AssTXTVector[i].m_LH/10));
+                val3 = (g_Height - (AssTXTVector[i].m_LY + AssTXTVector[i].m_LH/10));
 
                 if ( abs(AssTXTVector[i].m_pAssStyle->m_MarginV - val3) < AssTXTVector[i].m_LH/2 )
                 {
@@ -1254,8 +1254,8 @@ void COCRPanel::CreateSubFromTXTResults()
 
     fout << "Title: Default Aegisub file\n";
     fout << "ScriptType: v4.00+\n";
-    fout << "PlayResX: " << g_W << "\n";
-    fout << "PlayResY: " << g_H << "\n";
+    fout << "PlayResX: " << g_Width << "\n";
+    fout << "PlayResY: " << g_Height << "\n";
     fout << "PlayDepth: 16\n";
     fout << "Timer: 100,0000\n";
     fout << "WrapStyle: 1\n";
@@ -1346,8 +1346,8 @@ void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
                                   m_pMF->m_pVideoBox->m_pVBox->m_pHSL1->m_pos, 
                                   m_pMF->m_pVideoBox->m_pVBox->m_pHSL2->m_pos);
 
-    w = g_w;
-    h = g_h;
+    w = g_width;
+    h = g_height;
 
     InitIPData((int)m_pMF->m_pVideo->m_Width, (int)m_pMF->m_pVideo->m_Height, 3);
     
@@ -1370,9 +1370,12 @@ void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
 
     SavedFiles.push_back(std::string(Str));
 
-    g_show_results = 1;
+    g_show_results = true;
 
-    if (g_debug == 0) m_pMF->ClearDir("TestImages");
+    if (!g_debug)
+    {
+        m_pMF->ClearDir("TestImages");
+    }
 
     FindTextLines(g_ImRGB, g_ImF[5], g_ImF[3], SavedFiles, w, h);
 }
@@ -1408,8 +1411,14 @@ void *ThreadCreateClearedTextImages::Entry()
 {
     g_IsCreateClearedTextImages = 1;
 
-    if (g_debug == 0) g_show_results = 0;
-    else g_show_results = 1;
+    if (!g_debug)
+    {
+        g_show_results = false;
+    }
+    else
+    {
+        g_show_results = true;
+    }
 
     wxString Str, dStr;
     std::string fname;
@@ -1421,8 +1430,8 @@ void *ThreadCreateClearedTextImages::Entry()
     wxString hour1, hour2, min1, min2, sec1, sec2, msec1, msec2;
     quint64 bt1, et1, bt2, et2;
 
-    int *ImRES1 = NULL;
-    int *ImRES2 = NULL;
+    int *ImRES1 = 0;
+    int *ImRES2 = 0;
 
     int res;    
 
@@ -1430,7 +1439,7 @@ void *ThreadCreateClearedTextImages::Entry()
     m_pMF->ClearDir("TXTResults");
 
     // очищаем файл text_lines.info
-    fname = g_dir + std::string("/text_lines.info");
+    fname = g_Directory + std::string("/text_lines.info");
     fout.open(fname.c_str(), std::ios::out);
     fout << "";
     fout.close();
@@ -1466,8 +1475,8 @@ void *ThreadCreateClearedTextImages::Entry()
     sprintf(str, "%.4d", val);
     dStr = wxString(" : ") + wxString(str);
 
-    g_W = -1;
-    g_H = -1;
+    g_Width = -1;
+    g_Height = -1;
     w = 0;
     h = 0;
 
@@ -1479,10 +1488,10 @@ void *ThreadCreateClearedTextImages::Entry()
 
         GetImageSize(std::string(Str), w, h);
 
-        if ( (g_W != w) || (g_H != h) )
+        if ( (g_Width != w) || (g_Height != h) )
         {
-            g_W = w;
-            g_H = h;
+            g_Width = w;
+            g_Height = h;
 
             g_xmin = 0;
             g_xmax = w-1;
@@ -1621,8 +1630,8 @@ void *ThreadCreateClearedTextImages::Entry()
         prevSavedFiles = SavedFiles;
     }
 
-    //if (ImRES1 != NULL) delete[] ImRES1;
-    //if (ImRES2 != NULL) delete[] ImRES2;
+    //if (ImRES1 != 0) delete[] ImRES1;
+    //if (ImRES2 != 0) delete[] ImRES2;
 
     m_pMF->m_pVideoBox->m_plblTIME->SetLabel("00:00:00,000/00:00:00,000");
 

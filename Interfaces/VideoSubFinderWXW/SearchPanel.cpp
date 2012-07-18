@@ -201,7 +201,7 @@ void *ThreadSearchSubtitles::Entry()
 
     if (g_fast_search == true)
     {
-        if ( m_pMF->m_pVideo->SetNullRender() )
+        if ( m_pMF->m_pVideo->Set0Render() )
         {
             SetVideoWindowSettins(m_pMF->m_pVideo, 
                                   m_pMF->m_pVideoBox->m_pVBox->m_pVSL1->m_pos, 
@@ -214,7 +214,7 @@ void *ThreadSearchSubtitles::Entry()
     }
     else
     {
-        if ( m_pMF->m_pVideo->SetNullRender() )
+        if ( m_pMF->m_pVideo->Set0Render() )
         {
             SetVideoWindowSettins(m_pMF->m_pVideo, 
                                   m_pMF->m_pVideoBox->m_pVBox->m_pVSL1->m_pos, 
@@ -235,10 +235,10 @@ void *ThreadSearchSubtitles::Entry()
 
     m_pMF->m_pPanel->m_pSHPanel->m_pRun->SetLabel("Run Search");
 
-    if (m_pMF->m_pVideoBox->m_pBmp != NULL)
+    if (m_pMF->m_pVideoBox->m_pBmp != 0)
     {
         delete m_pMF->m_pVideoBox->m_pBmp;
-        m_pMF->m_pVideoBox->m_pBmp = NULL;
+        m_pMF->m_pVideoBox->m_pBmp = 0;
     }
 
     m_pMF->m_pPanel->m_pSSPanel->Enable();

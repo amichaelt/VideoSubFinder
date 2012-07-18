@@ -28,88 +28,88 @@
 #include <stdio.h>
 #include <wx/image.h>
 
-extern void     (*g_pViewRGBImage)(int *Im, int w, int h);
-extern void     (*g_pViewImage[2])(int *Im, int w, int h);
+extern void (*g_pViewRGBImage)(int *Image, int width, int height);
+extern void (*g_pViewImage[2])(int *Image, int width, int height);
 
-extern int        g_W;
-extern int        g_H;
-extern int        g_w;
-extern int        g_h;
-extern int        g_xmin;
-extern int        g_xmax;
-extern int        g_ymin;
-extern int        g_ymax;
+extern int g_Width;
+extern int g_Height;
+extern int g_width;
+extern int g_height;
+extern int g_xmin;
+extern int g_xmax;
+extern int g_ymin;
+extern int g_ymax;
 
-extern std::string   g_dir;
+extern std::string g_Directory;
 
-extern double    g_mthr;  //moderate threshold
-extern double    g_mvthr; //moderate threshold for VEdges
-extern double    g_mhthr; //moderate threshold for HEdges
-extern double    g_mnthr; //moderate threshold for NEdges
-extern int        g_hvt;     //horizontal-vertical edges threshold
-extern int        g_segw;  //segment width
-extern int        g_segh;  //segment height
-extern int        g_msegc; //minimum segments count
-extern int        g_scd;   //min sum color diff
-extern int        g_smcd;  //min sum multiple color diff
-extern double    g_btd;   //between text distace
-extern double    g_tco;   //text centre offset
-extern double    g_tcpo;  //text centre percent offset
+extern double g_ModerateThreshold;                          //moderate threshold
+extern double g_ModerateVerticalEdgesThreshold;             //moderate threshold for VEdges
+extern double g_ModerateHorizontalEdgesThreshold;           //moderate threshold for HEdges
+extern double g_ModerateNEdgesThreshold;                    //moderate threshold for NEdges
+extern int g_HorizontalVerticalEdgesThreshold;              //horizontal-vertical edges threshold
+extern int g_SegmentWidth;                                  //segment width
+extern int g_SegmentHeight;                                 //segment height
+extern int g_MinSegmentsCount;                              //minimum segments count
+extern int g_MinSumColorDifference;                         //min sum color diff
+extern int g_MinSumMultipleColorDifference;                 //min sum multiple color diff
+extern double g_DistanceBetweenText;                        //between text distace
+extern double g_CenterTextOffset;                           //text centre offset
+extern double g_CenterTextOffsetPercent;                    //text centre percent offset
 
-extern int        g_mpn;     //min points number
-extern double    g_mpd;   //min points density
-extern double    g_mpvd;  //min VEdges points density (per full line)
-extern double    g_mphd;  //min HEdges points density (per full line)
-extern double    g_mpnd;  //min NEdges points density (per full line)
-extern double    g_mpved; //min VEdges points density
-extern double    g_mpned; //min NEdges points density
+extern int g_MinPointsNumber;                               //min points number
+extern double g_MinPointsDensity;                           //min points density
+extern double g_MinVerticalEdgesPointsDensityPerLine;       //min VEdges points density (per full line)
+extern double g_MinHorizontalEdgesPointsDensityPerLine;     //min HEdges points density (per full line)
+extern double g_MinNEdgesPointsDensityPerLine;              //min NEdges points density (per full line)
+extern double g_MinVerticalEdgesPointsDensity;              //min VEdges points density
+extern double g_MinNEdgesPointsDensity;                     //min NEdges points density
 
-extern int        g_scale;
+extern int g_scale;
 
-extern int        *g_ImRES1;
-extern int        *g_ImRES2;
-extern int        *g_ImRES3;
+extern int *g_ImRES1;
+extern int *g_ImRES2;
+extern int *g_ImRES3;
 
-extern int        *g_ImRGB;
-extern int        *g_ImF[6];
+extern int *g_ImRGB;
+extern int *g_ImF[6];
 
-extern int        *g_pLB;
-extern int        *g_pLE;
-extern int        g_LN;
+extern int *g_pLB;
+extern int *g_pLE;
+extern int g_LN;
 
-extern int        *g_pLB6;
-extern int        *g_pLE6;
-extern int        *g_pLB7;
-extern int        *g_pLE7;
-extern int        *g_pLB8;
-extern int        *g_pLE8;
-extern int        *g_pLB9;
-extern int        *g_pLE9;
+extern int *g_pLB6;
+extern int *g_pLE6;
+extern int *g_pLB7;
+extern int *g_pLE7;
+extern int *g_pLB8;
+extern int *g_pLE8;
+extern int *g_pLB9;
+extern int *g_pLE9;
 
-extern int        *g_pImFF1;
-extern int        *g_pImVE1;
-extern int        *g_pImNE1;
-extern int        *g_pImFF2;
-extern int        *g_pImVE2;
-extern int        *g_pImNE2;
-extern int        *g_pImTEMP1;
-extern int        *g_pImTEMP2;
-extern int        *g_pImTEMP3;
-extern int        *g_ImRES10;
-extern int        *g_ImRES11;
-extern int        *g_ImRES12;
+extern int *g_pImFF1;
+extern int *g_pImVE1;
+extern int *g_pImNE1;
+extern int *g_pImFF2;
+extern int *g_pImVE2;
+extern int *g_pImNE2;
+extern int *g_TempImage1;
+extern int *g_TempImage2;
+extern int *g_TempImage3;
+extern int *g_ImRES10;
+extern int *g_ImRES11;
+extern int *g_ImRES12;
 
-extern int        g_blnVNE;
-extern int        g_blnHE;
+extern bool g_blnVNE;
+extern bool g_blnHE;
 
-extern int        g_debug;
+extern bool g_debug;
 
-extern bool        g_MMX_SSE;
+extern bool g_MMX_SSE;
 
-extern bool        g_hard_sub_mining;
-extern int        g_show_results;
+extern bool g_hard_sub_mining;
+extern bool g_show_results;
 
-extern int        g_dmaxy;
+extern int g_dmaxy;
 
 void InitIPData(int w, int h, int scale);
 void ReleaseIPData();

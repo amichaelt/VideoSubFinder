@@ -202,34 +202,34 @@ void CSettingsPanel::Init()
     
     m_pOI->AddGroup("Первичная Обработка Изображения", m_CLGG, m_LBLFont);
     m_pOI->AddSubGroup("Настройки Для Операторов Собеля", m_CL1, m_LBLFont);
-    m_pOI->AddProperty("Moderate Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mthr, 0.0, 1.0);
-    m_pOI->AddProperty("Moderate VEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mvthr, 0.0, 1.0);
-    m_pOI->AddProperty("Moderate NEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mnthr, 0.0, 1.0);
-    m_pOI->AddProperty("Moderate HEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mhthr, 0.0, 1.0);
+    m_pOI->AddProperty("Moderate Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_ModerateThreshold, 0.0, 1.0);
+    m_pOI->AddProperty("Moderate VEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_ModerateVerticalEdgesThreshold, 0.0, 1.0);
+    m_pOI->AddProperty("Moderate NEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_ModerateNEdgesThreshold, 0.0, 1.0);
+    m_pOI->AddProperty("Moderate HEdges Threshold : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_ModerateHorizontalEdgesThreshold, 0.0, 1.0);
     m_pOI->AddSubGroup("Настройки Для Цветовой Фильтрации", m_CL1, m_LBLFont);    
-    m_pOI->AddProperty("Segment Width : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_segw, 4, 50);
-    m_pOI->AddProperty("Min Segments Count : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_msegc, 1, 10);
-    m_pOI->AddProperty("Min Sum Color Difference : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_scd, 0, 10000);
+    m_pOI->AddProperty("Segment Width : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_SegmentWidth, 4, 50);
+    m_pOI->AddProperty("Min Segments Count : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinSegmentsCount, 1, 10);
+    m_pOI->AddProperty("Min Sum Color Difference : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinSumColorDifference, 0, 10000);
 
     m_pOI->AddGroup("Вторичная Обработка Изображения", m_CLGG, m_LBLFont);
     m_pOI->AddSubGroup("Настройки Для Линейной Фильтрации", m_CL1, m_LBLFont);
-    m_pOI->AddProperty("Line Height : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_segh, 1, 50);
-    m_pOI->AddProperty("Max Between Text Distance : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_btd, 0.0, 1.0);
-    m_pOI->AddProperty("Max Text Centre Offset : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_tco, 0.0, 1.0);
-    m_pOI->AddProperty("Max Text Centre Percent Offset : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_tcpo, 0.0, 1.0);
+    m_pOI->AddProperty("Line Height : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_SegmentHeight, 1, 50);
+    m_pOI->AddProperty("Max Between Text Distance : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_DistanceBetweenText, 0.0, 1.0);
+    m_pOI->AddProperty("Max Text Centre Offset : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_CenterTextOffset, 0.0, 1.0);
+    m_pOI->AddProperty("Max Text Centre Percent Offset : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_CenterTextOffsetPercent, 0.0, 1.0);
     m_pOI->AddSubGroup("Настройки Для Точек Цветовых Границ", m_CL1, m_LBLFont);
-    m_pOI->AddProperty("Min Points Number : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpn, 0, 10000);
-    m_pOI->AddProperty("Min Points Density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpd, 0.0, 1.0);
-    m_pOI->AddProperty("Min VEdges points density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpved, 0.0, 1.0);
-    m_pOI->AddProperty("Min NEdges points density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpned, 0.0, 1.0);
+    m_pOI->AddProperty("Min Points Number : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinPointsNumber, 0, 10000);
+    m_pOI->AddProperty("Min Points Density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinPointsDensity, 0.0, 1.0);
+    m_pOI->AddProperty("Min VEdges points density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinVerticalEdgesPointsDensity, 0.0, 1.0);
+    m_pOI->AddProperty("Min NEdges points density : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinNEdgesPointsDensity, 0.0, 1.0);
     m_pOI->AddSubGroup("Настройки Для Цветовой Фильтрации", m_CL1, m_LBLFont);
-    m_pOI->AddProperty("Min Sum Multiple Color Difference : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_smcd, 0, 10000);
+    m_pOI->AddProperty("Min Sum Multiple Color Difference : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinSumMultipleColorDifference, 0, 10000);
 
     m_pOI->AddGroup("Третичная Обработка Изображения", m_CLGG, m_LBLFont);
     m_pOI->AddSubGroup("Настройки Для Линейной Фильтрации", m_CL1, m_LBLFont);
-    m_pOI->AddProperty("Min VEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpvd, 0.0, 1.0);
-    m_pOI->AddProperty("Min HEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mphd, 0.0, 1.0);
-    m_pOI->AddProperty("Min NEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mpnd, 0.0, 1.0);
+    m_pOI->AddProperty("Min VEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinVerticalEdgesPointsDensityPerLine, 0.0, 1.0);
+    m_pOI->AddProperty("Min HEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinHorizontalEdgesPointsDensityPerLine, 0.0, 1.0);
+    m_pOI->AddProperty("Min NEdges points density (per half line) : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinNEdgesPointsDensityPerLine, 0.0, 1.0);
 
     ////////////////////////////////////////////////////////////////////////
 
@@ -265,9 +265,7 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
     clock_t t;
     
 
-    if (m_pMF->m_VIsOpen == false) return;
-
-    //m_pMF->m_Video.SetPos(GetVideoTime(4, 03, 519));
+    if (!m_pMF->m_VIsOpen) return;
 
     pVideo = m_pMF->m_pVideo;
     
@@ -277,19 +275,19 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
                                   m_pMF->m_pVideoBox->m_pVBox->m_pHSL1->m_pos, 
                                   m_pMF->m_pVideoBox->m_pVBox->m_pHSL2->m_pos);
 
-    m_w = w = g_w;
-    m_h = h = g_h;
+    m_w = w = g_width;
+    m_h = h = g_height;
 
     InitIPData((int)m_pMF->m_pVideo->m_Width, (int)m_pMF->m_pVideo->m_Height, 1);
 
-    if (g_fast_search == true)
+    if (g_fast_search)
     {
-        memset(g_ImF[0], 0, (g_W*g_H)*sizeof(int));
-        memset(g_ImF[1], 0, (g_W*g_H)*sizeof(int));
-        memset(g_ImF[2], 0, (g_W*g_H)*sizeof(int));
-        memset(g_ImF[3], 0, (g_W*g_H)*sizeof(int));
-        memset(g_ImF[4], 0, (g_W*g_H)*sizeof(int));
-        memset(g_ImF[5], 0, (g_W*g_H)*sizeof(int));
+        memset(g_ImF[0], 0, (g_Width*g_Height)*sizeof(int));
+        memset(g_ImF[1], 0, (g_Width*g_Height)*sizeof(int));
+        memset(g_ImF[2], 0, (g_Width*g_Height)*sizeof(int));
+        memset(g_ImF[3], 0, (g_Width*g_Height)*sizeof(int));
+        memset(g_ImF[4], 0, (g_Width*g_Height)*sizeof(int));
+        memset(g_ImF[5], 0, (g_Width*g_Height)*sizeof(int));
 
         t = clock();
         m_pMF->m_pVideo->GetRGBImage(g_ImRGB, g_xmin, g_xmax, g_ymin, g_ymax);
@@ -305,12 +303,12 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
         }
         else
         {
-            if (g_blnVNE == 1) 
+            if (g_blnVNE) 
             {
                 UnpackImage(g_ImRES1, g_ImF[0], g_pLB, g_pLE, g_LN, w, h);
                 UnpackImage(g_ImRES2, g_ImF[1], g_pLB, g_pLE, g_LN, w, h);
             }
-            if (g_blnVNE == 1) 
+            if (g_blnVNE) 
             {
                 UnpackImage(g_ImRES3, g_ImF[2], g_pLB, g_pLE, g_LN, w, h);            
             }
@@ -328,7 +326,7 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
             {
                 if (g_ImF[i][0] == -1)
                 {
-                    memset(g_ImF[i], 0, g_W*g_H*sizeof(int));
+                    memset(g_ImF[i], 0, g_Width*g_Height*sizeof(int));
                 }
             }
         }
@@ -338,7 +336,7 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
     
     if (S > 0)
     {
-        if ((w != g_W) || (h != g_H))
+        if ((w != g_Width) || (h != g_Height))
         {
             ImToNativeSize(g_ImRGB, w, h);
             
@@ -349,14 +347,14 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
         }
     }
 
-    m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_W, g_H);
+    m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_Width, g_Height);
     
-    SaveRGBImage(g_ImRGB, "/TSTImages/RGBImage.jpeg", g_W, g_H);
+    SaveRGBImage(g_ImRGB, "/TSTImages/RGBImage.jpeg", g_Width, g_Height);
     
     for (i=0; i<m_n; i++) 
     {        
         itoa(i, str, 10);
-        SaveImage(g_ImF[i], std::string("/TSTImages/") + std::string(str) + std::string("TSTImage _ ") + std::string(StrFN[i]) + std::string(".jpeg"), g_W, g_H);
+        SaveImage(g_ImF[i], std::string("/TSTImages/") + std::string(str) + std::string("TSTImage _ ") + std::string(StrFN[i]) + std::string(".jpeg"), g_Width, g_Height);
     }
 }
 
@@ -369,7 +367,7 @@ void CSettingsPanel::OnBnClickedLeft(wxCommandEvent& event)
 
     if (m_pMF->m_VIsOpen == true)
     {
-        m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_W, g_H);
+        m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_Width, g_Height);
     }
 }
 
@@ -382,7 +380,7 @@ void CSettingsPanel::OnBnClickedRight(wxCommandEvent& event)
 
     if (m_pMF->m_VIsOpen == true)
     {
-        m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_W, g_H);
+        m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_Width, g_Height);
     }
 }
 
