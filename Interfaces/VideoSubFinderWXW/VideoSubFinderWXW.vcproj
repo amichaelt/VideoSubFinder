@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;..\..\Components\Include&quot;;&quot;..\..\Components\IPAlgorithms&quot;;&quot;..\..\Components\DSVideo&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH;QT_CORE_LIB;QT_GUI_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH;QT_CORE_LIB;QT_GUI_LIB;QT_DLL"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
@@ -132,7 +132,7 @@
 				AdditionalOptions="/EHsc"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(WX_WIDGETS_PATH)\lib\vc_lib\mswd&quot;;&quot;$(WX_WIDGETS_PATH)\include&quot;;&quot;..\..\Components\Include&quot;;&quot;..\..\Components\IPAlgorithms&quot;;&quot;..\..\Components\DSVideo&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;"
-				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH;QT_CORE_LIB;QT_GUI_LIB"
+				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH;QT_CORE_LIB;QT_GUI_LIB;QT_DLL"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -652,7 +652,7 @@
 		/>
 		<Global
 			Name="QtVersion Win32"
-			Value="msvc2008"
+			Value="$(DefaultQtVersion)"
 		/>
 		<Global
 			Name="RccDir"

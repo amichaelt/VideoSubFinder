@@ -342,7 +342,7 @@
 		/>
 		<Global
 			Name="QtVersion Win32"
-			Value="msvc2008"
+			Value="$(DefaultQtVersion)"
 		/>
 		<Global
 			Name="RccDir"

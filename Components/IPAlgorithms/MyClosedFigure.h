@@ -1,18 +1,18 @@
                               //MyClosedFigure.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							  Version 1.76              						//
-//																				//
-// Author:  Simeon Kosnitsky													//
-//          skosnits@gmail.com													//
-//																				//
-// License:																		//
-//     This software is released into the public domain.  You are free to use	//
-//     it in any way you like, except that you may not sell this source code.	//
-//																				//
-//     This software is provided "as is" with no expressed or implied warranty.	//
-//     I accept no liability for any damage or loss of business that this		//
-//     software may cause.														//
-//																				//
+//                              Version 1.76                                      //
+//                                                                                //
+// Author:  Simeon Kosnitsky                                                    //
+//          skosnits@gmail.com                                                    //
+//                                                                                //
+// License:                                                                        //
+//     This software is released into the public domain.  You are free to use    //
+//     it in any way you like, except that you may not sell this source code.    //
+//                                                                                //
+//     This software is provided "as is" with no expressed or implied warranty.    //
+//     I accept no liability for any damage or loss of business that this        //
+//     software may cause.                                                        //
+//                                                                                //
 //////////////////////////////////////////////////////////////////////////////////
 
 #ifndef MYCLOSEDFIGURE_H
@@ -24,8 +24,8 @@
 class MyPoint
 {
 public:
-	MyPoint() {}
-	MyPoint(int x, int y, int pointNumber)
+    MyPoint() {}
+    MyPoint(int x, int y, int pointNumber)
     {
         x1 = x;
         y1 = y;
@@ -42,7 +42,7 @@ public:
 private:
     int x1;
     int y1;
-    int	number;
+    int    number;
 }; 
 
 typedef enum {UP, DOWN} POS;
@@ -50,17 +50,17 @@ typedef enum {UP, DOWN} POS;
 class MyClosedFigure
 {
 public:
-	MyClosedFigure();
-	~MyClosedFigure();
+    MyClosedFigure();
+    ~MyClosedFigure();
 
-	bool operator>(MyClosedFigure& other);
-	void operator=(MyClosedFigure& other);
-	void operator+=(MyClosedFigure& other);
+    bool operator>(MyClosedFigure& other);
+    void operator=(MyClosedFigure& other);
+    void operator+=(MyClosedFigure& other);
 
-	void refresh();
-	bool IsNear(MyClosedFigure &other, int error);	
-	void CreateImage(int w, int h, char White, char Black);
-	double CompareWith(MyClosedFigure &other, double MaxPercentDeviation);
+    void refresh();
+    bool IsNear(MyClosedFigure &other, int error);    
+    void CreateImage(int w, int h, char White, char Black);
+    double CompareWith(MyClosedFigure &other, double MaxPercentDeviation);
 
     MyPoint *pointsArray() { return m_PointsArray; }
     void setPointsArray(MyPoint *pointsArray) { m_PointsArray = pointsArray; }

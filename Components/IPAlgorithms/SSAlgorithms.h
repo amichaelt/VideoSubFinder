@@ -1,18 +1,18 @@
                               //SSAlgorithms.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							  Version 1.76              						//
-//																				//
-// Author:  Simeon Kosnitsky													//
-//          skosnits@gmail.com													//
-//																				//
-// License:																		//
-//     This software is released into the public domain.  You are free to use	//
-//     it in any way you like, except that you may not sell this source code.	//
-//																				//
-//     This software is provided "as is" with no expressed or implied warranty.	//
-//     I accept no liability for any damage or loss of business that this		//
-//     software may cause.														//
-//																				//
+//                              Version 1.76                                      //
+//                                                                                //
+// Author:  Simeon Kosnitsky                                                    //
+//          skosnits@gmail.com                                                    //
+//                                                                                //
+// License:                                                                        //
+//     This software is released into the public domain.  You are free to use    //
+//     it in any way you like, except that you may not sell this source code.    //
+//                                                                                //
+//     This software is provided "as is" with no expressed or implied warranty.    //
+//     I accept no liability for any damage or loss of business that this        //
+//     software may cause.                                                        //
+//                                                                                //
 //////////////////////////////////////////////////////////////////////////////////
 
 #ifndef SSALGORITHMS_H
@@ -23,13 +23,13 @@
 #include <string>
 #include <QtCore/QtGlobal>
 
-extern int		g_RunSubSearch;
+extern int        g_RunSubSearch;
 
-extern int		g_DL;	 //sub frame length
-extern double	g_tp;	 //text procent
-extern double	g_mtpl;  //min text len (in procent)
-extern double	g_sse;	 //sub square error
-extern double	g_veple; //vedges points line error
+extern int        g_DL;     //sub frame length
+extern double    g_tp;     //text procent
+extern double    g_mtpl;  //min text len (in procent)
+extern double    g_sse;     //sub square error
+extern double    g_veple; //vedges points line error
 
 extern bool g_fast_search;
 

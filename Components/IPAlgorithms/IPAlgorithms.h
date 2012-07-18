@@ -1,18 +1,18 @@
                               //IPAlgorithms.h//                                
 //////////////////////////////////////////////////////////////////////////////////
-//							  Version 1.76              						//
-//																				//
-// Author:  Simeon Kosnitsky													//
-//          skosnits@gmail.com													//
-//																				//
-// License:																		//
-//     This software is released into the public domain.  You are free to use	//
-//     it in any way you like, except that you may not sell this source code.	//
-//																				//
-//     This software is provided "as is" with no expressed or implied warranty.	//
-//     I accept no liability for any damage or loss of business that this		//
-//     software may cause.														//
-//																				//
+//                              Version 1.76                                      //
+//                                                                                //
+// Author:  Simeon Kosnitsky                                                    //
+//          skosnits@gmail.com                                                    //
+//                                                                                //
+// License:                                                                        //
+//     This software is released into the public domain.  You are free to use    //
+//     it in any way you like, except that you may not sell this source code.    //
+//                                                                                //
+//     This software is provided "as is" with no expressed or implied warranty.    //
+//     I accept no liability for any damage or loss of business that this        //
+//     software may cause.                                                        //
+//                                                                                //
 //////////////////////////////////////////////////////////////////////////////////
 
 #ifndef IPALGORITHMS_H
@@ -31,85 +31,85 @@
 extern void     (*g_pViewRGBImage)(int *Im, int w, int h);
 extern void     (*g_pViewImage[2])(int *Im, int w, int h);
 
-extern int		g_W;
-extern int		g_H;
-extern int		g_w;
-extern int		g_h;
-extern int		g_xmin;
-extern int		g_xmax;
-extern int		g_ymin;
-extern int		g_ymax;
+extern int        g_W;
+extern int        g_H;
+extern int        g_w;
+extern int        g_h;
+extern int        g_xmin;
+extern int        g_xmax;
+extern int        g_ymin;
+extern int        g_ymax;
 
 extern std::string   g_dir;
 
-extern double	g_mthr;  //moderate threshold
-extern double	g_mvthr; //moderate threshold for VEdges
-extern double	g_mhthr; //moderate threshold for HEdges
-extern double	g_mnthr; //moderate threshold for NEdges
-extern int		g_hvt;	 //horizontal-vertical edges threshold
-extern int		g_segw;  //segment width
-extern int		g_segh;  //segment height
-extern int		g_msegc; //minimum segments count
-extern int		g_scd;   //min sum color diff
-extern int		g_smcd;  //min sum multiple color diff
-extern double	g_btd;   //between text distace
-extern double	g_tco;   //text centre offset
-extern double	g_tcpo;  //text centre percent offset
+extern double    g_mthr;  //moderate threshold
+extern double    g_mvthr; //moderate threshold for VEdges
+extern double    g_mhthr; //moderate threshold for HEdges
+extern double    g_mnthr; //moderate threshold for NEdges
+extern int        g_hvt;     //horizontal-vertical edges threshold
+extern int        g_segw;  //segment width
+extern int        g_segh;  //segment height
+extern int        g_msegc; //minimum segments count
+extern int        g_scd;   //min sum color diff
+extern int        g_smcd;  //min sum multiple color diff
+extern double    g_btd;   //between text distace
+extern double    g_tco;   //text centre offset
+extern double    g_tcpo;  //text centre percent offset
 
-extern int		g_mpn;	 //min points number
-extern double	g_mpd;   //min points density
-extern double	g_mpvd;  //min VEdges points density (per full line)
-extern double	g_mphd;  //min HEdges points density (per full line)
-extern double	g_mpnd;  //min NEdges points density (per full line)
-extern double	g_mpved; //min VEdges points density
-extern double	g_mpned; //min NEdges points density
+extern int        g_mpn;     //min points number
+extern double    g_mpd;   //min points density
+extern double    g_mpvd;  //min VEdges points density (per full line)
+extern double    g_mphd;  //min HEdges points density (per full line)
+extern double    g_mpnd;  //min NEdges points density (per full line)
+extern double    g_mpved; //min VEdges points density
+extern double    g_mpned; //min NEdges points density
 
-extern int		g_scale;
+extern int        g_scale;
 
-extern int		*g_ImRES1;
-extern int		*g_ImRES2;
-extern int		*g_ImRES3;
+extern int        *g_ImRES1;
+extern int        *g_ImRES2;
+extern int        *g_ImRES3;
 
-extern int		*g_ImRGB;
-extern int		*g_ImF[6];
+extern int        *g_ImRGB;
+extern int        *g_ImF[6];
 
-extern int		*g_pLB;
-extern int		*g_pLE;
-extern int		g_LN;
+extern int        *g_pLB;
+extern int        *g_pLE;
+extern int        g_LN;
 
-extern int		*g_pLB6;
-extern int		*g_pLE6;
-extern int		*g_pLB7;
-extern int		*g_pLE7;
-extern int		*g_pLB8;
-extern int		*g_pLE8;
-extern int		*g_pLB9;
-extern int		*g_pLE9;
+extern int        *g_pLB6;
+extern int        *g_pLE6;
+extern int        *g_pLB7;
+extern int        *g_pLE7;
+extern int        *g_pLB8;
+extern int        *g_pLE8;
+extern int        *g_pLB9;
+extern int        *g_pLE9;
 
-extern int		*g_pImFF1;
-extern int		*g_pImVE1;
-extern int		*g_pImNE1;
-extern int		*g_pImFF2;
-extern int		*g_pImVE2;
-extern int		*g_pImNE2;
-extern int		*g_pImTEMP1;
-extern int		*g_pImTEMP2;
-extern int		*g_pImTEMP3;
-extern int		*g_ImRES10;
-extern int		*g_ImRES11;
-extern int		*g_ImRES12;
+extern int        *g_pImFF1;
+extern int        *g_pImVE1;
+extern int        *g_pImNE1;
+extern int        *g_pImFF2;
+extern int        *g_pImVE2;
+extern int        *g_pImNE2;
+extern int        *g_pImTEMP1;
+extern int        *g_pImTEMP2;
+extern int        *g_pImTEMP3;
+extern int        *g_ImRES10;
+extern int        *g_ImRES11;
+extern int        *g_ImRES12;
 
-extern int		g_blnVNE;
-extern int		g_blnHE;
+extern int        g_blnVNE;
+extern int        g_blnHE;
 
-extern int		g_debug;
+extern int        g_debug;
 
-extern bool		g_MMX_SSE;
+extern bool        g_MMX_SSE;
 
-extern bool		g_hard_sub_mining;
-extern int		g_show_results;
+extern bool        g_hard_sub_mining;
+extern int        g_show_results;
 
-extern int		g_dmaxy;
+extern int        g_dmaxy;
 
 void InitIPData(int w, int h, int scale);
 void ReleaseIPData();
@@ -169,9 +169,9 @@ int ClearImageDetailed(int *Im, int w, int h, int yb, int ye, int white);
 int ClearImageOptimal(int *Im, int w, int h, int yb, int ye, int white);
 
 int ClearImageOpt2(int *Im, int w, int h, int white, int &LH, int &LMAXY, 
-					int &jY_min, int &jY_max, int &jI_min, int &jI_max, int &jQ_min, int &jQ_max,
-					int &mY, int &dY, int &mI, int &dI, int &mQ, int &dQ,
-					int &mmY, int &ddY1, int &ddY2, int &mmI, int &ddI, int &mmQ, int &ddQ);
+                    int &jY_min, int &jY_max, int &jI_min, int &jI_max, int &jQ_min, int &jQ_max,
+                    int &mY, int &dY, int &mI, int &dI, int &mQ, int &dQ,
+                    int &mmY, int &ddY1, int &ddY2, int &mmI, int &ddI, int &mmQ, int &ddQ);
 
 int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe, int white);
 
@@ -180,9 +180,9 @@ void GetSymbolAvgColor(MyClosedFigure *pFigure);
 void GetTextLineParameters(int *Im, int w, int h, int &LH, int &LMAXY, int &XB, int &XE, int &YB, int &YE, int &mY, int &mI, int &mQ, int white);
 
 int ClearImageOpt5(int *Im, int w, int h, int LH, int LMAXY, 
-					int jY_min, int jY_max, int jI_min, int jI_max, int jQ_min, int jQ_max,
-					int mY, int dY, int mI, int dI, int mQ, int dQ, 
-					int mmY, int ddY1, int ddY2, int mmI, int ddI, int mmQ, int ddQ, int white);
+                    int jY_min, int jY_max, int jI_min, int jI_max, int jQ_min, int jQ_max,
+                    int mY, int dY, int mI, int dI, int mQ, int dQ, 
+                    int mmY, int ddY1, int ddY2, int mmI, int ddI, int mmQ, int ddQ, int white);
 
 void ResizeImage4x(int *Im, int *ImRES, int w, int h);
 void SimpleResizeImage4x(int *Im, int *ImRES, int w, int h);
@@ -193,7 +193,7 @@ int CompareTXTImages(int *Im1, int *Im2, int w1, int h1, int w2, int h2, int YB1
 void GetImageSize(std::string name, int &w, int &h);
 void SaveRGBImage(int *Im, std::string name, int w, int h);
 void LoadRGBImage(int *Im, std::string name, int &w, int &h);
-void SaveImage(int *Im, std::string name, int w, int h, int quality = -1, int dpi = -1);
+void SaveImage(int *Im, std::string name, int w, int h, int dpi = -1);
 void LoadImage(int *Im, std::string name, int &w, int &h);
 
 #endif
