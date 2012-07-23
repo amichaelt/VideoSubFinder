@@ -70,7 +70,7 @@ extern int *g_ImRES1;
 extern int *g_ImRES2;
 extern int *g_ImRES3;
 
-extern int *g_ImRGB;
+extern int *g_RGBImage;
 extern int *g_ImF[6];
 
 extern int *g_pLB;
@@ -116,9 +116,9 @@ void ReleaseIPData();
 
 void YIQ_to_RGB(int Y, int I, int Q, int &R, int &G, int &B, int max_val);
 
-void RGB_to_YUV(int *ImIn, int *ImY,int *ImU,int *ImV, int w, int h);
-void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h);
-void RGB_to_YIQ(int *ImRGB, qint64 *ImYIQ, int w, int h);
+void RGB_to_YUV(int *inImage, int *ImageY, int *ImageU, int *ImageV, int width, int height);
+void RGB_to_YIQ(int *inImage, int *ImageY, int *ImageI, int *ImageQ, int width, int height);
+void RGB_to_YIQ(int *RGBImage, qint64 *YIQImage, int width, int height);
 
 void ImprovedSobelMEdge(int *ImIn, int *ImMOE, int w, int h);
 void ImprovedSobelAllEdge_MMX_SSE(qint64 *ImYIQ, int *ImMOE1, int *ImMOE2, int *ImVOE, int *ImNOE, int *ImHOE, double vthr, double nthr, double hthr, int w, int h);
@@ -131,8 +131,8 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h);
 void ApplyModerateThreshold(int *Im, double mthr, int w, int h);
 void ApplyModerateThreshold_MMX_SSE(int *Im, double mthr, int w, int h);
 
-void AplyESS(int *ImIn, int* ImOut, int w, int h);
-void AplyECP(int *ImIn, int* ImOut, int w, int h);
+void ApplyEdgeStrengthSmoothing(int *ImIn, int* ImOut, int w, int h);
+void ApplyEdgeClusteringPower(int *ImIn, int* ImOut, int w, int h);
 
 void ColorFiltration(int *Im, int *LB, int *LE, int &N, int w, int h);
 

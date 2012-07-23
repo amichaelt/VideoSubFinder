@@ -247,13 +247,13 @@ void CSettingsPanel::Init()
     
     m_pOIM->AddGroup("Настройки Мультифреймовой Обработки Изображений", m_CLGG, m_LBLFont);
     m_pOIM->AddSubGroup("Настройки Для Обнаружения Саба", m_CL1, m_LBLFont);
-    m_pOIM->AddProperty("Sub Frames Length : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_DL, 1, 100);
-    m_pOIM->AddProperty("Sub Square Error : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_sse, 0.0, 1.0);
+    m_pOIM->AddProperty("Sub Frames Length : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_SubFrameLength, 1, 100);
+    m_pOIM->AddProperty("Sub Square Error : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_SubSquareError, 0.0, 1.0);
     m_pOIM->AddSubGroup("Настройки Для Сравнения Сабов", m_CL1, m_LBLFont);
-    m_pOIM->AddProperty("VEdges Points line error : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_veple, 0.0, 1.0);
+    m_pOIM->AddProperty("VEdges Points line error : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_VerticalEdgesPointsLineError, 0.0, 1.0);
     m_pOIM->AddSubGroup("Настройки Для Проверки Саба", m_CL1, m_LBLFont);
-    m_pOIM->AddProperty("Text Procent : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_tp, 0.0, 1.0);
-    m_pOIM->AddProperty("Min Text Length : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_mtpl, 0.0, 1.0);
+    m_pOIM->AddProperty("Text Procent : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_TextPercent, 0.0, 1.0);
+    m_pOIM->AddProperty("Min Text Length : ", m_CL2, m_CL4, m_LBLFont, m_LBLFont, &g_MinTextLengthPercent, 0.0, 1.0);
 }
 
 
@@ -290,8 +290,8 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
         memset(g_ImF[5], 0, (g_Width*g_Height)*sizeof(int));
 
         t = clock();
-        m_pMF->m_pVideo->GetRGBImage(g_ImRGB, g_xmin, g_xmax, g_ymin, g_ymax);
-        S = ConvertImage(g_ImRGB, g_ImF[5], g_ImF[0], w, h);
+        m_pMF->m_pVideo->GetRGBImage(g_RGBImage, g_xmin, g_xmax, g_ymin, g_ymax);
+        S = ConvertImage(g_RGBImage, g_ImF[5], g_ImF[0], w, h);
         t = clock()-t;
         
         if (S > 0)
@@ -317,7 +317,7 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
     else
     {
         t = clock();
-        S = GetAndConvertImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], pVideo, w, h);
+        S = GetAndConvertImage(g_RGBImage, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], pVideo, w, h);
         t = clock()-t;
 
         if (S == 0)
@@ -338,18 +338,18 @@ void CSettingsPanel::OnBnClickedTest(wxCommandEvent& event)
     {
         if ((w != g_Width) || (h != g_Height))
         {
-            ImToNativeSize(g_ImRGB, w, h);
+            ImageToNativeSize(g_RGBImage, w, h);
             
             for(k=0; k<m_n; k++)
             {
-                ImToNativeSize(g_ImF[k], w, h);
+                ImageToNativeSize(g_ImF[k], w, h);
             }
         }
     }
 
     m_pMF->m_pImageBox->ViewImage(g_ImF[m_cn], g_Width, g_Height);
     
-    SaveRGBImage(g_ImRGB, "/TSTImages/RGBImage.jpeg", g_Width, g_Height);
+    SaveRGBImage(g_RGBImage, "/TSTImages/RGBImage.jpeg", g_Width, g_Height);
     
     for (i=0; i<m_n; i++) 
     {        

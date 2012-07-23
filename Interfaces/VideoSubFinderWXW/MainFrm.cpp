@@ -588,11 +588,11 @@ void CMainFrame::LoadSettings(std::string fname)
     ReadProperty(fin, g_MinVerticalEdgesPointsDensity, "min_VEdges_points_density");
     ReadProperty(fin, g_MinNEdgesPointsDensity, "min_NEdges_points_density");
 
-    ReadProperty(fin, g_DL, "sub_frame_length");
-    ReadProperty(fin, g_tp, "text_procent");
-    ReadProperty(fin, g_mtpl, "min_text_len_(in_procent)");
-    ReadProperty(fin, g_sse, "sub_square_error");
-    ReadProperty(fin, g_veple, "vedges_points_line_error");
+    ReadProperty(fin, g_SubFrameLength, "sub_frame_length");
+    ReadProperty(fin, g_TextPercent, "text_procent");
+    ReadProperty(fin, g_MinTextLengthPercent, "min_text_len_(in_procent)");
+    ReadProperty(fin, g_SubSquareError, "sub_square_error");
+    ReadProperty(fin, g_VerticalEdgesPointsLineError, "vedges_points_line_error");
 
     ReadProperty(fin, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
 
@@ -630,11 +630,11 @@ void CMainFrame::SaveSettings(std::string fname)
     WriteProperty(fout, g_MinVerticalEdgesPointsDensity, "min_VEdges_points_density");
     WriteProperty(fout, g_MinNEdgesPointsDensity, "min_NEdges_points_density");
 
-    WriteProperty(fout, g_DL, "sub_frame_length");
-    WriteProperty(fout, g_tp, "text_procent");
-    WriteProperty(fout, g_mtpl, "min_text_len_(in_procent)");
-    WriteProperty(fout, g_sse, "sub_square_error");
-    WriteProperty(fout, g_veple, "vedges_points_line_error");
+    WriteProperty(fout, g_SubFrameLength, "sub_frame_length");
+    WriteProperty(fout, g_TextPercent, "text_procent");
+    WriteProperty(fout, g_MinTextLengthPercent, "min_text_len_(in_procent)");
+    WriteProperty(fout, g_SubSquareError, "sub_square_error");
+    WriteProperty(fout, g_VerticalEdgesPointsLineError, "vedges_points_line_error");
 
     WriteProperty(fout, g_CLEAN_RGB_IMAGES, "clean_rgb_images_after_run");
 
@@ -879,7 +879,7 @@ void CMainFrame::OnClose(wxCloseEvent& WXUNUSED(event))
     if (g_IsSearching == 1)
     {
         g_IsClose = 1;
-        g_RunSubSearch = 0;
+        g_RunSubSearch = false;
         m_pPanel->m_pSHPanel->m_pSearchThread->SetPriority(90); //THREAD_PRIORITY_HIGHEST
     }
 
@@ -894,7 +894,6 @@ void CMainFrame::OnClose(wxCloseEvent& WXUNUSED(event))
 
     if (g_IsCreateClearedTextImages == 1)
     {
-        //TerminateThread(m_pPanel->m_OCRPanel.m_hSearchThread, 0);
     }
 
     ReleaseIPData();

@@ -170,9 +170,9 @@ void CSearchPanel::OnBnClickedRun(wxCommandEvent& event)
     }
     else
     {
-        if (g_RunSubSearch == 1) 
+        if (g_RunSubSearch) 
         {
-            g_RunSubSearch = 0;
+            g_RunSubSearch = false;
         }
     }
 }
@@ -199,9 +199,9 @@ void *ThreadSearchSubtitles::Entry()
 
     g_IsSearching = 1;
 
-    if (g_fast_search == true)
+    if (g_fast_search)
     {
-        if ( m_pMF->m_pVideo->Set0Render() )
+        if (m_pMF->m_pVideo->Set0Render())
         {
             SetVideoWindowSettins(m_pMF->m_pVideo, 
                                   m_pMF->m_pVideoBox->m_pVBox->m_pVSL1->m_pos, 
@@ -214,7 +214,7 @@ void *ThreadSearchSubtitles::Entry()
     }
     else
     {
-        if ( m_pMF->m_pVideo->Set0Render() )
+        if (m_pMF->m_pVideo->Set0Render())
         {
             SetVideoWindowSettins(m_pMF->m_pVideo, 
                                   m_pMF->m_pVideoBox->m_pVBox->m_pVSL1->m_pos, 
@@ -248,16 +248,15 @@ void *ThreadSearchSubtitles::Entry()
     handler = m_pMF->GetEventHandler(); 
     wxPostEvent(handler, menu_event);
 
-    if ( (g_RunSubSearch == 1) && (g_CLEAN_RGB_IMAGES == true) )
+    if (g_RunSubSearch && g_CLEAN_RGB_IMAGES)
     {
         wxCommandEvent bn_event(wxEVT_COMMAND_BUTTON_CLICKED, ID_BTN_CCTI);
         handler = m_pMF->m_pPanel->m_pOCRPanel->GetEventHandler(); 
         wxPostEvent(handler, bn_event);
-        //m_pMF->m_pPanel->m_pOCRPanel->OnBnClickedCreateClearedTextImages(bn_event);
     }
 
     g_IsSearching = 0;
-    g_RunSubSearch = 0;
+    g_RunSubSearch = false;
 
     return 0;
 }

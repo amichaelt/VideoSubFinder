@@ -21,13 +21,13 @@
 #include <QtCore/QVector>
 #include <vector>
 
-int        g_RunSubSearch = 0;
+bool g_RunSubSearch = false;
 
-int        g_DL = 6;     //sub frame length
-double    g_tp = 0.3;     //text percent
-double    g_mtpl = 0.022;  //min text len (in procent)
-double    g_sse = 0.3;   //sub square error
-double    g_veple = 0.35; //vedges points line error
+int g_SubFrameLength = 6;                       //sub frame length
+double g_TextPercent = 0.3;                     //text percent
+double g_MinTextLengthPercent = 0.022;          //min text len (in percent)
+double g_SubSquareError = 0.3;                  //sub square error
+double g_VerticalEdgesPointsLineError = 0.35;   //vedges points line error
 
 int **g_lb; // lines begins
 int **g_le; // lines ends
@@ -55,15 +55,14 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 {
     int SIZE = g_Width * g_Height;
 
-    QVector<int> ImRGB(SIZE);
-    int    *Im;
+    QVector<int> RGBImage(SIZE);
+    int *Im;
     int *ImSF;
-    int    *ImNFF;
-    int    *ImNFFS;
-    int *ImSP; //store image prev
-    int *ImS; //store image
-    int *ImFSP; //image for save prev
-    int *ImFS; //image for save
+    int *ImNFF;
+    int *PreviousStoreImage;    //store image prev
+    int *StoreImage;            //store image
+    int *PreviousSaveImage;     //image for save prev
+    int *SaveImage;             //image for save
     int *ImVE;
     int *ImVES;
     int *ImVESS;
@@ -73,31 +72,31 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     int *ImNES;
     int *ImNESP;
     int *ImHE;
-    int *ImRES;
+    int *ImageResult;
     int **ImS_SQ;
     int **ImVES_SQ;
     int **ImNES_SQ;
-    int *lb=g_pLB8;
-    int *le=g_pLE8;
+    int *lb = g_pLB8;
+    int *le = g_pLE8;
 
     std::string Str;
     
     qint64 CurPos;
-    int frameNumber; //frame num
+    int frameNumber;
     int i, k, n, nn, ln;
     int S, SP, w, h, size, BufferSize;
     int mtl, DL, segh;
     double sse;
 
-    int beginFrame, endFrame; // begin, end frame
-    int pbf, pef;
-    qint64 beginTime, endTime; // begin, end time
-    qint64 pbt, pet;
+    int beginFrame, endFrame;
+    int previousBeginFrame, previousEndFrame;
+    qint64 beginTime, endTime;
+    qint64 previousBeginTime, previousEndTime;
     qint64 previousPosition;
 
     bool bln, foundPrevious;
     
-    g_RunSubSearch = 1;
+    g_RunSubSearch = true;
 
     g_pV = pV;
 
@@ -112,11 +111,11 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     pV->OneStep();
     CurPos = pV->GetPos();
 
-    mtl = (int)(g_mtpl*(double)w);
-    DL = g_DL;
+    mtl = (int)(g_MinTextLengthPercent*(double)w);
+    DL = g_SubFrameLength;
     segh = g_SegmentHeight;
     n = h/g_SegmentHeight;
-    sse = g_sse;
+    sse = g_SubSquareError;
 
     beginFrame = -2;
     endFrame = -2;
@@ -128,11 +127,10 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     Im = new int[SIZE];
     ImSF = new int[SIZE];
     ImNFF = new int[SIZE];
-    ImNFFS = new int[SIZE];
-    ImS = new int[SIZE];
-    ImSP = new int[SIZE];
-    ImFS = new int[SIZE];
-    ImFSP = new int[SIZE];
+    StoreImage = new int[SIZE];
+    PreviousStoreImage = new int[SIZE];
+    SaveImage = new int[SIZE];
+    PreviousSaveImage = new int[SIZE];
     ImVE = new int[SIZE];
     ImVES = new int[SIZE];
     ImVESS = new int[SIZE];
@@ -142,7 +140,7 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     ImNES = new int[SIZE];
     ImNESP = new int[SIZE];
     ImHE = new int[SIZE];
-    ImRES = new int[SIZE];
+    ImageResult = new int[SIZE];
 
     ImS_SQ = new int*[DL];
     ImVES_SQ = new int*[DL];
@@ -167,12 +165,12 @@ qint64 SearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     previousPosition = -2;
 
-    while ((CurPos < End) && (g_RunSubSearch == 1) && (CurPos != previousPosition))
+    while ((CurPos < End) && g_RunSubSearch && (CurPos != previousPosition))
     {    
-        Str = VideoTimeToStr(CurPos);
+        Str = VideoTimeToString(CurPos);
 
         //*******
-        S = GetAndConvertImage(ImRGB.data(), ImNFF, ImSF, Im, ImVE, ImNE, ImHE, pV, w, h);
+        S = GetAndConvertImage(RGBImage.data(), ImNFF, ImSF, Im, ImVE, ImNE, ImHE, pV, w, h);
 
         if ( (S > 0) && (CurPos != previousPosition) )
         {    
@@ -182,11 +180,10 @@ L:                beginFrame = frameNumber;
                 beginTime = CurPos;
 
                 SP = S;
-                memcpy(ImS, Im, BufferSize);
-                memcpy(ImNFFS, ImNFF, BufferSize);
+                memcpy(StoreImage, Im, BufferSize);
                 memcpy(ImVES, ImVE, BufferSize);
                 memcpy(ImNES, ImNE, BufferSize);
-                memcpy(ImFS, ImRGB.data(), BufferSize);                
+                memcpy(SaveImage, RGBImage.data(), BufferSize);                
                 memcpy(ImVESS, ImVE, BufferSize);
 
                 nn = 0;
@@ -195,13 +192,13 @@ L:                beginFrame = frameNumber;
             {
                 if (frameNumber-beginFrame < DL)
                 {
-                    if(CompareTwoImages(ImS, ImVES, Im, ImVE, size) == 0) 
+                    if(CompareTwoImages(StoreImage, ImVES, Im, ImVE, size) == 0) 
                     {
                         if (foundPrevious) 
                         {
                             for(i = 0; i < nn; ++i)
                             {
-                                SimpleCombineTwoImages(ImS, ImS_SQ[i], size);
+                                SimpleCombineTwoImages(StoreImage, ImS_SQ[i], size);
                                 SimpleCombineTwoImages(ImVESS, ImVES_SQ[i], size);
                                 SimpleCombineTwoImages(ImNES, ImNES_SQ[i], size);
                             }
@@ -212,10 +209,9 @@ L:                beginFrame = frameNumber;
                         goto L;
                     }
 
-                    if (!foundPrevious && (frameNumber-beginFrame == 1))
+                    if (!foundPrevious && (frameNumber - beginFrame == 1))
                     {
-                        memcpy(ImS, Im, BufferSize);
-                        memcpy(ImNFFS, ImNFF, BufferSize);
+                        memcpy(StoreImage, Im, BufferSize);
                         memcpy(ImVES, ImVE, BufferSize);
                         memcpy(ImNES, ImNE, BufferSize);
                     }
@@ -227,23 +223,23 @@ L:                beginFrame = frameNumber;
                         nn++;
                     }
 
-                    if (frameNumber-beginFrame == 3)
+                    if (frameNumber - beginFrame == 3)
                     {
-                        memcpy(ImFS, ImRGB.data(), BufferSize);
+                        memcpy(SaveImage, RGBImage.data(), BufferSize);
                         memcpy(ImVESS, ImVE, BufferSize);
                         memcpy(ImNES, ImNE, BufferSize);
                     }
                 }
                 else
                 {
-                    if (frameNumber-beginFrame == DL)
+                    if (frameNumber - beginFrame == DL)
                     {
                         for(i = 0; i < nn; ++i)
                         {
-                            SimpleCombineTwoImages(ImS, ImS_SQ[i], size);
+                            SimpleCombineTwoImages(StoreImage, ImS_SQ[i], size);
                         }
 
-                        bln = AnalyseImage(ImS, w, h);
+                        bln = AnalyseImage(StoreImage, w, h);
 
                         if (bln) 
                         {
@@ -262,53 +258,53 @@ L:                beginFrame = frameNumber;
 
                     if (frameNumber-beginFrame >= DL)
                     {                                                
-                        if (CompareTwoSubs(ImS, ImVES, Im, ImVE, w, h) == 0)
+                        if (CompareTwoSubs(StoreImage, ImVES, Im, ImVE, w, h) == 0)
                         {
 L2:                            if (foundPrevious)
                             {
-                                ln = PreCompareTwoSubs(ImSP, ImS, ImRES, lb, le, w, h);
+                                ln = PreCompareTwoSubs(PreviousStoreImage, StoreImage, ImageResult, lb, le, w, h);
                                 
                                 if (
-                                        (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESP, ImVES, w, h) == 1) ||
-                                        (FinalCompareTwoSubs1(ImRES, lb, le, ln, ImNESP, ImNES, w, h) == 1) ||
-                                        (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESSP, ImVESS, w, h) == 1) ||
-                                        (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESP, ImVESS, w, h) == 1) ||
-                                        (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESSP, ImVES, w, h) == 1)
+                                        (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESP, ImVES, w, h) == 1) ||
+                                        (FinalCompareTwoSubs1(ImageResult, lb, le, ln, ImNESP, ImNES, w, h) == 1) ||
+                                        (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESSP, ImVESS, w, h) == 1) ||
+                                        (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESP, ImVESS, w, h) == 1) ||
+                                        (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESSP, ImVES, w, h) == 1)
                                     )
                                 {
-                                    pef = frameNumber-1;
-                                    pet = CurPos-10000;
+                                    previousEndFrame = frameNumber - 1;
+                                    previousEndTime = CurPos - 10000;
                                 }
                                 else
                                 {
-                                    Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
-                                    ImToNativeSize(ImFSP, w, h);
-                                    ImToNativeSize(ImSP, w, h);
-                                    ImToNativeSize(ImVESSP, w, h);
-                                    g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
-                                    g_pViewImage[1](ImSP, g_Width, g_Height);                                    
-                                    SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                                    Str = VideoTimeToString(previousBeginTime)+std::string("__")+VideoTimeToString(previousEndTime);
+                                    ImageToNativeSize(PreviousSaveImage, w, h);
+                                    ImageToNativeSize(PreviousStoreImage, w, h);
+                                    ImageToNativeSize(ImVESSP, w, h);
+                                    g_pViewImage[0](PreviousSaveImage, g_Width, g_Height);                                    
+                                    g_pViewImage[1](PreviousStoreImage, g_Width, g_Height);                                    
+                                    SaveRGBImage(PreviousSaveImage, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
                                     SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
-                                    SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);
+                                    SaveImage(PreviousStoreImage, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);
                                     
-                                    pbf = beginFrame;
-                                    pbt = beginTime;
-                                    pef = frameNumber-1;
-                                    pet = CurPos-10000;
+                                    previousBeginFrame = beginFrame;
+                                    previousBeginTime = beginTime;
+                                    previousEndFrame = frameNumber - 1;
+                                    previousEndTime = CurPos-10000;
                                 }
                             }    
                             else
                             {
-                                pbf = beginFrame;
-                                pbt = beginTime;
-                                pef = frameNumber-1;
-                                pet = CurPos-10000;
+                                previousBeginFrame = beginFrame;
+                                previousBeginTime = beginTime;
+                                previousEndFrame = frameNumber - 1;
+                                previousEndTime = CurPos-10000;
                             }
 
-                            if (pef-pbf+1 >= DL)
+                            if ((previousEndFrame - previousBeginFrame) + 1 >= DL)
                             {
-                                memcpy(ImSP, ImS, BufferSize);
-                                memcpy(ImFSP, ImFS, BufferSize);
+                                memcpy(PreviousStoreImage, StoreImage, BufferSize);
+                                memcpy(PreviousSaveImage, SaveImage, BufferSize);
                                 memcpy(ImVESP, ImVES, BufferSize);
                                 memcpy(ImVESSP, ImVESS, BufferSize);
                                 memcpy(ImNESP, ImNES, BufferSize);
@@ -331,14 +327,14 @@ L2:                            if (foundPrevious)
         {
             if (foundPrevious)
             {
-                if (frameNumber-beginFrame <= DL)
+                if (frameNumber - beginFrame <= DL)
                 {
                     for(i=0; i<nn; i++)
                     {
-                        SimpleCombineTwoImages(ImS, ImS_SQ[i], size);
+                        SimpleCombineTwoImages(StoreImage, ImS_SQ[i], size);
                     }
 
-                    bln = AnalyseImage(ImS, w, h);
+                    bln = AnalyseImage(StoreImage, w, h);
 
                     if (bln) 
                     {
@@ -350,15 +346,15 @@ L2:                            if (foundPrevious)
                     }
                     else
                     {
-                        Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
-                        ImToNativeSize(ImFSP, w, h);
-                        ImToNativeSize(ImSP, w, h);
-                        ImToNativeSize(ImVESSP, w, h);
-                        g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
-                        g_pViewImage[1](ImSP, g_Width, g_Height);    
-                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                        Str = VideoTimeToString(previousBeginTime)+std::string("__")+VideoTimeToString(previousEndTime);
+                        ImageToNativeSize(PreviousSaveImage, w, h);
+                        ImageToNativeSize(PreviousStoreImage, w, h);
+                        ImageToNativeSize(ImVESSP, w, h);
+                        g_pViewImage[0](PreviousSaveImage, g_Width, g_Height);                                    
+                        g_pViewImage[1](PreviousStoreImage, g_Width, g_Height);    
+                        SaveRGBImage(PreviousSaveImage, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
                         SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
-                        SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
+                        SaveImage(PreviousStoreImage, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
                         foundPrevious = false;
                         beginFrame = -2;
                     }
@@ -366,51 +362,51 @@ L2:                            if (foundPrevious)
 
                 if (foundPrevious)
                 {
-                    ln = PreCompareTwoSubs(ImSP, ImS, ImRES, lb, le, w, h);
+                    ln = PreCompareTwoSubs(PreviousStoreImage, StoreImage, ImageResult, lb, le, w, h);
                                 
                     if (
-                            (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESP, ImVES, w, h) == 1) ||
-                            (FinalCompareTwoSubs1(ImRES, lb, le, ln, ImNESP, ImNES, w, h) == 1) ||
-                            (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESSP, ImVESS, w, h) == 1) ||
-                            (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESP, ImVESS, w, h) == 1) ||
-                            (FinalCompareTwoSubs2(ImRES, lb, le, ln, ImVESSP, ImVES, w, h) == 1)
+                            (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESP, ImVES, w, h) == 1) ||
+                            (FinalCompareTwoSubs1(ImageResult, lb, le, ln, ImNESP, ImNES, w, h) == 1) ||
+                            (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESSP, ImVESS, w, h) == 1) ||
+                            (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESP, ImVESS, w, h) == 1) ||
+                            (FinalCompareTwoSubs2(ImageResult, lb, le, ln, ImVESSP, ImVES, w, h) == 1)
                         )
                     {
-                        memcpy(ImS, ImRES, BufferSize);
-                        memcpy(ImFS, ImFSP, BufferSize);
+                        memcpy(StoreImage, ImageResult, BufferSize);
+                        memcpy(SaveImage, PreviousSaveImage, BufferSize);
                         memcpy(ImVESS, ImVESSP, BufferSize);
-                        beginFrame = pbf;
-                        beginTime = pbt;
+                        beginFrame = previousBeginFrame;
+                        beginTime = previousBeginTime;
                     }
                     else
                     {
-                        Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
-                        ImToNativeSize(ImFSP, w, h);
-                        ImToNativeSize(ImSP, w, h);
-                        ImToNativeSize(ImVESSP, w, h);
-                        g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
-                        g_pViewImage[1](ImSP, g_Width, g_Height);                                    
-                        SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                        Str = VideoTimeToString(previousBeginTime)+std::string("__")+VideoTimeToString(previousEndTime);
+                        ImageToNativeSize(PreviousSaveImage, w, h);
+                        ImageToNativeSize(PreviousStoreImage, w, h);
+                        ImageToNativeSize(ImVESSP, w, h);
+                        g_pViewImage[0](PreviousSaveImage, g_Width, g_Height);                                    
+                        g_pViewImage[1](PreviousStoreImage, g_Width, g_Height);                                    
+                        SaveRGBImage(PreviousSaveImage, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
                         SaveImage(ImVESSP, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
-                        SaveImage(ImSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
+                        SaveImage(PreviousStoreImage, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
                     }
                 }
             }
 
             if (beginFrame != -2)
             {
-                if (frameNumber-beginFrame > DL)
+                if (frameNumber - beginFrame > DL)
                 {            
                     endTime = CurPos-10000;
-                    Str = VideoTimeToStr(beginTime)+std::string("__")+VideoTimeToStr(endTime);
-                    ImToNativeSize(ImFS, w, h);
-                    ImToNativeSize(ImS, w, h);
-                    ImToNativeSize(ImVESS, w, h);
-                    g_pViewImage[0](ImFS, g_Width, g_Height);                                    
-                    g_pViewImage[1](ImS, g_Width, g_Height);                                    
-                    SaveRGBImage(ImFS, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
+                    Str = VideoTimeToString(beginTime)+std::string("__")+VideoTimeToString(endTime);
+                    ImageToNativeSize(SaveImage, w, h);
+                    ImageToNativeSize(StoreImage, w, h);
+                    ImageToNativeSize(ImVESS, w, h);
+                    g_pViewImage[0](SaveImage, g_Width, g_Height);                                    
+                    g_pViewImage[1](StoreImage, g_Width, g_Height);                                    
+                    SaveRGBImage(SaveImage, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
                     SaveImage(ImVESS, std::string("\\FRDImages\\")+Str+std::string("!!.jpeg"), g_Width, g_Height);
-                    SaveImage(ImS, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
+                    SaveImage(StoreImage, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                        
                 }
             }
 
@@ -428,11 +424,10 @@ L2:                            if (foundPrevious)
     delete[] Im;
     delete[] ImSF;
     delete[] ImNFF;
-    delete[] ImNFFS;
-    delete[] ImS;
-    delete[] ImSP;
-    delete[] ImFS;
-    delete[] ImFSP;
+    delete[] StoreImage;
+    delete[] PreviousStoreImage;
+    delete[] SaveImage;
+    delete[] PreviousSaveImage;
     delete[] ImVE;
     delete[] ImVES;
     delete[] ImVESS;
@@ -442,7 +437,7 @@ L2:                            if (foundPrevious)
     delete[] ImNES;
     delete[] ImNESP;
     delete[] ImHE;
-    delete[] ImRES;
+    delete[] ImageResult;
 
     for (i=0; i<DL; i++)
     {
@@ -464,13 +459,13 @@ L2:                            if (foundPrevious)
     delete[] g_le;
     delete[] g_ln;
 
-    if (g_RunSubSearch == 0)
+    if (!g_RunSubSearch)
     {
         if (beginFrame != -2)
         {
             if (foundPrevious)
             {
-                return pbt;
+                return previousBeginTime;
             }
             return beginTime;
         }
@@ -488,12 +483,12 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     int    *ImT;
     int    *pIm;
     int *ImSF;
-    int *ImSP; //store image prev
+    int *ImSP;  //store image prev
     int *ImSSP;
-    int *ImS; //store image
+    int *ImS;   //store image
     int *ImSS;
     int *ImFSP; //image for save prev
-    int *ImFS; //image for save
+    int *ImFS;  //image for save
     int *ImVE;
     int    *ImVET;
     int    *pImVE;
@@ -524,9 +519,10 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     qint64 *mPrevPos;
     qint64 prev_pos;
 
-    int bln, finded_prev;
+    int bln;
+    bool found_previous;
     
-    g_RunSubSearch = 1;
+    g_RunSubSearch = true;
 
     g_pV = pV;
 
@@ -536,24 +532,23 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
     size = w*h;
     BufferSize = size*sizeof(int);
 
-    //if (g_debug == 1) Begin = GetVideoTime(9, 56, 000);
     pV->SetPos(Begin);
 
     pV->OneStep();
     CurPos = pV->GetPos();
 
-    mtl = (int)(g_mtpl*(double)w);
-    DL = g_DL;
+    mtl = (int)(g_MinTextLengthPercent*(double)w);
+    DL = g_SubFrameLength;
     segh = g_SegmentHeight;
     n = h/g_SegmentHeight;
-    sse = g_sse;
+    sse = g_SubSquareError;
 
     bf = -2;
     ef = -2;
     et = -2;
     fn = 0;
 
-    finded_prev = 0;
+    found_previous = false;
 
     int SIZE = g_Width*g_Height;
 
@@ -601,7 +596,7 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
 
     prevPos = -2;
 
-    while ((CurPos < End) && (g_RunSubSearch == 1) && (CurPos != prevPos))
+    while ((CurPos < End) && g_RunSubSearch && (CurPos != prevPos))
     {        
         while (found_sub == 0)
         {
@@ -643,13 +638,13 @@ qint64 FastSearchSubtitles(CVideo *pV, qint64 Begin, qint64 End)
                 n_fs = 0;
             }
 
-            if ( (mPrevPos[DL-1] >= End) || (g_RunSubSearch == 0) || (mPrevPos[DL-1] == mPrevPos[DL-2]) )
+            if ( (mPrevPos[DL-1] >= End) || !g_RunSubSearch || (mPrevPos[DL-1] == mPrevPos[DL-2]) )
             {
                 break;
             }
         }
 
-        if ( (mPrevPos[DL-1] > End) || (g_RunSubSearch == 0) || (mPrevPos[DL-1] == mPrevPos[DL-2]) ||
+        if ( (mPrevPos[DL-1] > End) || !g_RunSubSearch || (mPrevPos[DL-1] == mPrevPos[DL-2]) ||
              ( (found_sub == false) && (mPrevPos[DL-1] == End) ) )
         {
             break;
@@ -720,7 +715,7 @@ L:                bf = fn;
 
                     if(CompareTwoImages(ImS, ImVES, pIm, pImVE, size) == 0) 
                     {
-                        if (finded_prev == 1) 
+                        if (found_previous) 
                         {
                             memcpy(ImSS, ImS, BufferSize);
 
@@ -735,7 +730,7 @@ L:                bf = fn;
                         goto L;
                     }
 
-                    if ((finded_prev == 0) && (fn-bf == 1))
+                    if (!found_previous && ((fn - bf) == 1))
                     {
                         memcpy(ImS, pIm, BufferSize);
                         memcpy(ImVES, pImVE, BufferSize);
@@ -770,8 +765,14 @@ L:                bf = fn;
                         }
                         else
                         {
-                            if (finded_prev == 0) memcpy(ImSS, ImS_SQ[nn-1], BufferSize);
-                            else memcpy(ImSS, ImS, BufferSize);
+                            if (!found_previous)
+                            {
+                                memcpy(ImSS, ImS_SQ[nn-1], BufferSize);
+                            }
+                            else
+                            {
+                                memcpy(ImSS, ImS, BufferSize);
+                            }
                         }
                     }
 
@@ -779,7 +780,7 @@ L:                bf = fn;
                     {                                                
                         if (CompareTwoSubs(ImS, ImVES, pIm, pImVE, w, h) == 0)
                         {
-L2:                            if (finded_prev == 1)
+L2:                            if (found_previous)
                             {
                                 bln = CompareTwoSubs(ImSP, ImVESP, ImS, ImVES, w, h);
                                 if (bln == 0)
@@ -798,9 +799,9 @@ L2:                            if (finded_prev == 1)
                                 }
                                 else
                                 {
-                                    Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
-                                    ImToNativeSize(ImFSP, w, h);
-                                    ImToNativeSize(ImSSP, w, h);
+                                    Str = VideoTimeToString(pbt)+std::string("__")+VideoTimeToString(pet);
+                                    ImageToNativeSize(ImFSP, w, h);
+                                    ImageToNativeSize(ImSSP, w, h);
                                     g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
                                     g_pViewImage[1](ImSSP, g_Width, g_Height);                                    
                                     SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
@@ -829,11 +830,11 @@ L2:                            if (finded_prev == 1)
                                 memcpy(ImSP, ImS, BufferSize);
                                 memcpy(ImFSP, ImFS, BufferSize);
                                 memcpy(ImVESP, ImVES, BufferSize);                                            
-                                finded_prev = 1;
+                                found_previous = true;
                             }
                             else
                             {
-                                finded_prev = 0;
+                                found_previous = false;
                             }
 
                             goto L;    
@@ -849,7 +850,7 @@ L2:                            if (finded_prev == 1)
         else if ( ( (bln == 0) && (CurPos != prevPos) ) ||
                   ( (bln == 1) && (CurPos == prevPos) ) )
         {
-            if (finded_prev == 1)
+            if (found_previous)
             {
                 if (fn-bf <= DL)
                 {
@@ -864,19 +865,19 @@ L2:                            if (finded_prev == 1)
 
                     if (bln == 0) 
                     {
-                        Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
-                        ImToNativeSize(ImFSP, w, h);
-                        ImToNativeSize(ImSSP, w, h);
+                        Str = VideoTimeToString(pbt)+std::string("__")+VideoTimeToString(pet);
+                        ImageToNativeSize(ImFSP, w, h);
+                        ImageToNativeSize(ImSSP, w, h);
                         g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
                         g_pViewImage[1](ImSSP, g_Width, g_Height);                                    
                         SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
                         SaveImage(ImSSP, std::string("\\FRDImages\\")+Str+std::string("!.jpeg"), g_Width, g_Height);                                                        
-                        finded_prev = 0;
+                        found_previous = false;
                         bf = -2;
                     }
                 }
 
-                if (finded_prev == 1)
+                if (found_previous)
                 {
                     bln = CompareTwoSubs(ImSP, ImVESP, ImS, ImVES, w, h);
                     if (bln == 0)
@@ -896,9 +897,9 @@ L2:                            if (finded_prev == 1)
                     }
                     else
                     {
-                        Str = VideoTimeToStr(pbt)+std::string("__")+VideoTimeToStr(pet);
-                        ImToNativeSize(ImFSP, w, h);
-                        ImToNativeSize(ImSSP, w, h);
+                        Str = VideoTimeToString(pbt)+std::string("__")+VideoTimeToString(pet);
+                        ImageToNativeSize(ImFSP, w, h);
+                        ImageToNativeSize(ImSSP, w, h);
                         g_pViewImage[0](ImFSP, g_Width, g_Height);                                    
                         g_pViewImage[1](ImSSP, g_Width, g_Height);                                    
                         SaveRGBImage(ImFSP, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
@@ -912,9 +913,9 @@ L2:                            if (finded_prev == 1)
                 if (fn-bf > DL)
                 {            
                     et = CurPos-10000;
-                    Str = VideoTimeToStr(bt)+std::string("__")+VideoTimeToStr(et);
-                    ImToNativeSize(ImFS, w, h);
-                    ImToNativeSize(ImSS, w, h);
+                    Str = VideoTimeToString(bt)+std::string("__")+VideoTimeToString(et);
+                    ImageToNativeSize(ImFS, w, h);
+                    ImageToNativeSize(ImSS, w, h);
                     g_pViewImage[0](ImFS, g_Width, g_Height);                                    
                     g_pViewImage[1](ImSS, g_Width, g_Height);                                    
                     SaveRGBImage(ImFS, std::string("\\RGBImages\\")+Str+std::string(".jpeg"), g_Width, g_Height);
@@ -922,7 +923,7 @@ L2:                            if (finded_prev == 1)
                 }
             }
 
-            finded_prev = 0;
+            found_previous = false;
             bf = -2;
 
             if (n_fs >= DL)
@@ -969,11 +970,11 @@ L2:                            if (finded_prev == 1)
     delete[] g_le;
     delete[] g_ln;
 
-    if (g_RunSubSearch == 0)
+    if (!g_RunSubSearch)
     {
         if (bf != -2)
         {
-            if (finded_prev == 1)
+            if (found_previous)
             {
                 return pbt;
             }
@@ -1014,7 +1015,7 @@ int CompareTwoImages(int *Im1, int *ImNFF1, int *Im2, int *ImNFF2, int size)
 
     if (dif2 > dif1) dif1 = dif2;
 
-    if ((double)dif1/(double)cmp > g_sse) return 0;
+    if ((double)dif1/(double)cmp > g_SubSquareError) return 0;
     
     return 1;
 }
@@ -1026,8 +1027,8 @@ int AnalyseImage(int *Im, int w, int h)
     double tp;
     
     segh = g_SegmentHeight;
-    tp = g_tp;
-    mtl = (int)(g_mtpl*(double)w);
+    tp = g_TextPercent;
+    mtl = (int)(g_MinTextLengthPercent*(double)w);
     
     n = h/segh;
     da = w*segh;
@@ -1137,13 +1138,13 @@ int AnalyseImage(int *Im, int w, int h)
     return 0;
 }
 
-int PreCompareTwoSubs(int *Im1, int *Im2, int *ImRES, int *lb, int *le, int w, int h) // return ln
+int PreCompareTwoSubs(int *Image1, int *Image2, int *ImageResult, int *lb, int *le, int w, int h) // return ln
 {
     int i, ib, ie, y, l, ln, bln, val1, val2, segh, dn;
     
     segh = g_SegmentHeight;
 
-    AddTwoImages(Im1, Im2, ImRES, w*h);
+    AddTwoImages(Image1, Image2, ImageResult, w * h);
         
     bln = 0;
     l = 0;
@@ -1151,7 +1152,7 @@ int PreCompareTwoSubs(int *Im1, int *Im2, int *ImRES, int *lb, int *le, int w, i
     {
         for(i=ib; i<ie; i++)
         {
-            if (ImRES[i] == 255) 
+            if (ImageResult[i] == 255) 
             {
                 if (bln == 0)
                 {
@@ -1262,16 +1263,12 @@ int FinalCompareTwoSubs1(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
 {
     int i, ib, ie, k, val1, val2, dif1, dif2, cmb;    
     int bln;
-    double veple;
+    double verticalEdgesPointsLineError;
 
-    //g_pMF->SaveImage(ImVE1, "\\TestImages\\Cmb1!.jpeg", w, h);
-    //g_pMF->SaveImage(ImVE2, "\\TestImages\\Cmb2!.jpeg", w, h);
-    //g_pMF->SaveImage(ImRES, "\\TestImages\\Cmb3!.jpeg", w, h);
-
-    veple = g_veple;
+    verticalEdgesPointsLineError = g_VerticalEdgesPointsLineError;
 
     bln = 1;
-    for(k=0; k<ln; k++)
+    for(k = 0; k < ln; ++k)
     {
         ib = lb[k]*w;
         ie = (le[k]+1)*w;
@@ -1289,19 +1286,31 @@ int FinalCompareTwoSubs1(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
 
                 if (val1 != val2) 
                 {
-                    if (val1 == 255) dif1++;
-                    else dif2++;
+                    if (val1 == 255)
+                    {
+                        dif1++;
+                    }
+                    else
+                    {
+                        dif2++;
+                    }
                 }
                 else 
                 {
-                    if (val1 == 255) cmb++;
+                    if (val1 == 255)
+                    {
+                        cmb++;
+                    }
                 }
             }
         }
 
-        if (dif2 > dif1) dif1 = dif2;
+        if (dif2 > dif1)
+        {
+            dif1 = dif2;
+        }
 
-        if ((double)dif1/(double)cmb > veple) 
+        if ((double)dif1 / (double)cmb > verticalEdgesPointsLineError) 
         {    
             bln = 0;
             break;
@@ -1323,7 +1332,7 @@ int FinalCompareTwoSubs2(int *ImRES, int *lb, int *le, int ln, int *ImVE1, int *
         g_pMF->SaveImage(ImRES, "\\TestImages\\Cmb3!.jpeg", w, h);
     }*/
 
-    veple = g_veple;
+    veple = g_VerticalEdgesPointsLineError;
 
     bln = 1;
     for(k=0; k<ln; k++)
@@ -1444,14 +1453,10 @@ int CompareTwoSubs(int *Im1, int *ImVE1, int *Im2, int *ImVE2, int w, int h)
     int i, ib, ie, k, y, l, ln, bln, val1, val2, dif, dif1, dif2, cmb, segh, dn;
     double veple;
 
-    veple = g_veple;
+    veple = g_VerticalEdgesPointsLineError;
     segh = g_SegmentHeight;
 
     AddTwoImages(Im1, Im2, ImRES, w*h);
-    
-    //g_pMF->SaveImage(ImVE1, "\\TestImages\\Cmb1!.jpeg", w, h);
-    //g_pMF->SaveImage(ImVE2, "\\TestImages\\Cmb2!.jpeg", w, h);
-    //g_pMF->SaveImage(ImRES, "\\TestImages\\Cmb3!.jpeg", w, h);
     
     bln = 0;
     l = 0;
@@ -1639,42 +1644,38 @@ int CompareTwoSubs(int *Im1, int *ImVE1, int *Im2, int *ImVE2, int w, int h)
     return bln;
 }
 
-int SimpleCombineTwoImages(int *Im1, int *Im2, int size)
+int SimpleCombineTwoImages(int *Image1, int *Image2, int size)
 {    
     int i, S;
 
     S = 0;
-    for(i=0; i<size; i++) 
+    for(i = 0; i < size; ++i) 
     {
-        if ((Im1[i]==255) && (Im2[i]==255))
+        if ((Image1[i] == 255) && (Image2[i] == 255))
         {
             S++;
         }
-        else Im1[i] = 0;
+        else
+        {
+            Image1[i] = 0;
+        }
     }
 
     return S;
 }
 
-void AddTwoImages(int *Im1, int *Im2, int *ImRES, int size)
+void AddTwoImages(int *Image1, int *Image2, int *ImageResult, int size)
 {    
     int i;
 
-    memcpy(ImRES, Im1, size*sizeof(int));
+    memcpy(ImageResult, Image1, size*sizeof(int));
 
-    for(i=0; i<size; i++) 
+    for(i = 0; i < size; ++i) 
     {
-        if (Im2[i] == 255) ImRES[i] = 255;
-    }
-}
-
-void AddTwoImages(int *Im1, int *Im2, int size)
-{
-    int i;
-
-    for(i=0; i<size; i++) 
-    {
-        if (Im2[i] == 255) Im1[i] = 255;
+        if (Image2[i] == 255)
+        {
+            ImageResult[i] = 255;
+        }
     }
 }
 
@@ -1694,7 +1695,7 @@ int ConvertImage(int *ImRGB, int *ImF, int *ImVE, int w, int h)
     return res;
 }
 
-int GetAndConvertImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, int *ImNE, int *ImHE, CVideo *pVideo, int w, int h)
+int GetAndConvertImage(int *RGBImage, int *ImFF, int *ImSF, int *ImTF, int *ImVE, int *ImNE, int *ImHE, CVideo *pVideo, int w, int h)
 {
     int *ImRES=g_ImRES11;
     int i, wh, S;
@@ -1702,48 +1703,50 @@ int GetAndConvertImage(int *ImRGB, int *ImFF, int *ImSF, int *ImTF, int *ImVE, i
     
     wh = w*h;
 
-    pVideo->GetRGBImage(ImRGB, g_xmin, g_xmax, g_ymin, g_ymax);
+    pVideo->GetRGBImage(RGBImage, g_xmin, g_xmax, g_ymin, g_ymax);
 
-    res = GetTransformedImage(ImRGB, ImFF, ImSF, ImTF, ImVE, ImNE, ImHE, w, h);
+    res = GetTransformedImage(RGBImage, ImFF, ImSF, ImTF, ImVE, ImNE, ImHE, w, h);
 
     S = 0;
 
     if (res == 1)
     {        
-        for(i=0; i<wh; i++)
+        for(i = 0; i < wh; ++i)
         {
-            if (ImTF[i] == 255) S++;
+            if (ImTF[i] == 255)
+            {
+                ++S;
+            }
         }
     }
 
     return S;
 }
 
-void ImToNativeSize(int *Im, int w, int h)
+void ImageToNativeSize(int *image, int width, int height)
 {
-    int *ImRES=g_ImRES12;
+    int *ImageResult = g_ImRES12;
     int i, j, dj, x, y;
 
-    memcpy(ImRES, Im, w*h*sizeof(int));
+    memcpy(ImageResult, image, width * height * sizeof(int));
 
-    memset(Im, 255, g_Width*g_Height*sizeof(int));
-                
-    i = 0;
-    j = g_ymin*g_Width + g_xmin;
-    dj = g_Width-w;
-    for(y=0; y<h; y++)
+    memset(image, 255, g_Width * g_Height * sizeof(int));
+
+    j = (g_ymin * g_Width) + g_xmin;
+    dj = g_Width - width;
+    for(y = 0; y < height; ++y)
     {
-        for(x=0; x<w; x++)
+        for(x = 0; x < width; ++x)
         {
-            Im[j] = ImRES[i];
-            i++;
-            j++;
+            image[j] = ImageResult[i];
+            ++i;
+            ++j;
         }
         j += dj; 
     }
 }
 
-std::string VideoTimeToStr(qint64 pos)
+std::string VideoTimeToString(qint64 pos)
 {
     std::string Str;
     static char str[100];

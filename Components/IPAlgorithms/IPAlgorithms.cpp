@@ -22,8 +22,8 @@
 #include <QtCore/QtGlobal>
 #include <QImage>
 
-void    (*g_pViewRGBImage)(int *Image, int width, int height);
-void    (*g_pViewImage[2])(int *Image, int width, int height);
+void (*g_pViewRGBImage)(int *Image, int width, int height);
+void (*g_pViewImage[2])(int *Image, int width, int height);
 
 int g_Width;
 int g_Height;
@@ -34,7 +34,7 @@ int g_xmax;
 int g_ymin;
 int g_ymax;
 
-std::string  g_Directory;
+std::string g_Directory;
 
 double g_ModerateThreshold = 0.4;
 double g_ModerateVerticalEdgesThreshold = 0.3;
@@ -105,12 +105,12 @@ int *g_ImSF = 0;
 int *g_ImFF = 0;
 int *g_ImRR = 0;
 
-int *g_ImRGB = 0;
+int *g_RGBImage = 0;
 int *g_ImF[6] = {0, 0, 0, 0, 0, 0};
 
 #define MAX_EDGE_STR 786432 //на сам деле ~ 32*3*255
 
-int g_edgeStr[MAX_EDGE_STR];
+int g_EdgeStrength[MAX_EDGE_STR];
 int *g_pLB = 0;
 int *g_pLE = 0;
 
@@ -287,14 +287,14 @@ void InitIPData(int w, int h, int scale)
     //-------------
 
     //-------------
-    memset(g_edgeStr, 0, MAX_EDGE_STR*sizeof(int));
+    memset(g_EdgeStrength, 0, MAX_EDGE_STR*sizeof(int));
     //-------------
 
     //-------------
     size = g_Width*g_Height;
 
-    g_ImRGB = new int[size];
-    memset(g_ImRGB, 0, size*sizeof(int));
+    g_RGBImage = new int[size];
+    memset(g_RGBImage, 0, size*sizeof(int));
 
     for(i=0; i<6; i++)
     {
@@ -688,10 +688,10 @@ void ReleaseIPData()
     //-------------
 
     //-------------
-    if (g_ImRGB)
+    if (g_RGBImage)
     {
-        delete[] g_ImRGB;
-        g_ImRGB = 0;
+        delete[] g_RGBImage;
+        g_RGBImage = 0;
     }
 
     for(i=0; i<6; i++)
@@ -1093,14 +1093,14 @@ void ReleaseIPData()
     //-------------
 }
 
-void RGB_to_YUV(int *ImIn, int *ImY, int *ImU, int *ImV, int w, int h)
+void RGB_to_YUV(int *inImage, int *ImageY, int *ImageU, int *ImageV, int width, int height)
 {
     uchar *color;
     int i, r, g, b, y, u, v;
 
-    for(i = 0; i < w * h; ++i)
+    for(i = 0; i < width * height; ++i)
     {
-        color = (uchar*)(&ImIn[i]);
+        color = (uchar*)(inImage + i);
 
         r = color[2];
         g = color[1];
@@ -1115,26 +1115,26 @@ void RGB_to_YUV(int *ImIn, int *ImY, int *ImU, int *ImV, int w, int h)
         //---(0.615 * 2^16)(-0.515 * 2^16)(-0.100 * 2^16)---
         v = 40305 * r - 33751 * g - 6554 * b;
         
-        ImY[i] = y >> 16;
+        ImageY[i] = y >> 16;
         
         if (u >= 0)
         {
-            ImU[i] = u >> 16;
+            ImageU[i] = u >> 16;
         }
         else
         {
             u = -u;
-            ImU[i] = -(u >> 16);
+            ImageU[i] = -(u >> 16);
         }
         
         if (v >= 0)
         {
-            ImV[i] = v >> 16;
+            ImageV[i] = v >> 16;
         }
         else
         {
             v = -v;
-            ImV[i] = -(v >> 16);
+            ImageV[i] = -(v >> 16);
         }
     }
 }
@@ -1172,14 +1172,14 @@ void YIQ_to_RGB(int Y, int I, int Q, int &R, int &G, int &B, int max_val)
     }
 }
 
-void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h)
+void RGB_to_YIQ(int *InImage, int *ImageY, int *ImageI, int *ImageQ, int width, int height)
 {
     uchar *color;
     int i, r, g, b, Y, I, Q;
 
-    for(i=0; i<w*h; i++)
+    for(i = 0; i< width * height; ++i)
     {
-        color = (uchar*)(&ImIn[i]);
+        color = (uchar*)(InImage + i);
 
         r = color[2];
         g = color[1];
@@ -1194,41 +1194,41 @@ void RGB_to_YIQ(int *ImIn, int *ImY,int *ImI,int *ImQ, int w, int h)
         //---(0.21147017*2^16)(-0.52261711*2^16)(0.31114694*2^16)---
         Q = 13859*r - 34250*g + 20391*b;
         
-        ImY[i] = Y >> 16;
+        ImageY[i] = Y >> 16;
         
         if (I >= 0)
         {
-            ImI[i] = I >> 16;
+            ImageI[i] = I >> 16;
         }
         else
         {
             I = -I;
-            ImI[i] = -(I >> 16);
+            ImageI[i] = -(I >> 16);
         }
         
         if (Q >= 0)
         {
-            ImQ[i] = Q >> 16;
+            ImageQ[i] = Q >> 16;
         }
         else
         {
             Q = -Q;
-            ImQ[i] = -(Q >> 16);
+            ImageQ[i] = -(Q >> 16);
         }
     }
 }
 
-void RGB_to_YIQ(int *ImRGB, qint64 *ImYIQ, int w, int h)
+void RGB_to_YIQ(int *RGBImage, qint64 *YIQImage, int width, int height)
 {
     uchar *color;
     int i;
     int r, g, b, Y, I, Q;
-    int *pImRGB = ImRGB;
-    __int64 *pImYIQ = ImYIQ;
+    int *pImRGB = RGBImage;
+    __int64 *pImYIQ = YIQImage;
     __int64 val = 0;
     short *pval = (short*)(&val);
 
-    for(i=0; i<w*h; i++, pImRGB++, pImYIQ++)
+    for(i=0; i< width * height; ++i, ++pImRGB, ++pImYIQ)
     {
         color = (uchar*)pImRGB;
 
@@ -1273,44 +1273,71 @@ void RGB_to_YIQ(int *ImRGB, qint64 *ImYIQ, int w, int h)
     }
 }
 
-void ImprovedSobelMEdge(int *ImIn, int *ImMOE, int w, int h)
+void ImprovedSobelMEdge(int *ImIn, int *ImMOE, int width, int height)
 {
     int x, y, mx, my, val, val1, val2, val3, val4, max;
     int* pIm = ImIn;
     int* pImMOE = ImMOE;
 
-    mx = w-1;
-    my = h-1;
-    pIm += w+1;
-    pImMOE += w+1;
-    for(y=1; y<my; y++, pIm += 2, pImMOE += 2)
-    for(x=1; x<mx; x++, pIm++, pImMOE++)
+    mx = width - 1;
+    my = height - 1;
+    pIm += width + 1;
+    pImMOE += width + 1;
+
+    for(y = 1; y < my; ++y, pIm += 2, pImMOE += 2)
     {
-        val1 = *(pIm - w - 1) - *(pIm + w + 1);
+        for(x = 1; x < mx; ++x, ++pIm, ++pImMOE)
+        {
+            val1 = *(pIm - width - 1) - *(pIm + width + 1);
 
-        val2 = *(pIm - w + 1) - *(pIm + w - 1);
+            val2 = *(pIm - width + 1) - *(pIm + width - 1);
 
-        val3 = *(pIm - w) - *(pIm + w);
+            val3 = *(pIm - width) - *(pIm + width);
 
-        val4 = *(pIm - 1) - *(pIm + 1);
+            val4 = *(pIm - 1) - *(pIm + 1);
 
-        val = 3*(val1 + val2) + 10*val3;
-        if (val < 0) max = -val;
-        else max = val;
+            val = (3 * (val1 + val2)) + (10 * val3);
+            if (val < 0)
+            {
+                max = -val;
+            }
+            else
+            {
+                max = val;
+            }
 
-        val = 3*(val1 - val2) + 10*val4;
-        if (val < 0) val = -val;
-        if (max < val) max = val;
+            val = (3 * (val1 - val2)) + (10 * val4);
+            if (val < 0)
+            {
+                val = -val;
+            }
+            if (max < val)
+            {
+                max = val;
+            }
 
-        val = 3*(val3 + val4) + 10*val1;
-        if (val < 0) val = -val;
-        if (max < val) max = val;
+            val = (3 * (val3 + val4)) + (10 * val1);
+            if (val < 0)
+            {
+                val = -val;
+            }
+            if (max < val)
+            {
+                max = val;
+            }
 
-        val = 3*(val3 - val4) + 10*val2;
-        if (val < 0) val = -val;
-        if (max < val) max = val;
+            val = (3 * (val3 - val4)) + (10 * val2);
+            if (val < 0)
+            {
+                val = -val;
+            }
+            if (max < val)
+            {
+                max = val;
+            }
 
-        *pImMOE = max;
+            *pImMOE = max;
+        }
     }
 }
 
@@ -1561,25 +1588,31 @@ void FastImprovedSobelNEdge(int *ImIn, int *ImNOE, int w, int h)
     int* pIm = ImIn;
     int* pImNOE = ImNOE;
 
-    mx = w-1;
-    my = h-1;
-    pIm += w+1;
-    pImNOE += w+1;
-    for(y=1; y<my; y++, pIm += 2, pImNOE += 2)
-    for(x=1; x<mx; x++, pIm++, pImNOE++)
+    mx = w - 1;
+    my = h - 1;
+    pIm += w + 1;
+    pImNOE += w + 1;
+
+    for(y = 1; y < my; ++y, pIm += 2, pImNOE += 2)
     {
-        val1 = *(pIm - w);
-        val2 = *(pIm - w - 1);
+        for(x = 1; x < mx; ++x, ++pIm, ++pImNOE)
+        {
+            val1 = *(pIm - w);
+            val2 = *(pIm - w - 1);
 
-        val1 += *(pIm - 1) - *(pIm + 1);
+            val1 += *(pIm - 1) - *(pIm + 1);
 
-        val1 -= *(pIm + w);
-        val2 -= *(pIm + w + 1);
+            val1 -= *(pIm + w);
+            val2 -= *(pIm + w + 1);
 
-        val = 3*val1 + 10*val2;
+            val = (3 * val1) + (10 * val2);
 
-        if (val<0) val = -val;
-        *pImNOE = val;
+            if (val < 0)
+            {
+                val = -val;
+            }
+            *pImNOE = val;
+        }
     }
 }
 
@@ -1599,17 +1632,17 @@ void FindAndApplyGlobalThreshold(int *Im, int w, int h)
             MX = val;            
         }
 
-        g_edgeStr[val]++;
+        g_EdgeStrength[val]++;
     }
 
     imx = start;
-    mx = g_edgeStr[imx];
+    mx = g_EdgeStrength[imx];
     for(i=start; i<=20; i++)
     {
-        if(g_edgeStr[i] > mx) 
+        if(g_EdgeStrength[i] > mx) 
         {
             imx = i;
-            mx = g_edgeStr[i];
+            mx = g_EdgeStrength[i];
         }
     }
 
@@ -1620,14 +1653,14 @@ void FindAndApplyGlobalThreshold(int *Im, int w, int h)
     val = 0;
     for(i=beg; i<=end; i++)
     {
-        val += g_edgeStr[i]; 
+        val += g_EdgeStrength[i]; 
     }
     val /= (end-beg+1);
     val = (9*val)/10;
 
     i = imx+1;
 
-    while((g_edgeStr[i] > val) && (i < MX)) i++;
+    while((g_EdgeStrength[i] > val) && (i < MX)) i++;
     thr = i;
 
     for(i=0; i<w*h; i++)
@@ -1635,7 +1668,7 @@ void FindAndApplyGlobalThreshold(int *Im, int w, int h)
         if (Im[i]<thr) Im[i] = 0;
     }
 
-    memset(g_edgeStr, 0, (MX+1)*sizeof(int));
+    memset(g_EdgeStrength, 0, (MX+1)*sizeof(int));
 }
 
 void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
@@ -1677,29 +1710,29 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
             if (val > max) max = val;                        
             if (val < min) min = val;
 
-            g_edgeStr[val]++;            
+            g_EdgeStrength[val]++;            
         }
         mid = (min+max)/2;
 
         li = min;
-        lmax = g_edgeStr[li];
+        lmax = g_EdgeStrength[li];
         for(i=min; i<mid; i++)
         {
-            if (g_edgeStr[i]>lmax)
+            if (g_EdgeStrength[i]>lmax)
             {
                 li = i;
-                lmax = g_edgeStr[li];
+                lmax = g_EdgeStrength[li];
             }
         }
 
         ri = mid;
-        rmax = g_edgeStr[ri];
+        rmax = g_EdgeStrength[ri];
         for(i=mid; i<=max; i++)
         {
-            if (g_edgeStr[i]>rmax)
+            if (g_EdgeStrength[i]>rmax)
             {
                 ri = i;
-                rmax = g_edgeStr[ri];
+                rmax = g_EdgeStrength[ri];
             }
         }
 
@@ -1716,10 +1749,10 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
 
         for(i=li+1; i<ri; i++)
         {
-            if (g_edgeStr[i]<val) 
+            if (g_EdgeStrength[i]<val) 
             {
                 thr = i;
-                val = g_edgeStr[i];
+                val = g_EdgeStrength[i];
             }
         }
 
@@ -1730,7 +1763,7 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
             if (Im[i]<thr) Im[i] = 0;
         }
 
-        memset(g_edgeStr, 0, (MX+1)*sizeof(int));
+        memset(g_EdgeStrength, 0, (MX+1)*sizeof(int));
     }
 
     dh = h%dh;
@@ -1751,29 +1784,29 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
             if (val > max) max = val;                        
             if (val < min) min = val;
             
-            g_edgeStr[val]++;            
+            g_EdgeStrength[val]++;            
         }
         mid = (min+max)/2;
 
         li = min;
-        lmax = g_edgeStr[li];
+        lmax = g_EdgeStrength[li];
         for(i=min; i<mid; i++)
         {
-            if (g_edgeStr[i]>lmax)
+            if (g_EdgeStrength[i]>lmax)
             {
                 li = i;
-                lmax = g_edgeStr[li];
+                lmax = g_EdgeStrength[li];
             }
         }
 
         ri = mid;
-        rmax = g_edgeStr[ri];
+        rmax = g_EdgeStrength[ri];
         for(i=mid; i<=max; i++)
         {
-            if (g_edgeStr[i]>rmax)
+            if (g_EdgeStrength[i]>rmax)
             {
                 ri = i;
-                rmax = g_edgeStr[ri];
+                rmax = g_EdgeStrength[ri];
             }
         }
 
@@ -1790,10 +1823,10 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
 
         for(i=li+1; i<ri; i++)
         {
-            if (g_edgeStr[i]<val) 
+            if (g_EdgeStrength[i]<val) 
             {
                 thr = i;
-                val = g_edgeStr[i];
+                val = g_EdgeStrength[i];
             }
         }
 
@@ -1804,7 +1837,7 @@ void FindAndApplyLocalThresholding(int *Im, int dw, int dh, int w, int h)
             if (Im[i]<thr) Im[i] = 0;
         }
         
-        memset(g_edgeStr, 0, (MX+1)*sizeof(int));
+        memset(g_EdgeStrength, 0, (MX+1)*sizeof(int));
     }
 }
 
@@ -1866,7 +1899,7 @@ void ApplyModerateThreshold_MMX_SSE(int *Im, double mthr, int w, int h)
     }
 }
 
-void AplyESS(int *ImIn, int* ImOut, int w, int h)
+void ApplyEdgeStrengthSmoothing(int *ImIn, int* ImOut, int w, int h)
 {
     int i, x, y, mx, my, val;
 
@@ -1887,7 +1920,7 @@ void AplyESS(int *ImIn, int* ImOut, int w, int h)
     }
 }
 
-void AplyECP(int *ImIn, int* ImOut, int w, int h)
+void ApplyEdgeClusteringPower(int *ImIn, int* ImOut, int w, int h)
 {
     int i, ii, x, y, mx, my, val;
 
@@ -2088,17 +2121,17 @@ void EasyBorderClear(int *Im, int w, int h)
 {
     int i, y;
 
-    memset(Im, 0, w*sizeof(int));
-    memset(&Im[w*(h-1)], 0, w*sizeof(int));
+    memset(Im, 0, w * sizeof(int));
+    memset(Im + (w * (h - 1)), 0, w * sizeof(int));
 
     i = 0;
-    for(y=0; y<h; y++, i+=w)
+    for(y = 0; y < h; ++y, i += w)
     {
         Im[i] = 0;
     }
 
-    i = w-1;
-    for(y=0; y<h; y++, i+=w)
+    i = w - 1;
+    for(y = 0; y < h; ++y, i += w)
     {
         Im[i] = 0;
     }
@@ -2163,28 +2196,32 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
     ImprovedSobelMEdge(g_ImageU, g_ImUMOE, w, h);
     ImprovedSobelMEdge(g_ImageV, g_ImVMOE, w, h);
 
-    mx = w-1;
-    my = h-1;
-    i = w+1;
-    for(y=1; y<my; y++, i+=2)
-    for(x=1; x<mx; x++, i++)
+    mx = w - 1;
+    my = h - 1;
+    i = w + 1;
+    for(y = 1; y < my; ++y, i += 2)
     {
-        g_ImCMOE[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
+        for(x = 1; x < mx; ++x, ++i)
+        {
+            g_ImCMOE[i] = g_ImYMOE[i] + g_ImUMOE[i] + g_ImVMOE[i];
+        }
     }
     
     FindAndApplyGlobalThreshold(g_ImCMOE, w, h);    
     FindAndApplyLocalThresholding(g_ImCMOE, 32, h, w, h);
 
-    AplyESS(g_ImCMOE, g_ImRES2, w, h);
-    AplyECP(g_ImRES2, g_ImRES3, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImCMOE, g_ImRES2, w, h);
+    ApplyEdgeClusteringPower(g_ImRES2, g_ImRES3, w, h);
 
     mx = w-2;
     my = h-2;
     i = ((w+1)<<1);
     for(y=2; y<my; y++, i+=4)
-    for(x=2; x<mx; x++, i++)
     {
-        g_ImRES3[i] = (g_ImRES2[i] + g_ImRES3[i])/2; 
+        for(x=2; x<mx; x++, i++)
+        {
+            g_ImRES3[i] = (g_ImRES2[i] + g_ImRES3[i])/2; 
+        }
     }
     ResizeGrayscaleImage4x(g_ImRES3, g_ImRES4, w, h);
 
@@ -2192,24 +2229,28 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
     my = h-1;
     i = w+1;
     for(y=1; y<my; y++, i+=2)
-    for(x=1; x<mx; x++, i++)
     {
-        g_ImCMOE[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
+        for(x=1; x<mx; x++, i++)
+        {
+            g_ImCMOE[i] = g_ImYMOE[i] + (g_ImUMOE[i] + g_ImVMOE[i])*5;
+        }
     }
     
     FindAndApplyGlobalThreshold(g_ImCMOE, w, h);    
     FindAndApplyLocalThresholding(g_ImCMOE, 32, h, w, h);
 
-    AplyESS(g_ImCMOE, g_ImRES2, w, h);
-    AplyECP(g_ImRES2, g_ImRES3, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImCMOE, g_ImRES2, w, h);
+    ApplyEdgeClusteringPower(g_ImRES2, g_ImRES3, w, h);
 
     mx = w-2;
     my = h-2;
     i = ((w+1)<<1);
     for(y=2; y<my; y++, i+=4)
-    for(x=2; x<mx; x++, i++)
     {
-        g_ImRES3[i] = (g_ImRES2[i] + g_ImRES3[i])/2; 
+        for(x=2; x<mx; x++, i++)
+        {
+            g_ImRES3[i] = (g_ImRES2[i] + g_ImRES3[i])/2; 
+        }
     }
     ResizeGrayscaleImage4x(g_ImRES3, ImRES, w, h);
     
@@ -2219,26 +2260,30 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
     
     SS = 0;
     for (y=yb, ib=yb*w+xb; y<ye; y++, ib+=w)
-    for (x=xb, i=ib; x<xe; x++, i++)
     {
-        if (ImSF[i] == 255)
+        for (x=xb, i=ib; x<xe; x++, i++)
         {
-            SS++;
+            if (ImSF[i] == 255)
+            {
+                SS++;
+            }
         }
     }
 
     MX = 0;
     for (y=yb, ib=yb*w+xb; y<ye; y++, ib+=w)
-    for (x=xb, i=ib; x<xe; x++, i++)
     {
-        g_edgeStr[ImRES[i]]++;
-        if (ImRES[i] > MX) MX = ImRES[i];
+        for (x=xb, i=ib; x<xe; x++, i++)
+        {
+            g_EdgeStrength[ImRES[i]]++;
+            if (ImRES[i] > MX) MX = ImRES[i];
+        }
     }
 
     S = 0; 
     for (i=MX; i>0; i--)
     {
-        S += g_edgeStr[i];
+        S += g_EdgeStrength[i];
         if (S > SS/2) break;
     }
     thr = i+1;
@@ -2256,7 +2301,7 @@ void GetFirstFilteredImage(int *ImRGB, int *ImSF, int *ImRES, int w, int h, int 
         }
     }
 
-    memset(g_edgeStr, 0, (MX+1)*sizeof(int));
+    memset(g_EdgeStrength, 0, (MX + 1) * sizeof(int));
 }
 
 int GetTransformedImage(int *RGBImage, int *ImFF, int *ImSF, int *ImTF, int *ImVE, int *ImNE, int *ImHE, int W, int H)
@@ -2322,8 +2367,8 @@ int GetTransformedImage(int *RGBImage, int *ImFF, int *ImSF, int *ImTF, int *ImV
     FindAndApplyGlobalThreshold(g_ImCMOE, w, h);    
     FindAndApplyLocalThresholding(g_ImCMOE, w, 32, w, h);
 
-    AplyESS(g_ImCMOE, g_ImRES2, w, h);
-    AplyECP(g_ImRES2, g_ImRES3, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImCMOE, g_ImRES2, w, h);
+    ApplyEdgeClusteringPower(g_ImRES2, g_ImRES3, w, h);
 
     mx = w-2;
     my = h-2;
@@ -2354,8 +2399,8 @@ int GetTransformedImage(int *RGBImage, int *ImFF, int *ImSF, int *ImTF, int *ImV
     FindAndApplyGlobalThreshold(g_ImCMOE, w, h);    
     FindAndApplyLocalThresholding(g_ImCMOE, w, 32, w, h);
 
-    AplyESS(g_ImCMOE, g_ImRES2, w, h);
-    AplyECP(g_ImRES2, g_ImRES3, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImCMOE, g_ImRES2, w, h);
+    ApplyEdgeClusteringPower(g_ImRES2, g_ImRES3, w, h);
 
     mx = w-2;
     my = h-2;
@@ -2490,11 +2535,20 @@ int GetTransformedImage(int *RGBImage, int *ImFF, int *ImSF, int *ImTF, int *ImV
     res = SecondFiltration(ImSF, RGBImage, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
     memcpy(ImTF, ImSF, W*H*sizeof(int));
 
-    if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
+    if (res == 1)
+    {
+        res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
+    }
 
-    if (res == 1) res = SecondFiltration(ImTF, RGBImage, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
+    if (res == 1)
+    {
+        res = SecondFiltration(ImTF, RGBImage, ImVE, ImNE, g_pLB, g_pLE, N, W, H);
+    }
 
-    if (res == 1) res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
+    if (res == 1)
+    {
+        res = ThirdFiltration(ImTF, ImVE, ImNE, ImHE, g_pLB, g_pLE, N, W, H);
+    }
 
     return res;
 }
@@ -2649,8 +2703,8 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     FindAndApplyGlobalThreshold(g_ImCMOE, w, h);    
     FindAndApplyLocalThresholding(g_ImCMOE, w, 32, w, h);
 
-    AplyESS(g_ImCMOE, g_ImRES2, w, h);
-    AplyECP(g_ImRES2, g_ImRES3, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImCMOE, g_ImRES2, w, h);
+    ApplyEdgeClusteringPower(g_ImRES2, g_ImRES3, w, h);
 
     mx = w-2;
     my = h-2;
@@ -2681,8 +2735,8 @@ int GetFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     FindAndApplyGlobalThreshold(g_ImCMOE, w, h);    
     FindAndApplyLocalThresholding(g_ImCMOE, w, 32, w, h);
 
-    AplyESS(g_ImCMOE, g_ImRES2, w, h);
-    AplyECP(g_ImRES2, g_ImRES3, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImCMOE, g_ImRES2, w, h);
+    ApplyEdgeClusteringPower(g_ImRES2, g_ImRES3, w, h);
 
     mx = w-2;
     my = h-2;
@@ -2903,8 +2957,8 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     FindAndApplyGlobalThreshold(g_ImRES4, w, h);    
     FindAndApplyLocalThresholding(g_ImRES4, w, 32, w, h);
 
-    AplyESS(g_ImRES4, g_ImRES6, w, h);
-    AplyECP(g_ImRES6, g_ImRES7, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImRES4, g_ImRES6, w, h);
+    ApplyEdgeClusteringPower(g_ImRES6, g_ImRES7, w, h);
 
     mx = w-2;
     my = h-2;
@@ -2926,8 +2980,8 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
     FindAndApplyGlobalThreshold(g_ImRES5, w, h);    
     FindAndApplyLocalThresholding(g_ImRES5, w, 32, w, h);
 
-    AplyESS(g_ImRES5, g_ImRES6, w, h);
-    AplyECP(g_ImRES6, g_ImRES7, w, h);
+    ApplyEdgeStrengthSmoothing(g_ImRES5, g_ImRES6, w, h);
+    ApplyEdgeClusteringPower(g_ImRES6, g_ImRES7, w, h);
 
     mx = w-2;
     my = h-2;
@@ -3006,12 +3060,12 @@ int GetVeryFastTransformedImage(int *ImRGB, int *ImF, int *ImVE, int W, int H)
 
 int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE, int N, int w, int h)
 {
-    int *lb=g_pLB5, *le=g_pLE5;
-    int segh, ln;
+    int *lb = g_pLB5, *le = g_pLE5;
+    int segmentHeight, ln;
     int x, y, da, ia, ib, ic, ie, i, k, l, ll, val, val1, val2, offset;
     int bln, res;
-    int w_2, dw, dw2;
-    double tcpo;
+    int halfWidth, dw, dw2;
+    double centerTextOffsetPercent;
     int mpn;
     double mpd, mpved, mpned;
     int segw, msegc, smcd, sb, ns, ngs;
@@ -3030,18 +3084,18 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
     msegc = g_MinSegmentsCount;
     smcd = g_MinSumMultipleColorDifference;
 
-    segh = g_SegmentHeight;
-    w_2 = w/2;
-    dw = (int)(g_DistanceBetweenText*(double)g_Width);
-    dw2 = (int)(g_CenterTextOffset*(double)g_Width);
-    tcpo = g_CenterTextOffsetPercent;
+    segmentHeight = g_SegmentHeight;
+    halfWidth = w / 2;
+    dw = (int)(g_DistanceBetweenText * (double)g_Width);
+    dw2 = (int)(g_CenterTextOffset * (double)g_Width);
+    centerTextOffsetPercent = g_CenterTextOffsetPercent;
 
     mpn = g_MinPointsNumber;
     mpd = g_MinPointsDensity;
     mpved = g_MinVerticalEdgesPointsDensity;
     mpned = g_MinNEdgesPointsDensity;
     
-    da = segh*w;
+    da = segmentHeight*w;
 
     for(k=0; k<N; k++)
     {
@@ -3056,7 +3110,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
             // searching segments
             for(x=0; x<w; x++)
             {
-                for(y=0, i=ia+x; y<segh; y++, i+=w)
+                for(y=0, i=ia+x; y<segmentHeight; y++, i+=w)
                 {    
                     if(Im[i] == 255) 
                     {
@@ -3105,7 +3159,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     
                     //удаляем наиболее удаленую подстроку
                     val = (le[ll]-lb[ll]+1)*sizeof(int);
-                    for(y=0, i=ia+lb[ll]; y<segh; y++, i+=w)
+                    for(y=0, i=ia+lb[ll]; y<segmentHeight; y++, i+=w)
                     {
                         memset(&Im[i], 0, val);
                     }
@@ -3131,11 +3185,11 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
             // есть не удаленые подстроки
             
             // потенциальный текст не расположен в обоих половинах изображения ?
-            if ((lb[0]>=w_2)||(le[ln-1]<=w_2))
+            if ((lb[0]>=halfWidth)||(le[ln-1]<=halfWidth))
             {
                 //удаляем оставшиеся подстроки
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3163,7 +3217,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     {
                         ll = 0;
                         val = (le[ll]-lb[ll]+1)*sizeof(int);
-                        for(y=0, i=ia+lb[ll]; y<segh; y++, i+=w)
+                        for(y=0, i=ia+lb[ll]; y<segmentHeight; y++, i+=w)
                         {
                             memset(&Im[i], 0, val);
                         }
@@ -3178,7 +3232,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     {
                         ll = l;
                         val = (le[ll]-lb[ll]+1)*sizeof(int);
-                        for(y=0, i=ia+lb[ll]; y<segh; y++, i+=w)
+                        for(y=0, i=ia+lb[ll]; y<segmentHeight; y++, i+=w)
                         {
                             memset(&Im[i], 0, val);
                         }
@@ -3186,12 +3240,12 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
                     l--;
 
-                    if (lb[0] >= w_2) 
+                    if (lb[0] >= halfWidth) 
                     {
                         bln = 0;
                         break;
                     }
-                    if (le[l] <= w_2)
+                    if (le[l] <= halfWidth)
                     {
                         bln = 0;
                         break;
@@ -3209,7 +3263,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 if(bln == 0)
                 {
                     val = (le[l]-lb[0]+1)*sizeof(int);
-                    for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                    for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                     {
                         memset(&Im[i], 0, val);
                     }
@@ -3233,7 +3287,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 {
                     //удаляем эти под строки
                     val = (le[1]-lb[0]+1)*sizeof(int);
-                    for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                    for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                     {
                         memset(&Im[i], 0, val);
                     }
@@ -3263,7 +3317,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     
                     //удаляем наиболее удаленую подстроку
                     val = (le[ll]-lb[ll]+1)*sizeof(int);
-                    for(y=0, i=ia+lb[ll]; y<segh; y++, i+=w)
+                    for(y=0, i=ia+lb[ll]; y<segmentHeight; y++, i+=w)
                     {
                         memset(&Im[i], 0, val);
                     }
@@ -3287,12 +3341,12 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
             offset = le[ln-1]+lb[0]-w;            
             if (offset<0) offset = -offset;
             
-            // потенциальный текст слишком сильно сдвинут от центра изображения ?
+            // the text is potentially shifted from the center of the image?
             if (offset>dw2)
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3300,12 +3354,12 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 continue;
             }
 
-            // потенциальный текст не расположен в обоих половинах изображения ?
-            if ((lb[0]>=w_2)||(le[ln-1]<=w_2))
+            // potential text is located in both halves of the image?
+            if ((lb[0]>=halfWidth)||(le[ln-1]<=halfWidth))
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3324,11 +3378,11 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 val = 2*le[ln-1] - w;
             }
 
-            if ((double)offset/(double)val > tcpo)
+            if ((double)offset/(double)val > centerTextOffsetPercent)
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3343,7 +3397,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 S2 = 0;
                 ib = ia + lb[0];
                 ic = ia + le[ln-1];
-                for(y=0; y<segh; y++, ib += w, ic += w)
+                for(y=0; y<segmentHeight; y++, ib += w, ic += w)
                 {
                     for(i = ib; i<=ic; i++)
                     {
@@ -3352,11 +3406,11 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     }
                 }
 
-                SS = (le[ln-1]-lb[0]+1)*segh;
+                SS = (le[ln-1]-lb[0]+1)*segmentHeight;
 
                 if ( ((double)S1/(double)SS < mpved) && ((double)S2/(double)SS < mpned) )
                 {                    
-                    //определяем подстроку наиболее удаленую от центра
+                    //determine the string furthest from the center
                     val1 = lb[ln-1]+le[ln-1]-w;
                     val2 = lb[0]+le[0]-w;
                     if (val1<0) val1 = -val1;
@@ -3365,9 +3419,9 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                     if (val1>val2) ll = ln-1;
                     else ll = 0;
                     
-                    //удаляем наиболее удаленую подстроку
+                    //remove the outermost string
                     val = (le[ll]-lb[ll]+1)*sizeof(int);
-                    for(y=0, i=ia+lb[ll]; y<segh; y++, i+=w)
+                    for(y=0, i=ia+lb[ll]; y<segmentHeight; y++, i+=w)
                     {
                         memset(&Im[i], 0, val);
                     }
@@ -3391,12 +3445,12 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
             offset = le[ln-1]+lb[0]-w;            
             if (offset<0) offset = -offset;
             
-            // потенциальный текст слишком сильно сдвинут от центра изображения ?
+            // the text is potentially shifted from the center of the image?
             if (offset>dw2)
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3404,12 +3458,12 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 continue;
             }
 
-            // потенциальный текст не расположен в обоих половинах изображения ?
-            if ((lb[0]>=w_2)||(le[ln-1]<=w_2))
+            // potential text is located in both halves of the image?
+            if ((lb[0]>=halfWidth)||(le[ln-1]<=halfWidth))
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3428,11 +3482,11 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 val = 2*le[ln-1] - w;
             }
 
-            if ((double)offset/(double)val > tcpo)
+            if ((double)offset/(double)val > centerTextOffsetPercent)
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3440,15 +3494,15 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
                 continue;
             }
 
-            // определяем число течек в строке толщиной segh
-            // а также их плотность
+            // Determine the number of points in the line thickness segh
+            // as well as their density
             ib = ia;
             
             S = 0;
             for(ll=0; ll<ln; ll++)  S += le[ll]-lb[ll]+1;
-            S *= segh;
+            S *= segmentHeight;
 
-            for(y=0; y<segh; y++, ib += w)
+            for(y=0; y<segmentHeight; y++, ib += w)
             {
                 for(ll=0; ll<ln; ll++)
                 {                    
@@ -3465,9 +3519,9 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
             if ((nVE < mpn) || ((double)nVE/(double)S < mpved))
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3477,9 +3531,9 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
             if ((nNE < mpn) || ((double)nNE/(double)S < mpned))
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }
@@ -3506,7 +3560,7 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
             for(l=0, ib=ia+sb; l<ns; l++, ib+=segw)
             {
                 bln = 1;
-                for(y=0, ic=ib; y<segh; y++, ic+=w)
+                for(y=0, ic=ib; y<segmentHeight; y++, ic+=w)
                 {
                     color = (uchar*)(&ImRGB[ic]);
                     r0 = color[2];
@@ -3553,9 +3607,9 @@ int SecondFiltration(int* Im, int* ImRGB, int* ImVE, int* ImNE, int *LB, int *LE
 
             if (ngs < msegc)
             {
-                //удаляем оставшиеся подстроки
+                //remove the remaining substring
                 val = (le[ln-1]-lb[0]+1)*sizeof(int);
-                for(y=0, i=ia+lb[0]; y<segh; y++, i+=w)
+                for(y=0, i=ia+lb[0]; y<segmentHeight; y++, i+=w)
                 {
                     memset(&Im[i], 0, val);
                 }                
@@ -8145,7 +8199,6 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
     // Increase the area of the main text characters
     // if its length is less than 120 pixels on the original image
-
     val = 120*4 - (xe-xb+1);
     if (val > 0)
     {
@@ -8159,7 +8212,6 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
     // Kill all the horizontal segments whose length <= 2
     // (which means that their length is less than the original one of the first pixel)
-
     for (y=0, ib=0; y<h; y++, ib+=w)
     {
         x=0;
@@ -8268,9 +8320,9 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
     }
     NNY = j;
 
-    for(i=0; i<NNY-1; i++)
+    for(i = 0; i < NNY - 1; ++i)
     {
-        for(j=i+1; j<NNY; j++)
+        for(j = i + 1; j < NNY; ++j)
         {
             if(maxY[j] > maxY[i])
             {
@@ -8283,32 +8335,35 @@ int ClearImageLogical(int *Im, int w, int h, int &LH, int &LMAXY, int xb, int xe
 
     // we seek a group of characters whose height varies by no more than dmaxy over all heights
     // (such groups may partially contain the same characters)
-    j=0;
-    k=0;
-    i=0;
+    j = 0;
+    k = 0;
+    i = 0;
     while(i < NNY)
     {
-        if ((maxY[j]-maxY[i]) > dmaxy)
+        if ((maxY[j] - maxY[i]) > dmaxy)
         {
-            NN[k] = i-j;
+            NN[k] = i - j;
             NY[k] = maxY[j];
-            k++;
+            ++k;
             
-            l = j+1;
-            while(maxY[l] == maxY[j]) l++;
+            l = j + 1;
+            while(maxY[l] == maxY[j])
+            {
+                ++l;
+            }
 
             j = i = l;
         }
 
-        i++;
+        ++i;
     }
-    NN[k] = i-j;
+    NN[k] = i - j;
     NY[k] = maxY[j];
-    k++;
+    ++k;
 
     val = NN[0];
     j = 0;
-    for(i=0; i<k; i++)
+    for(i = 0; i < k; ++i)
     {
         if(NN[i] > val)
         {
@@ -9624,7 +9679,7 @@ int CompareTXTImages(int *Im1, int *Im2, int w1, int h1, int w2, int h2, int YB1
     return 0;
 }
 
-void GetImageSize(std::string name, int &w, int &h)
+void GetImageSize(std::string name, int &width, int &height)
 {
     if (!g_wxImageHandlersInitialized)
     {
@@ -9634,13 +9689,13 @@ void GetImageSize(std::string name, int &w, int &h)
 
     wxImage wxIm(name);
 
-    w = wxIm.GetWidth();
-    h = wxIm.GetHeight();
+    width = wxIm.GetWidth();
+    height = wxIm.GetHeight();
 }
 
-void SaveRGBImage(int *Im, std::string name, int w, int h)
+void SaveRGBImage(int *image, std::string name, int width, int height)
 {
-    QImage qImage(w, h, QImage::Format_RGB888);
+    QImage qImage(width, height, QImage::Format_RGB888);
     qImage.fill(Qt::black);
     int i, x, y;
     int bytesPerPixel = qImage.depth() / 8;
@@ -9650,12 +9705,12 @@ void SaveRGBImage(int *Im, std::string name, int w, int h)
     full_name = g_Directory;
     full_name += name;     
 
-    for (y = 0, i = 0; y < h; ++y)
+    for (y = 0, i = 0; y < height; ++y)
     {
         uchar *pixels = qImage.scanLine(y);
-        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
+        for (x = 0; x < (width * bytesPerPixel); x += bytesPerPixel, ++i)
         {
-            color = (uchar*)(Im + i);
+            color = (uchar*)(image + i);
             //Setting red color
             pixels[x] = color[2];
             //Setting green color
@@ -9668,23 +9723,23 @@ void SaveRGBImage(int *Im, std::string name, int w, int h)
     qImage.save(QString::fromStdString(full_name), "JPEG", 100);
 }
 
-void LoadRGBImage(int *Im, std::string name, int &w, int &h)
+void LoadRGBImage(int *image, std::string name, int &width, int &height)
 {
     QImage qImage(QString::fromStdString(name));
     int bytesPerPixel = qImage.depth() / 8;
     int i, x, y;
     uchar *color;
 
-    w = qImage.width();
-    h = qImage.height();
+    width = qImage.width();
+    height = qImage.height();
 
-    for (y = 0, i = 0; y < h; ++y)
+    for (y = 0, i = 0; y < height; ++y)
     {
         uchar* pixels = qImage.scanLine(y);
-        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
+        for (x = 0; x < (width * bytesPerPixel); x += bytesPerPixel, ++i)
         {
-            Im[i] = 0;
-            color = (uchar*)(Im + i);
+            image[i] = 0;
+            color = (uchar*)(image + i);
             //Reading in red color
             color[2] = pixels[x + 2];
             //Reading in green color
@@ -9695,9 +9750,9 @@ void LoadRGBImage(int *Im, std::string name, int &w, int &h)
     }
 }
 
-void SaveImage(int *Im, std::string name, int w, int h, int dpi)
+void SaveImage(int *image, std::string name, int width, int height, int dpi)
 {
-    QImage qImage(w, h, QImage::Format_RGB888);;
+    QImage qImage(width, height, QImage::Format_RGB888);;
     qImage.fill(Qt::black);
     int bytesPerPixel = qImage.depth() / 8;
     int i, x, y;
@@ -9706,12 +9761,12 @@ void SaveImage(int *Im, std::string name, int w, int h, int dpi)
 
     full_name = std::string(g_Directory + name);
 
-    for (y = 0, i = 0; y < h; ++y)
+    for (y = 0, i = 0; y < height; ++y)
     {
         uchar* pixels = qImage.scanLine(y);
-        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
+        for (x = 0; x < (width * bytesPerPixel); x += bytesPerPixel, ++i)
         {
-            color = (uchar*)(Im + i);
+            color = (uchar*)(image + i);
             //Setting red color
             pixels[x] = color[0];
             //Setting green color
@@ -9731,28 +9786,28 @@ void SaveImage(int *Im, std::string name, int w, int h, int dpi)
     qImage.save(QString::fromStdString(full_name), "JPEG", 75);
 }
 
-void LoadImage(int *Im, std::string name, int &w, int &h)
+void LoadImage(int *image, std::string name, int &width, int &height)
 {
     QImage qImage(QString::fromStdString(name));
     int bytesPerPixel = qImage.depth() / 8;
     int i, x, y;
 
-    w = qImage.width();
-    h = qImage.height();
+    width = qImage.width();
+    height = qImage.height();
 
-    for (y = 0, i = 0; y < h; ++y)
+    for (y = 0, i = 0; y < height; ++y)
     {
         uchar *pixels = qImage.scanLine(y);
-        for (x = 0; x < (w * bytesPerPixel); x += bytesPerPixel, ++i)
+        for (x = 0; x < (width * bytesPerPixel); x += bytesPerPixel, ++i)
         {
             //Reading in red color and testing it
             if (pixels[x + 2] != 0)
             {
-                Im[i] = 255;
+                image[i] = 255;
             }
             else
             {
-                Im[i] = 0;
+                image[i] = 0;
             }
         }
     }

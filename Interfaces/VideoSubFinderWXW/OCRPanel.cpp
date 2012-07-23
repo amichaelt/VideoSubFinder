@@ -1351,7 +1351,7 @@ void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
 
     InitIPData((int)m_pMF->m_pVideo->m_Width, (int)m_pMF->m_pVideo->m_Height, 3);
     
-    S = GetAndConvertImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], m_pMF->m_pVideo, w, h);
+    S = GetAndConvertImage(g_RGBImage, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], m_pMF->m_pVideo, w, h);
 
     SavedFiles.clear();
 
@@ -1366,7 +1366,7 @@ void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
 
     Str = Str.Mid(i+1, j-i-1);
 
-    Str += wxString(" -- ") + VideoTimeToStr(CurPos).c_str();
+    Str += wxString(" -- ") + VideoTimeToString(CurPos).c_str();
 
     SavedFiles.push_back(std::string(Str));
 
@@ -1377,7 +1377,7 @@ void COCRPanel::OnBnClickedTest(wxCommandEvent& event)
         m_pMF->ClearDir("TestImages");
     }
 
-    FindTextLines(g_ImRGB, g_ImF[5], g_ImF[3], SavedFiles, w, h);
+    FindTextLines(g_RGBImage, g_ImF[5], g_ImF[3], SavedFiles, w, h);
 }
 
 void COCRPanel::OnBnClickedCreateClearedTextImages(wxCommandEvent& event)
@@ -1501,9 +1501,9 @@ void *ThreadCreateClearedTextImages::Entry()
             InitIPData(w, h, 3);
         }
 
-        LoadRGBImage(g_ImRGB, std::string(Str), w, h);
+        LoadRGBImage(g_RGBImage, std::string(Str), w, h);
 
-        GetTransformedImage(g_ImRGB, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], w, h);
+        GetTransformedImage(g_RGBImage, g_ImF[3], g_ImF[4], g_ImF[5], g_ImF[0], g_ImF[1], g_ImF[2], w, h);
 
         if (g_use_FRD_images == true)
         {
@@ -1522,7 +1522,7 @@ void *ThreadCreateClearedTextImages::Entry()
         sprintf(str, "%.4d", val);
         m_pMF->m_pVideoBox->m_plblTIME->SetLabel(wxString(str) + dStr);
 
-        res = FindTextLines(g_ImRGB, g_ImF[5], g_ImF[3], SavedFiles, w, h);
+        res = FindTextLines(g_RGBImage, g_ImF[5], g_ImF[3], SavedFiles, w, h);
 
         if ( (res == 0) && (g_DontDeleteUnrecognizedImages1 == true) )
         {
